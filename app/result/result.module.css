@@ -1,0 +1,8 @@
+.main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px;}
+.card{max-width:580px;width:100%;background:var(--s);border:1px solid var(--bd);border-radius:20px;padding:44px;text-align:center;}
+.icon{font-size:46px;margin-bottom:14px;}
+.title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px;}
+.score{font-family:'Syne',sans-serif;font-size:90px;font-weight:800;line-height:1;margin:20px 0 6px;letter-spacing:-3px;}
+.scoreLbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--m);margin-bottom:32px;letter-spacing:1px;}
+.summary{background:var(--c);border-radius:12px;padding:22px;text-align:left;font-size:14px;line-height:1.8;margin-bottom:28px;}
+.restartBtn{display:inline-block;padding:13px 28px;background:var(--a);color:#07090d;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;text-decoration:none;}

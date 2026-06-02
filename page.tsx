@@ -1,116 +1,27 @@
 'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import styles from './page.module.css'
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
-const INTERVIEWERS = [
-  {
-    id: 'f',
-    name: 'Sarah Chen',
-    role: 'Sr. HR Manager',
-    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop&crop=face',
-    heygenAvatar: 'Vanessa-invest-20240827',
-    voiceId: '21m00Tcm4TlvDq8ikWAM',
-  },
-  {
-    id: 'm',
-    name: 'Marcus Reid',
-    role: 'Tech Lead',
-    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&h=300&fit=crop&crop=face',
-    heygenAvatar: 'Eric_public_pro2_20230608',
-    voiceId: 'ErXwobaYiN019PkySvjV',
-  },
-]
-
-export default function SetupPage() {
-  const router = useRouter()
-  const [selected, setSelected] = useState('f')
-  const [role, setRole] = useState('')
-  const [company, setCompany] = useState('')
-  const [level, setLevel] = useState('mid')
-  const [itype, setItype] = useState('behavioral')
-  const [persona, setPersona] = useState('formal')
-
-  function start() {
-    const params = new URLSearchParams({
-      iv: selected, role, company, level, itype, persona,
-    })
-    router.push(`/interview?${params}`)
-  }
-
+function ResultContent() {
+  const params = useSearchParams()
+  const score = Number(params.get('score') || 0)
+  const summary = params.get('summary') || ''
+  const color = score>=75?'#00e87a':score>=50?'#00c8f0':'#ff5f5f'
   return (
-    <main className={styles.main}>
-      <div className={styles.inner}>
-        <div className={styles.brand}>
-          <div className={styles.dot}>🎯</div>
-          <span className={styles.brandName}>InterviewAI</span>
-        </div>
-
-        <h1 className={styles.title}>Gerçek mülakat<br /><span>deneyimi.</span></h1>
-        <p className={styles.sub}>
-          HeyGen gerçek insan avatarı ve ElevenLabs sesiyle konuşan yapay zeka mülakatçıyla pratik yap.
-        </p>
-
-        <div className={styles.section}>
-          <label className={styles.sectionLabel}>MÜLAKATÇIYı SEÇ</label>
-          <div className={styles.ivGrid}>
-            {INTERVIEWERS.map(iv => (
-              <div
-                key={iv.id}
-                className={`${styles.ivCard} ${selected === iv.id ? styles.sel : ''}`}
-                onClick={() => setSelected(iv.id)}
-              >
-                {selected === iv.id && <div className={styles.check}>✓</div>}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={styles.ivPhoto} src={iv.photo} alt={iv.name} />
-                <div className={styles.ivName}>{iv.name}</div>
-                <div className={styles.ivRole}>{iv.role}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.grid2}>
-          <div className={styles.field}>
-            <label>POZİSYON</label>
-            <input placeholder="ör. Product Manager" value={role} onChange={e => setRole(e.target.value)} />
-          </div>
-          <div className={styles.field}>
-            <label>ŞİRKET / SEKTÖR</label>
-            <input placeholder="ör. Fintech" value={company} onChange={e => setCompany(e.target.value)} />
-          </div>
-          <div className={styles.field}>
-            <label>SEVİYE</label>
-            <select value={level} onChange={e => setLevel(e.target.value)}>
-              <option value="junior">Junior (0–2 yıl)</option>
-              <option value="mid">Mid-level (2–5 yıl)</option>
-              <option value="senior">Senior (5+ yıl)</option>
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label>MÜLAKAT TÜRÜ</label>
-            <select value={itype} onChange={e => setItype(e.target.value)}>
-              <option value="behavioral">Davranışsal / HR</option>
-              <option value="technical">Teknik</option>
-              <option value="mixed">Karma</option>
-              <option value="case">Vaka Analizi</option>
-            </select>
-          </div>
-          <div className={`${styles.field} ${styles.full}`}>
-            <label>MÜLAKATÇı TARZI</label>
-            <select value={persona} onChange={e => setPersona(e.target.value)}>
-              <option value="friendly">😊 Arkadaşça</option>
-              <option value="formal">👔 Profesyonel</option>
-              <option value="tough">🧊 Zorlu</option>
-              <option value="curious">🔍 Analitik</option>
-            </select>
-          </div>
-        </div>
-
-        <button className={styles.startBtn} onClick={start}>
-          📹 Görüşmeye Başla
-        </button>
+    <main style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'40px 24px',background:'#07090d',color:'#dde6ee',fontFamily:'sans-serif'}}>
+      <div style={{maxWidth:580,width:'100%',background:'#0e1318',border:'1px solid #1b2630',borderRadius:20,padding:44,textAlign:'center'}}>
+        <div style={{fontSize:46,marginBottom:14}}>🎯</div>
+        <h1 style={{fontSize:26,fontWeight:800,marginBottom:8}}>Mülakat Tamamlandı</h1>
+        <div style={{fontSize:90,fontWeight:800,lineHeight:1,color,margin:'20px 0 6px'}}>{score}</div>
+        <div style={{fontSize:11,color:'#455566',marginBottom:32}}>GENEL PERFORMANS</div>
+        <div style={{background:'#0b1219',borderRadius:12,padding:22,textAlign:'left',fontSize:14,lineHeight:1.8,marginBottom:28}}>{summary}</div>
+        <Link href="/" style={{display:'inline-block',padding:'13px 28px',background:'#00c8f0',color:'#07090d',borderRadius:10,fontSize:14,fontWeight:700,textDecoration:'none'}}>Yeniden Başla</Link>
       </div>
     </main>
   )
+}
+
+export default function ResultPage() {
+  return <Suspense><ResultContent /></Suspense>
 }

@@ -8,13 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
-     "@heygen/liveavatar-web-sdk": "^0.0.18",
-  "@heygen/streaming-avatar": "^1.0.11",
-  "@supabase/ssr": "^0.12.0",
-  "@supabase/supabase-js": "^2.108.2",
-  "next": "^14.2.5",
-  "react": "^18",
-  "react-dom": "^18"
+    "@heygen/liveavatar-web-sdk": "^0.0.18",
+    "@heygen/streaming-avatar": "^1.0.11",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",

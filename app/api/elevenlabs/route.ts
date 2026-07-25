@@ -20,7 +20,11 @@ export async function POST(req: NextRequest) {
     }),
   })
 
-  if (!res.ok) return NextResponse.json({ error: 'ElevenLabs error' }, { status: 500 })
+  if (!res.ok) {
+  const err = await res.text()
+  console.log("ElevenLabs error:", err)
+  return NextResponse.json({ error: err }, { status: 500 })
+}
 
   const buffer = await res.arrayBuffer()
   return new NextResponse(buffer, {

@@ -6,10 +6,10 @@ import styles from './interview.module.css'
 const IV: Record<string, any> = {
   f: { name:'Sarah Chen', role:'Sr. HR Manager',
     photo:'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop&crop=face',
-    voice:'21m00Tcm4TlvDq8ikWAM' },
+    voice:'EXAVITQu4vr4xnSDxMaL' },
   m: { name:'Marcus Reid', role:'Tech Lead',
     photo:'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
-    voice:'ErXwobaYiN019PkySvjV' },
+    voice:'pNInz6obpgDQGcFmaJgB' },
 }
 const P: Record<string,string> = {
   friendly:'Samimi mülakatçısın.',
@@ -38,12 +38,20 @@ function InterviewContent() {
   const level = params.get('level') || 'mid'
   const itype = params.get('itype') || 'behavioral'
   const persona = params.get('persona') || 'formal'
+  const language = params.get('language') || 'tr'
+  const languageInstruction =
+  language === 'en'
+    ? 'Respond only in English.'
+    : language === 'de'
+      ? 'Antworte ausschließlich auf Deutsch.'
+      : 'Yalnızca Türkçe yanıt ver.'
   const videoRef = useRef<HTMLVideoElement>(null)
   const camRef = useRef<HTMLVideoElement>(null)
   const answersRef = useRef<{q:string;a:string}[]>([])
   const curQRef = useRef('')
   const qNumRef = useRef(0)
   const camStreamRef = useRef<MediaStream | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [question, setQuestion] = useState('')
   const [qLoading, setQLoading] = useState(false)
   const [answer, setAnswer] = useState('')
@@ -77,7 +85,7 @@ function InterviewContent() {
     return () => { camStreamRef.current?.getTracks().forEach(t=>t.stop()) }
   }, [])
 
-  async function claudeCall(system: string, message: string) {
+ async function claudeCall (system: string, message: string) {
     const res = await fetch('/api/claude', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -86,17 +94,45 @@ function InterviewContent() {
     const data = await res.json()
     return data.text || ''
   }
+async function speakText(text: string) {
+  try {
+    console.log('speakText called:', text)
 
+    const res = await fetch('/api/elevenlabs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voiceId: iv.voice })
+    })
+
+    console.log('elevenlabs response status:', res.status)
+
+    if (!res.ok) return
+
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
+
+    const audio = new Audio(url)
+    audioRef.current = audio
+    audio.play().catch(() => {})
+  } catch (e) {
+    console.warn('TTS error', e)
+  }
+}
   const askQuestion = useCallback(async () => {
     setFeedback(''); setAnswer(''); setAwaitingNext(false)
     setQLoading(true)
     const num = qNumRef.current + 1
     qNumRef.current = num; setQNum(num)
-    const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. SADECE soruyu yaz. Türkçe. Soru ${num}.`
+const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. ${languageInstruction} SADECE soruyu yaz. Soru ${num}.`
     const q = await claudeCall(sys, `${num}. mülakat sorusu`)
     setQuestion(q); setQLoading(false)
     curQRef.current = q
     setSubtitle(q)
+    await speakText(q)
   }, [])
 
   useEffect(() => { askQuestion() }, [])
@@ -104,7 +140,7 @@ function InterviewContent() {
     if (!answer.trim()) return
     answersRef.current.push({q: curQRef.current, a: answer})
     setQLoading(true)
-    const sys = `${persona==='tough'?'Eleştirel':'Yapıcı'} mülakat koçusun. Türkçe. Cevabı değerlendir: güçlü yön (1-2 cümle) + gelişim noktası (1-2 cümle). Maks 5 cümle.`
+    const sys = `${persona === 'tough' ? 'Eleştirel' : 'Yapıcı'} bir mülakat koçusun. ${languageInstruction} Adayın cevabını kısa, yapıcı ve profesyonel şekilde değerlendir.`
     const fb = await claudeCall(sys, `Soru: "${curQRef.current}"\nCevap: "${answer}"`)
     setFeedback(fb); setQLoading(false); setAwaitingNext(true)
     setSubtitle(fb)
@@ -123,7 +159,7 @@ function InterviewContent() {
       return
     }
     const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
-    const sys = `Kıdemli İK uzmanısın. Türkçe. Sadece JSON: {"score":0-100,"summary":"3-4 cümle"}`
+   const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
     const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
     try {
       const p = JSON.parse(raw.replace(/```json|```/g,'').trim())

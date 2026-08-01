@@ -1,0 +1,208 @@
+:root {
+  /* Color tokens: core surfaces */
+  --talentry-color-canvas: #F4F6FB;
+  --talentry-color-surface: #FFFFFF;
+  --talentry-color-surface-lavender: #F7F5FF;
+  --talentry-color-surface-purple-soft: #EEEAFE;
+
+  /* Color tokens: brand */
+  --talentry-color-navy: #17233F;
+  --talentry-color-navy-soft: #223154;
+  --talentry-color-primary: #7657E8;
+  --talentry-color-primary-hover: #6548D7;
+  --talentry-color-primary-pressed: #573BC5;
+  --talentry-color-primary-soft: #EEEAFE;
+  --talentry-color-indigo: #4F46E5;
+
+  /* Color tokens: text */
+  --talentry-color-text: #202944;
+  --talentry-color-text-secondary: #475569;
+  --talentry-color-text-muted: #7A839D;
+  --talentry-color-text-subtle: #94A3B8;
+  --talentry-color-text-on-dark: #FFFFFF;
+  --talentry-color-text-on-primary: #FFFFFF;
+
+  /* Color tokens: borders */
+  --talentry-color-border: #E8E8F2;
+  --talentry-color-border-strong: #D8DCEC;
+  --talentry-color-border-focus: #7657E8;
+
+  /* Color tokens: status */
+  --talentry-color-success: #22C55E;
+  --talentry-color-success-soft: #DCFCE7;
+  --talentry-color-warning: #F59E0B;
+  --talentry-color-warning-soft: #FEF3C7;
+  --talentry-color-danger: #EF4444;
+  --talentry-color-danger-hover: #DC2626;
+  --talentry-color-danger-soft: #FEE2E2;
+  --talentry-color-info: #3B82F6;
+  --talentry-color-info-soft: #DBEAFE;
+
+  /* Color tokens: disabled state */
+  --talentry-color-disabled-bg: #E9ECF4;
+  --talentry-color-disabled-text: #9AA3B8;
+
+  /* Color tokens: interview dark theme preparation */
+  --talentry-color-interview-canvas: #0F172A;
+  --talentry-color-interview-surface: #172033;
+  --talentry-color-interview-text: #F8FAFC;
+  --talentry-color-interview-muted: #CBD5E1;
+
+  /* Typography tokens: font family */
+  --talentry-font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Typography tokens: font weights */
+  --talentry-font-weight-regular: 400;
+  --talentry-font-weight-medium: 500;
+  --talentry-font-weight-semibold: 600;
+  --talentry-font-weight-bold: 700;
+  --talentry-font-weight-extrabold: 800;
+
+  /* Typography tokens: font sizes */
+  --talentry-font-size-xs: 0.75rem;      /* 12px */
+  --talentry-font-size-sm: 0.875rem;     /* 14px */
+  --talentry-font-size-md: 1rem;         /* 16px */
+  --talentry-font-size-lg: 1.125rem;     /* 18px */
+  --talentry-font-size-xl: 1.25rem;      /* 20px */
+  --talentry-font-size-2xl: 1.5rem;      /* 24px */
+  --talentry-font-size-3xl: 1.875rem;    /* 30px */
+  --talentry-font-size-4xl: 2rem;        /* 32px */
+
+  /* Typography tokens: line heights */
+  --talentry-line-height-tight: 1.2;
+  --talentry-line-height-snug: 1.35;
+  --talentry-line-height-normal: 1.5;
+  --talentry-line-height-relaxed: 1.65;
+
+  /* Typography tokens: letter spacing */
+  --talentry-letter-spacing-tight: -0.02em;
+  --talentry-letter-spacing-normal: 0;
+  --talentry-letter-spacing-wide: 0.04em;
+
+  /* Typography tokens: semantic typography */
+  --talentry-font-page-title-size: var(--talentry-font-size-4xl);
+  --talentry-font-section-title-size: var(--talentry-font-size-2xl);
+  --talentry-font-card-title-size: var(--talentry-font-size-lg);
+  --talentry-font-body-size: var(--talentry-font-size-md);
+  --talentry-font-label-size: var(--talentry-font-size-sm);
+  --talentry-font-helper-size: var(--talentry-font-size-xs);
+
+  /* Spacing tokens */
+  --talentry-space-1: 0.25rem;   /* 4px */
+  --talentry-space-2: 0.5rem;    /* 8px */
+  --talentry-space-3: 0.75rem;   /* 12px */
+  --talentry-space-4: 1rem;      /* 16px */
+  --talentry-space-5: 1.25rem;   /* 20px */
+  --talentry-space-6: 1.5rem;    /* 24px */
+  --talentry-space-8: 2rem;      /* 32px */
+  --talentry-space-10: 2.5rem;   /* 40px */
+  --talentry-space-12: 3rem;     /* 48px */
+  --talentry-space-16: 4rem;     /* 64px */
+
+  /* Radius tokens */
+  --talentry-radius-sm: 0.5rem;       /* 8px */
+  --talentry-radius-md: 0.75rem;      /* 12px */
+  --talentry-radius-lg: 1rem;         /* 16px */
+  --talentry-radius-xl: 1.375rem;     /* 22px */
+  --talentry-radius-2xl: 1.75rem;     /* 28px */
+  --talentry-radius-pill: 999px;
+
+  /* Shadow tokens */
+  --talentry-shadow-subtle:
+    0 4px 16px rgba(31, 42, 75, 0.05);
+  --talentry-shadow-card:
+    0 10px 30px rgba(31, 42, 75, 0.07);
+  --talentry-shadow-elevated:
+    0 18px 48px rgba(31, 42, 75, 0.14);
+  --talentry-shadow-primary:
+    0 10px 26px rgba(118, 87, 232, 0.28);
+  --talentry-shadow-focus:
+    0 0 0 4px rgba(118, 87, 232, 0.18);
+
+  /* Motion tokens */
+  --talentry-motion-fast: 180ms;
+  --talentry-motion-standard: 220ms;
+  --talentry-motion-slow: 250ms;
+  --talentry-ease-standard:
+    cubic-bezier(0.2, 0, 0, 1);
+  --talentry-ease-enter:
+    cubic-bezier(0.16, 1, 0.3, 1);
+  --talentry-ease-exit:
+    cubic-bezier(0.4, 0, 1, 1);
+
+  /* Base component tokens: card */
+  --talentry-card-background: var(--talentry-color-surface);
+  --talentry-card-background-lavender:
+    var(--talentry-color-surface-lavender);
+  --talentry-card-border:
+    1px solid var(--talentry-color-border);
+  --talentry-card-radius: var(--talentry-radius-xl);
+  --talentry-card-padding-mobile: var(--talentry-space-5);
+  --talentry-card-padding-desktop: var(--talentry-space-6);
+  --talentry-card-shadow: var(--talentry-shadow-card);
+
+  /* Base component tokens: button dimensions */
+  --talentry-button-height-sm: 2.25rem;   /* 36px */
+  --talentry-button-height-md: 2.75rem;   /* 44px */
+  --talentry-button-height-lg: 3.25rem;   /* 52px */
+  --talentry-button-padding-sm:
+    0 var(--talentry-space-3);
+  --talentry-button-padding-md:
+    0 var(--talentry-space-5);
+  --talentry-button-padding-lg:
+    0 var(--talentry-space-6);
+  --talentry-button-radius: var(--talentry-radius-md);
+  --talentry-button-font-weight:
+    var(--talentry-font-weight-semibold);
+
+  /* Base component tokens: primary button */
+  --talentry-button-primary-bg:
+    var(--talentry-color-primary);
+  --talentry-button-primary-bg-hover:
+    var(--talentry-color-primary-hover);
+  --talentry-button-primary-bg-pressed:
+    var(--talentry-color-primary-pressed);
+  --talentry-button-primary-text:
+    var(--talentry-color-text-on-primary);
+  --talentry-button-primary-shadow:
+    var(--talentry-shadow-primary);
+
+  /* Base component tokens: secondary button */
+  --talentry-button-secondary-bg:
+    var(--talentry-color-surface);
+  --talentry-button-secondary-text:
+    var(--talentry-color-text);
+  --talentry-button-secondary-border:
+    1px solid var(--talentry-color-border-strong);
+
+  /* Base component tokens: ghost button */
+  --talentry-button-ghost-bg: transparent;
+  --talentry-button-ghost-bg-hover:
+    var(--talentry-color-primary-soft);
+  --talentry-button-ghost-text:
+    var(--talentry-color-primary);
+
+  /* Base component tokens: danger button */
+  --talentry-button-danger-bg:
+    var(--talentry-color-danger);
+  --talentry-button-danger-bg-hover:
+    var(--talentry-color-danger-hover);
+  --talentry-button-danger-text:
+    #FFFFFF;
+
+  /* Base component tokens: disabled button */
+  --talentry-button-disabled-bg:
+    var(--talentry-color-disabled-bg);
+  --talentry-button-disabled-text:
+    var(--talentry-color-disabled-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --talentry-motion-fast: 1ms;
+    --talentry-motion-standard: 1ms;
+    --talentry-motion-slow: 1ms;
+  }
+}

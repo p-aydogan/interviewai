@@ -1,0 +1,239 @@
+@import './talentry-tokens.css';
+
+.talentry-card {
+  border: var(--talentry-card-border);
+  border-radius: var(--talentry-card-radius);
+  box-shadow: var(--talentry-card-shadow);
+  color: var(--talentry-color-text);
+  font-family: var(--talentry-font-family);
+}
+
+.talentry-card--default {
+  background: var(--talentry-card-background);
+}
+
+.talentry-card--lavender {
+  background: var(--talentry-card-background-lavender);
+}
+
+.talentry-card--gradient {
+  background: linear-gradient(
+    135deg,
+    var(--talentry-color-surface),
+    var(--talentry-color-primary-soft)
+  );
+}
+
+.talentry-card--padding-none {
+  padding: 0;
+}
+
+.talentry-card--padding-standard {
+  padding: var(--talentry-card-padding-mobile);
+}
+
+.talentry-card--padding-spacious {
+  padding: var(--talentry-space-8);
+}
+
+.talentry-card__header {
+  margin-block-end: var(--talentry-space-4);
+}
+
+.talentry-card__footer {
+  margin-block-start: var(--talentry-space-5);
+}
+
+.talentry-card--interactive {
+  transition:
+    border-color var(--talentry-motion-standard) var(--talentry-ease-standard),
+    box-shadow var(--talentry-motion-standard) var(--talentry-ease-standard),
+    transform var(--talentry-motion-standard) var(--talentry-ease-standard);
+}
+
+.talentry-card--interactive:hover {
+  border-color: var(--talentry-color-border-strong);
+  box-shadow: var(--talentry-shadow-elevated);
+  transform: translateY(calc(var(--talentry-space-1) / -2));
+}
+
+.talentry-card--interactive:focus-visible {
+  border-color: var(--talentry-color-border-focus);
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--talentry-space-2);
+  border: 0;
+  border-radius: var(--talentry-button-radius);
+  font-family: var(--talentry-font-family);
+  font-size: var(--talentry-font-size-sm);
+  font-weight: var(--talentry-button-font-weight);
+  line-height: var(--talentry-line-height-tight);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    border-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    box-shadow var(--talentry-motion-fast) var(--talentry-ease-standard),
+    color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    transform var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-button--small {
+  min-height: var(--talentry-button-height-sm);
+  padding: var(--talentry-button-padding-sm);
+}
+
+.talentry-button--medium {
+  min-height: var(--talentry-button-height-md);
+  padding: var(--talentry-button-padding-md);
+}
+
+.talentry-button--large {
+  min-height: var(--talentry-button-height-lg);
+  padding: var(--talentry-button-padding-lg);
+  font-size: var(--talentry-font-size-md);
+}
+
+.talentry-button--primary {
+  background: var(--talentry-button-primary-bg);
+  box-shadow: var(--talentry-button-primary-shadow);
+  color: var(--talentry-button-primary-text);
+}
+
+.talentry-button--primary:hover:not(:disabled) {
+  background: var(--talentry-button-primary-bg-hover);
+}
+
+.talentry-button--primary:active:not(:disabled) {
+  background: var(--talentry-button-primary-bg-pressed);
+}
+
+.talentry-button--secondary {
+  border: var(--talentry-button-secondary-border);
+  background: var(--talentry-button-secondary-bg);
+  color: var(--talentry-button-secondary-text);
+}
+
+.talentry-button--secondary:hover:not(:disabled) {
+  border-color: var(--talentry-color-border-focus);
+  background: var(--talentry-color-surface-lavender);
+}
+
+.talentry-button--secondary:active:not(:disabled) {
+  background: var(--talentry-color-primary-soft);
+}
+
+.talentry-button--ghost {
+  background: var(--talentry-button-ghost-bg);
+  color: var(--talentry-button-ghost-text);
+}
+
+.talentry-button--ghost:hover:not(:disabled),
+.talentry-button--ghost:active:not(:disabled) {
+  background: var(--talentry-button-ghost-bg-hover);
+}
+
+.talentry-button--danger {
+  background: var(--talentry-button-danger-bg);
+  color: var(--talentry-button-danger-text);
+}
+
+.talentry-button--danger:hover:not(:disabled),
+.talentry-button--danger:active:not(:disabled) {
+  background: var(--talentry-button-danger-bg-hover);
+}
+
+.talentry-button--icon {
+  min-width: var(--talentry-button-height-md);
+  min-height: var(--talentry-button-height-md);
+  padding: 0;
+  border: var(--talentry-button-secondary-border);
+  background: var(--talentry-button-secondary-bg);
+  color: var(--talentry-button-secondary-text);
+}
+
+.talentry-button--icon:hover:not(:disabled) {
+  border-color: var(--talentry-color-border-focus);
+  background: var(--talentry-button-ghost-bg-hover);
+  color: var(--talentry-button-ghost-text);
+}
+
+.talentry-button--icon:active:not(:disabled) {
+  background: var(--talentry-color-primary-soft);
+}
+
+.talentry-button:active:not(:disabled) {
+  transform: translateY(calc(var(--talentry-space-1) / 2));
+}
+
+.talentry-button:focus-visible {
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-button:disabled {
+  background: var(--talentry-button-disabled-bg);
+  box-shadow: none;
+  color: var(--talentry-button-disabled-text);
+  cursor: not-allowed;
+}
+
+.talentry-button--loading .talentry-button__content {
+  visibility: hidden;
+}
+
+.talentry-button__spinner {
+  position: absolute;
+  width: var(--talentry-space-4);
+  height: var(--talentry-space-4);
+  border: calc(var(--talentry-space-1) / 2) solid currentColor;
+  border-right-color: var(--talentry-button-ghost-bg);
+  border-radius: var(--talentry-radius-pill);
+  animation: talentry-button-spin var(--talentry-motion-slow) linear infinite;
+}
+
+.talentry-button__loading-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes talentry-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .talentry-card--interactive:hover,
+  .talentry-button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .talentry-button__spinner {
+    animation: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .talentry-card--padding-standard {
+    padding: var(--talentry-card-padding-desktop);
+  }
+
+  .talentry-card--padding-spacious {
+    padding: var(--talentry-space-10);
+  }
+}

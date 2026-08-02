@@ -1,0 +1,393 @@
+@import './talentry-tokens.css';
+
+.talentry-auth-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--talentry-space-4);
+  overflow-x: hidden;
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--talentry-color-indigo) 6%, transparent),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      color-mix(in srgb, var(--talentry-color-primary) 4%, transparent),
+      transparent 46%
+    ),
+    color-mix(
+      in srgb,
+      var(--talentry-color-interview-canvas) 85%,
+      var(--talentry-color-interview-surface)
+    );
+  color: var(--talentry-color-interview-text);
+  font-family: var(--talentry-font-family);
+}
+
+.talentry-auth-shell__topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  max-width: calc(var(--talentry-space-16) * 18);
+  margin: 0 auto;
+}
+
+.talentry-auth-shell__back-slot {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.talentry-auth-shell__back-control {
+  display: grid;
+  width: var(--talentry-button-height-md);
+  height: var(--talentry-button-height-md);
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 14%, transparent);
+  border-radius: var(--talentry-radius-md);
+  background: color-mix(in srgb, var(--talentry-color-interview-surface) 82%, transparent);
+  color: var(--talentry-color-interview-text);
+  font-size: var(--talentry-font-size-lg);
+  text-decoration: none;
+  transition:
+    border-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    background-color var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-auth-shell__back-control:hover {
+  border-color: var(--talentry-color-primary);
+  background: var(--talentry-color-navy-soft);
+}
+
+.talentry-auth-shell__back-control:focus-visible,
+.talentry-auth-password-toggle:focus-visible {
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-auth-shell__brand {
+  display: inline-flex;
+  min-height: var(--talentry-button-height-md);
+  align-items: center;
+  gap: var(--talentry-space-2);
+  color: var(--talentry-color-interview-text);
+  font-size: var(--talentry-font-size-lg);
+  font-weight: var(--talentry-font-weight-bold);
+  letter-spacing: var(--talentry-letter-spacing-tight);
+}
+
+.talentry-auth-shell__brand-mark {
+  display: grid;
+  width: var(--talentry-space-8);
+  height: var(--talentry-space-8);
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 12%, transparent);
+  border-radius: var(--talentry-radius-md);
+  background: linear-gradient(
+    135deg,
+    var(--talentry-color-primary),
+    var(--talentry-color-indigo)
+  );
+  box-shadow: var(--talentry-shadow-primary);
+  color: var(--talentry-color-white);
+  font-size: var(--talentry-font-size-sm);
+  font-weight: var(--talentry-font-weight-bold);
+}
+
+.talentry-auth-shell__languages {
+  display: flex;
+  min-height: var(--talentry-button-height-md);
+  align-items: center;
+  justify-self: end;
+  gap: var(--talentry-space-2);
+  padding-inline: var(--talentry-space-3);
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 12%, transparent);
+  border-radius: var(--talentry-radius-pill);
+  background: color-mix(in srgb, var(--talentry-color-interview-surface) 72%, transparent);
+  color: var(--talentry-color-interview-muted);
+  font-size: var(--talentry-font-size-xs);
+  font-weight: var(--talentry-font-weight-medium);
+}
+
+.talentry-auth-shell__content {
+  display: grid;
+  width: min(100%, calc(var(--talentry-space-16) * 7));
+  margin: var(--talentry-space-6) auto var(--talentry-space-8);
+}
+
+.talentry-create-account.talentry-card {
+  width: 100%;
+  padding: var(--talentry-space-6);
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 16%, transparent);
+  background: color-mix(in srgb, var(--talentry-color-interview-surface) 94%, transparent);
+  box-shadow: var(--talentry-shadow-elevated), var(--talentry-shadow-card);
+  color: var(--talentry-color-interview-text);
+}
+
+.talentry-create-account .talentry-section-header {
+  color: var(--talentry-color-interview-text);
+}
+
+.talentry-create-account .talentry-section-header__content {
+  gap: var(--talentry-space-2);
+}
+
+.talentry-create-account .talentry-section-header__title {
+  color: var(--talentry-color-interview-text);
+  font-size: var(--talentry-font-size-3xl);
+}
+
+.talentry-create-account .talentry-section-header__description {
+  color: color-mix(
+    in srgb,
+    var(--talentry-color-interview-muted) 88%,
+    var(--talentry-color-interview-text)
+  );
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-create-account__form {
+  display: grid;
+  gap: var(--talentry-space-4);
+  margin-block-start: var(--talentry-space-6);
+}
+
+.talentry-auth-field {
+  display: grid;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-auth-field label {
+  color: var(--talentry-color-interview-text);
+  font-size: var(--talentry-font-label-size);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-auth-input-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.talentry-auth-input-control__icon {
+  position: absolute;
+  inset-inline-start: var(--talentry-space-4);
+  z-index: 1;
+  color: var(--talentry-color-interview-muted);
+  pointer-events: none;
+}
+
+.talentry-auth-input-control__icon svg,
+.talentry-auth-password-toggle svg {
+  width: var(--talentry-space-5);
+  height: var(--talentry-space-5);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.75;
+}
+
+.talentry-auth-field input {
+  width: 100%;
+  min-height: var(--talentry-button-height-md);
+  padding-inline: var(--talentry-space-10) var(--talentry-space-4);
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 14%, transparent);
+  border-radius: var(--talentry-radius-md);
+  background: color-mix(in srgb, var(--talentry-color-navy) 72%, transparent);
+  color: var(--talentry-color-interview-text);
+  caret-color: var(--talentry-color-primary);
+  font: inherit;
+  transition:
+    border-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    box-shadow var(--talentry-motion-fast) var(--talentry-ease-standard),
+    background-color var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-auth-field input::placeholder {
+  color: var(--talentry-color-interview-muted);
+}
+
+.talentry-auth-field input:hover {
+  border-color: color-mix(in srgb, var(--talentry-color-primary) 52%, transparent);
+}
+
+.talentry-auth-field input:focus-visible {
+  border-color: var(--talentry-color-border-focus);
+  background: var(--talentry-color-navy);
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-auth-field input[aria-invalid='true'] {
+  border-color: var(--talentry-color-danger);
+}
+
+.talentry-auth-password-control input {
+  padding-inline-end: var(--talentry-space-16);
+}
+
+.talentry-auth-password-toggle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: grid;
+  min-width: var(--talentry-button-height-lg);
+  min-height: var(--talentry-button-height-md);
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--talentry-color-interview-muted);
+  font-family: var(--talentry-font-family);
+  font-size: var(--talentry-font-size-lg);
+  line-height: 0;
+  cursor: pointer;
+  transition: color var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-auth-password-toggle:hover {
+  color: var(--talentry-color-interview-text);
+}
+
+.talentry-auth-password-toggle svg {
+  display: block;
+}
+
+.talentry-auth-field__message {
+  display: flex;
+  align-items: center;
+  gap: var(--talentry-space-2);
+  margin: 0;
+  font-size: var(--talentry-font-helper-size);
+  line-height: var(--talentry-line-height-normal);
+}
+
+.talentry-auth-field__message--error {
+  color: var(--talentry-color-danger);
+}
+
+.talentry-auth-field__message--success {
+  color: var(--talentry-color-success);
+}
+
+.talentry-password-requirements {
+  padding: var(--talentry-space-2) var(--talentry-space-3);
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 8%, transparent);
+  border-radius: var(--talentry-radius-md);
+  background: color-mix(in srgb, var(--talentry-color-navy) 58%, transparent);
+}
+
+.talentry-password-requirements__title {
+  margin: 0 0 var(--talentry-space-1);
+  color: var(--talentry-color-interview-muted);
+  font-size: var(--talentry-font-size-xs);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-password-requirements__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  gap: var(--talentry-space-1) var(--talentry-space-3);
+  color: var(--talentry-color-interview-muted);
+  font-size: var(--talentry-font-size-xs);
+  line-height: var(--talentry-line-height-normal);
+  list-style: none;
+}
+
+.talentry-password-requirements__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-password-requirements__list strong {
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-password-requirement--met {
+  color: var(--talentry-color-success);
+}
+
+.talentry-create-account__submit.talentry-button {
+  width: 100%;
+  margin-block-start: var(--talentry-space-2);
+  background: linear-gradient(
+    135deg,
+    var(--talentry-color-primary),
+    var(--talentry-color-indigo)
+  );
+  box-shadow: var(--talentry-shadow-primary);
+}
+
+.talentry-create-account__submit .talentry-button__content {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.talentry-create-account__submit .talentry-button__content > :last-child {
+  display: inline-grid;
+  min-width: var(--talentry-space-6);
+  place-items: center;
+  transform: translateX(var(--talentry-space-1));
+}
+
+.talentry-create-account__submit.talentry-button:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    var(--talentry-color-primary-hover),
+    var(--talentry-color-indigo)
+  );
+}
+
+.talentry-create-account__submit.talentry-button:active:not(:disabled) {
+  background: var(--talentry-color-primary-pressed);
+}
+
+.talentry-create-account__submit.talentry-button:disabled {
+  background: var(--talentry-color-navy-soft);
+  box-shadow: none;
+  color: var(--talentry-color-interview-muted);
+  opacity: 1;
+}
+
+@media (min-width: 48rem) {
+  .talentry-auth-shell {
+    padding: var(--talentry-space-6);
+  }
+
+  .talentry-auth-shell__content {
+    margin-block-start: var(--talentry-space-8);
+  }
+}
+
+@media (max-width: 36rem) {
+  .talentry-auth-shell__brand {
+    justify-self: start;
+  }
+
+  .talentry-auth-shell__languages span:nth-child(2) {
+    display: none;
+  }
+
+  .talentry-create-account.talentry-card {
+    padding: var(--talentry-space-5);
+  }
+
+  .talentry-password-requirements__list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .talentry-auth-shell__back-control,
+  .talentry-auth-field input,
+  .talentry-auth-password-toggle {
+    transition: none;
+  }
+}

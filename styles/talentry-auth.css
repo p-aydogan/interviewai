@@ -1,28 +1,69 @@
 @import './talentry-tokens.css';
 
 .talentry-auth-shell {
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   min-height: 100dvh;
   padding: var(--talentry-space-4);
-  overflow-x: hidden;
-  background:
-    radial-gradient(
-      circle at top right,
-      color-mix(in srgb, var(--talentry-color-indigo) 6%, transparent),
-      transparent 42%
-    ),
-    radial-gradient(
-      circle at bottom left,
-      color-mix(in srgb, var(--talentry-color-primary) 4%, transparent),
-      transparent 46%
-    ),
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
     color-mix(
       in srgb,
-      var(--talentry-color-interview-canvas) 85%,
-      var(--talentry-color-interview-surface)
-    );
+      var(--talentry-color-navy-soft) 24%,
+      var(--talentry-color-navy)
+    ) 0%,
+    var(--talentry-color-navy) 48%,
+    color-mix(
+      in srgb,
+      var(--talentry-color-interview-canvas) 14%,
+      var(--talentry-color-navy)
+    ) 100%
+  );
   color: var(--talentry-color-interview-text);
   font-family: var(--talentry-font-family);
+}
+
+.talentry-auth-shell::before,
+.talentry-auth-shell::after {
+  position: absolute;
+  z-index: 0;
+  width: 125vw;
+  height: 115vh;
+  content: '';
+  pointer-events: none;
+  filter: blur(calc(var(--talentry-space-16) * 1.5));
+}
+
+.talentry-auth-shell::before {
+  inset-block-start: -55vh;
+  inset-inline-end: -45vw;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--talentry-color-primary) 36%, transparent) 0%,
+    color-mix(in srgb, var(--talentry-color-primary) 18%, transparent) 34%,
+    transparent 70%
+  );
+  transform: rotate(-10deg) scale(1.06);
+}
+
+.talentry-auth-shell::after {
+  inset-block-end: -55vh;
+  inset-inline-start: -45vw;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--talentry-color-indigo) 32%, transparent) 0%,
+    color-mix(in srgb, var(--talentry-color-indigo) 16%, transparent) 36%,
+    transparent 72%
+  );
+  transform: rotate(10deg) scale(1.08);
+}
+
+.talentry-auth-shell__topbar,
+.talentry-auth-shell__content {
+  position: relative;
+  z-index: 1;
 }
 
 .talentry-auth-shell__topbar {
@@ -106,14 +147,60 @@
   border-radius: var(--talentry-radius-pill);
   background: color-mix(in srgb, var(--talentry-color-interview-surface) 72%, transparent);
   color: var(--talentry-color-interview-muted);
+  font-family: inherit;
   font-size: var(--talentry-font-size-xs);
   font-weight: var(--talentry-font-weight-medium);
+  cursor: pointer;
+  list-style: none;
+}
+
+.talentry-auth-shell__language-menu {
+  position: relative;
+  justify-self: end;
+}
+
+.talentry-auth-shell__language-options {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: calc(100% + var(--talentry-space-2));
+  inset-inline-end: 0;
+  display: grid;
+  min-width: calc(var(--talentry-space-16) * 2);
+  padding: var(--talentry-space-2);
+  gap: var(--talentry-space-1);
+  border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 12%, transparent);
+  border-radius: var(--talentry-radius-md);
+  background: var(--talentry-color-interview-surface);
+  box-shadow: var(--talentry-shadow-elevated);
+  color: var(--talentry-color-interview-muted);
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-auth-shell__language-options button {
+  width: 100%;
+  padding: var(--talentry-space-2) var(--talentry-space-3);
+  border: 0;
+  border-radius: var(--talentry-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
 }
 
 .talentry-auth-shell__content {
   display: grid;
   width: min(100%, calc(var(--talentry-space-16) * 7));
   margin: var(--talentry-space-6) auto var(--talentry-space-8);
+}
+
+.talentry-auth-shell--centered {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.talentry-auth-shell__content--centered {
+  align-self: center;
+  margin-block: var(--talentry-space-6);
 }
 
 .talentry-create-account.talentry-card {
@@ -151,6 +238,50 @@
   display: grid;
   gap: var(--talentry-space-4);
   margin-block-start: var(--talentry-space-6);
+}
+
+.talentry-otp-recipient {
+  display: grid;
+  gap: var(--talentry-space-1);
+}
+
+.talentry-otp-recipient strong {
+  color: var(--talentry-color-interview-text);
+  font-size: var(--talentry-font-size-base);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-otp-inputs {
+  justify-content: center;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-auth-field .talentry-otp-input {
+  width: calc(var(--talentry-space-12) + var(--talentry-space-2));
+  min-height: var(--talentry-button-height-lg);
+  flex: 0 1 auto;
+  padding: 0;
+  text-align: center;
+  font-size: var(--talentry-font-size-xl);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-otp-resend {
+  min-height: var(--talentry-button-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--talentry-color-interview-muted);
+  text-align: center;
+}
+
+.talentry-otp-resend .talentry-password-requirements__title {
+  margin: 0;
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-otp-submit.talentry-button {
+  width: 100%;
 }
 
 .talentry-auth-field {
@@ -373,6 +504,10 @@
 
   .talentry-auth-shell__languages span:nth-child(2) {
     display: none;
+  }
+
+  .talentry-auth-field .talentry-otp-input {
+    width: calc((100% - (var(--talentry-space-2) * 5)) / 6);
   }
 
   .talentry-create-account.talentry-card {

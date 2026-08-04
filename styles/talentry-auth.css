@@ -497,6 +497,23 @@
   }
 }
 
+@media (min-width: 48rem) and (max-width: 64rem) {
+  .talentry-auth-shell--centered {
+    box-sizing: border-box;
+    min-height: calc(100vh - var(--talentry-space-4));
+    min-height: calc(100dvh - var(--talentry-space-4));
+  }
+
+  .talentry-auth-shell__content--centered {
+    margin-block: var(--talentry-space-6);
+  }
+
+  .talentry-forgot-password-card.talentry-card,
+  .talentry-otp-card.talentry-card {
+    box-sizing: border-box;
+  }
+}
+
 @media (max-width: 36rem) {
   .talentry-auth-shell__brand {
     justify-self: start;
@@ -512,6 +529,10 @@
 
   .talentry-create-account.talentry-card {
     padding: var(--talentry-space-5);
+  }
+
+  .talentry-forgot-password-card.talentry-card {
+    box-sizing: border-box;
   }
 
   .talentry-password-requirements__list {

@@ -9,6 +9,16 @@ import PasswordRequirements, { getPasswordRequirementStatus } from './PasswordRe
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+function PasswordVisibilityIcon({ visible }: { visible: boolean }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" />
+      <circle cx="12" cy="12" r="2.5" />
+      {visible && <path d="m4 4 16 16" />}
+    </svg>
+  )
+}
+
 export default function CreateAccountForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -88,11 +98,7 @@ export default function CreateAccountForm() {
               onClick={() => setShowPassword((visible) => !visible)}
               type="button"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z" />
-                <circle cx="12" cy="12" r="2.5" />
-                {showPassword && <path d="m4 4 16 16" />}
-              </svg>
+              <PasswordVisibilityIcon visible={showPassword} />
             </button>
           </div>
           <PasswordRequirements password={password} />
@@ -123,11 +129,7 @@ export default function CreateAccountForm() {
               onClick={() => setShowConfirmPassword((visible) => !visible)}
               type="button"
             >
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9 6-9-6-9-6Z" />
-                <circle cx="12" cy="12" r="2.5" />
-                {showConfirmPassword && <path d="m4 4 16 16" />}
-              </svg>
+              <PasswordVisibilityIcon visible={showConfirmPassword} />
             </button>
           </div>
           {confirmPassword && (

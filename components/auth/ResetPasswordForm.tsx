@@ -8,16 +8,15 @@ import { SectionHeader, TalentryButton, TalentryCard } from '@/components/ui'
 import PasswordRequirements, { getPasswordRequirementStatus } from './PasswordRequirements'
 import PasswordVisibilityIcon from './PasswordVisibilityIcon'
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const CONFIRM_PASSWORD_ERROR_ID = 'reset-password-confirm-error'
 
-export default function CreateAccountForm() {
-  const [email, setEmail] = useState('')
+export default function ResetPasswordForm() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [confirmPasswordWasBlurred, setConfirmPasswordWasBlurred] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const emailIsValid = EMAIL_PATTERN.test(email)
   const passwordStatus = getPasswordRequirementStatus(password)
   const passwordIsValid =
     passwordStatus.minimumLength &&
@@ -25,47 +24,27 @@ export default function CreateAccountForm() {
     passwordStatus.lowercase &&
     passwordStatus.number
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
-  const formIsValid = emailIsValid && passwordIsValid && passwordsMatch
+  const showMismatch =
+    confirmPasswordWasBlurred && confirmPassword.length > 0 && !passwordsMatch
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
   }
 
   return (
-    <TalentryCard className="talentry-create-account" padding="standard">
+    <TalentryCard
+      className="talentry-create-account talentry-forgot-password-card"
+      padding="standard"
+    >
       <SectionHeader
-        description="Create your account to continue."
+        description="Choose a strong password for your account."
         headingAs="h1"
-        title="Create Account"
+        title="Create a new password"
       />
 
       <form className="talentry-create-account__form" noValidate onSubmit={handleSubmit}>
         <div className="talentry-auth-field">
-          <label htmlFor="register-email">Email</label>
-          <div className="talentry-auth-input-control">
-            <span className="talentry-auth-input-control__icon" aria-hidden="true">@</span>
-            <input
-              aria-describedby={email && !emailIsValid ? 'register-email-error' : undefined}
-              aria-invalid={email.length > 0 && !emailIsValid}
-              autoComplete="email"
-              id="register-email"
-              inputMode="email"
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@example.com"
-              required
-              type="email"
-              value={email}
-            />
-          </div>
-          {email && !emailIsValid && (
-            <p className="talentry-auth-field__message talentry-auth-field__message--error" id="register-email-error">
-              <span aria-hidden="true">!</span> Enter a valid email address.
-            </p>
-          )}
-        </div>
-
-        <div className="talentry-auth-field">
-          <label htmlFor="register-password">Password</label>
+          <label htmlFor="reset-password-new">New password</label>
           <div className="talentry-auth-input-control talentry-auth-password-control">
             <span className="talentry-auth-input-control__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -75,16 +54,15 @@ export default function CreateAccountForm() {
             </span>
             <input
               aria-describedby="password-requirements"
-              aria-invalid={password.length > 0 && !passwordIsValid}
               autoComplete="new-password"
-              id="register-password"
+              id="reset-password-new"
               onChange={(event) => setPassword(event.target.value)}
               required
               type={showPassword ? 'text' : 'password'}
               value={password}
             />
             <button
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? 'Hide new password' : 'Show new password'}
               className="talentry-auth-password-toggle"
               onClick={() => setShowPassword((visible) => !visible)}
               type="button"
@@ -96,7 +74,7 @@ export default function CreateAccountForm() {
         </div>
 
         <div className="talentry-auth-field">
-          <label htmlFor="register-confirm-password">Confirm Password</label>
+          <label htmlFor="reset-password-confirm">Confirm new password</label>
           <div className="talentry-auth-input-control talentry-auth-password-control">
             <span className="talentry-auth-input-control__icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -105,17 +83,22 @@ export default function CreateAccountForm() {
               </svg>
             </span>
             <input
-              aria-describedby={confirmPassword ? 'confirm-password-message' : undefined}
-              aria-invalid={confirmPassword.length > 0 && !passwordsMatch}
+              aria-describedby={showMismatch ? CONFIRM_PASSWORD_ERROR_ID : undefined}
+              aria-invalid={showMismatch || undefined}
               autoComplete="new-password"
-              id="register-confirm-password"
+              id="reset-password-confirm"
+              onBlur={() => setConfirmPasswordWasBlurred(true)}
               onChange={(event) => setConfirmPassword(event.target.value)}
               required
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
             />
             <button
-              aria-label={showConfirmPassword ? 'Hide confirmed password' : 'Show confirmed password'}
+              aria-label={
+                showConfirmPassword
+                  ? 'Hide confirmed new password'
+                  : 'Show confirmed new password'
+              }
               className="talentry-auth-password-toggle"
               onClick={() => setShowConfirmPassword((visible) => !visible)}
               type="button"
@@ -123,28 +106,23 @@ export default function CreateAccountForm() {
               <PasswordVisibilityIcon visible={showConfirmPassword} />
             </button>
           </div>
-          {confirmPassword && (
+          {showMismatch && (
             <p
-              className={`talentry-auth-field__message ${
-                passwordsMatch
-                  ? 'talentry-auth-field__message--success'
-                  : 'talentry-auth-field__message--error'
-              }`}
-              id="confirm-password-message"
+              className="talentry-auth-field__message talentry-auth-field__message--error"
+              id={CONFIRM_PASSWORD_ERROR_ID}
             >
-              <span aria-hidden="true">{passwordsMatch ? '✓' : '!'}</span>{' '}
-              {passwordsMatch ? 'Passwords match.' : 'Passwords do not match.'}
+              <span aria-hidden="true">!</span> Passwords do not match.
             </p>
           )}
         </div>
 
         <TalentryButton
           className="talentry-create-account__submit"
-          disabled={!formIsValid}
+          disabled={!passwordIsValid || !passwordsMatch}
           size="large"
           type="submit"
         >
-          <span>Create Account</span>
+          <span>Reset password</span>
           <span aria-hidden="true">→</span>
         </TalentryButton>
       </form>

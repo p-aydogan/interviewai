@@ -359,6 +359,14 @@
   padding-inline-end: var(--talentry-space-16);
 }
 
+.talentry-auth-password-control input::-ms-reveal {
+  display: none;
+}
+
+.talentry-auth-password-control input::-ms-clear {
+  display: none;
+}
+
 .talentry-auth-password-toggle {
   position: absolute;
   inset-block: 0;
@@ -528,6 +536,7 @@
   }
 
   .talentry-create-account.talentry-card {
+    box-sizing: border-box;
     padding: var(--talentry-space-5);
   }
 

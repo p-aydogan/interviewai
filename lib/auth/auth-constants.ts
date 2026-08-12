@@ -18,5 +18,6 @@ export const AUTH_ROUTES = {
   forgotPassword: '/forgot-password',
   verifyCode: '/verify-code',
   resetPassword: '/reset-password',
+  resetPasswordSuccess: '/reset-password/success',
   dashboard: '/dashboard',
 } as const

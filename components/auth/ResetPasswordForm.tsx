@@ -9,8 +9,19 @@ import PasswordRequirements, { getPasswordRequirementStatus } from './PasswordRe
 import PasswordVisibilityIcon from './PasswordVisibilityIcon'
 
 const CONFIRM_PASSWORD_ERROR_ID = 'reset-password-confirm-error'
+const PROVIDER_ERROR_ID = 'reset-password-provider-error'
 
-export default function ResetPasswordForm() {
+export interface ResetPasswordFormProps {
+  onPasswordSubmit: (password: string) => Promise<void>
+  providerError?: string
+  providerPending: boolean
+}
+
+export default function ResetPasswordForm({
+  onPasswordSubmit,
+  providerError,
+  providerPending,
+}: ResetPasswordFormProps) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [confirmPasswordWasBlurred, setConfirmPasswordWasBlurred] = useState(false)
@@ -27,8 +38,12 @@ export default function ResetPasswordForm() {
   const showMismatch =
     confirmPasswordWasBlurred && confirmPassword.length > 0 && !passwordsMatch
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!passwordIsValid || !passwordsMatch || providerPending) return
+
+    await onPasswordSubmit(password)
   }
 
   return (
@@ -42,7 +57,12 @@ export default function ResetPasswordForm() {
         title="Create a new password"
       />
 
-      <form className="talentry-create-account__form" noValidate onSubmit={handleSubmit}>
+      <form
+        aria-describedby={providerError ? PROVIDER_ERROR_ID : undefined}
+        className="talentry-create-account__form"
+        noValidate
+        onSubmit={handleSubmit}
+      >
         <div className="talentry-auth-field">
           <label htmlFor="reset-password-new">New password</label>
           <div className="talentry-auth-input-control talentry-auth-password-control">
@@ -55,6 +75,7 @@ export default function ResetPasswordForm() {
             <input
               aria-describedby="password-requirements"
               autoComplete="new-password"
+              disabled={providerPending}
               id="reset-password-new"
               onChange={(event) => setPassword(event.target.value)}
               required
@@ -64,6 +85,7 @@ export default function ResetPasswordForm() {
             <button
               aria-label={showPassword ? 'Hide new password' : 'Show new password'}
               className="talentry-auth-password-toggle"
+              disabled={providerPending}
               onClick={() => setShowPassword((visible) => !visible)}
               type="button"
             >
@@ -86,6 +108,7 @@ export default function ResetPasswordForm() {
               aria-describedby={showMismatch ? CONFIRM_PASSWORD_ERROR_ID : undefined}
               aria-invalid={showMismatch || undefined}
               autoComplete="new-password"
+              disabled={providerPending}
               id="reset-password-confirm"
               onBlur={() => setConfirmPasswordWasBlurred(true)}
               onChange={(event) => setConfirmPassword(event.target.value)}
@@ -100,6 +123,7 @@ export default function ResetPasswordForm() {
                   : 'Show confirmed new password'
               }
               className="talentry-auth-password-toggle"
+              disabled={providerPending}
               onClick={() => setShowConfirmPassword((visible) => !visible)}
               type="button"
             >
@@ -116,9 +140,21 @@ export default function ResetPasswordForm() {
           )}
         </div>
 
+        {providerError && (
+          <p
+            className="talentry-auth-field__message talentry-auth-field__message--error"
+            id={PROVIDER_ERROR_ID}
+            role="alert"
+          >
+            <span aria-hidden="true">!</span> {providerError}
+          </p>
+        )}
+
         <TalentryButton
           className="talentry-create-account__submit"
-          disabled={!passwordIsValid || !passwordsMatch}
+          disabled={!passwordIsValid || !passwordsMatch || providerPending}
+          loading={providerPending}
+          loadingText="Updating password..."
           size="large"
           type="submit"
         >

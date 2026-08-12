@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           margin: 0;
           background: var(--dashboard-canvas);
           color: var(--dashboard-text);
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
         }
 
         .talentry-dashboard-layout {
@@ -103,12 +103,29 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           color: #b8c2da;
           font-size: 14px;
           font-weight: 600;
+          text-decoration: none;
           white-space: nowrap;
         }
 
-        .talentry-dashboard-nav-item:first-child {
+        .talentry-dashboard-nav-item--available {
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .talentry-dashboard-nav-item--available:hover,
+        .talentry-dashboard-nav-item--active {
           color: #ffffff;
           background: rgba(255, 255, 255, 0.11);
+        }
+
+        .talentry-dashboard-nav-item--available:focus-visible {
+          outline: 2px solid #9a83f3;
+          outline-offset: 2px;
+        }
+
+        .talentry-dashboard-nav-item--unavailable {
+          cursor: default;
+          opacity: 0.72;
         }
 
         .talentry-dashboard-nav-icon {

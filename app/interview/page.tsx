@@ -163,6 +163,31 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
     try {
       const p = JSON.parse(raw.replace(/```json|```/g,'').trim())
+      try {
+        const saveRes = await fetch('/api/interviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            interviewerKey: ivKey,
+            role,
+            company,
+            level,
+            interviewType: itype,
+            persona,
+            language,
+            answers,
+            score: p.score,
+            summary: p.summary,
+            durationSeconds: secs,
+          }),
+        })
+
+        if (!saveRes.ok) {
+          console.error('Interview save failed:', await saveRes.text())
+        }
+      } catch (saveError) {
+        console.error('Interview save request failed:', saveError)
+      }
       router.push(`/result?score=${p.score}&summary=${encodeURIComponent(p.summary)}`)
     } catch {
       router.push('/result?score=0&summary=Değerlendirme+alınamadı')

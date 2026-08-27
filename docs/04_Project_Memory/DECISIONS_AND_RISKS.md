@@ -717,3 +717,85 @@ Remote:
 Current next stage:
 
 Talentry Sign In
+
+---
+
+## DECISION-014 — Stage-Level Commit and Push Protocol
+
+Status: APPROVED
+
+Decision:
+
+Do not commit or push after every micro-step.
+
+Normal development protocol:
+
+1. Start a stage from a clean working tree.
+2. Perform the stage in small controlled steps.
+3. Do not create commits for each small edit.
+4. Complete static and runtime validation for the whole stage.
+5. Update only the Project Memory files affected by that stage.
+6. Review the complete diff.
+7. Create one stage-level commit containing the approved code and relevant Project Memory updates.
+8. Push once.
+9. Confirm local/remote synchronization.
+10. Confirm the working tree is clean before starting the next stage.
+
+Project Memory update behavior:
+
+- `CURRENT_STATE.md` is refreshed to represent the latest project state.
+- `STAGE_LOG.md` is append-only.
+- `DEFERRED_FIXES.md` is changed only when a deferred item is added, resolved, or materially updated.
+- `DECISIONS_AND_RISKS.md` is changed only when a decision or risk is added or materially changed.
+
+Exceptions:
+
+A separate checkpoint commit may be created when:
+
+- a major recovery point is needed,
+- a high-risk architectural change is about to begin,
+- governance/project-memory infrastructure changes,
+- work must stop before a stage can safely be completed.
+
+Rationale:
+
+This preserves clean recovery points without creating unnecessary commit/push overhead.
+
+---
+
+## RISK-009 — Supabase Project Pause / Availability
+
+Severity: HIGH
+
+Status: ACTIVE MONITORING RISK
+
+Observation:
+
+A recent Supabase email warned that the project may be paused.
+
+Potential impact:
+
+If the Supabase project becomes paused or unavailable:
+
+- Sign In runtime tests may fail.
+- Dashboard authentication may appear broken.
+- Password recovery may fail.
+- Interview persistence may fail.
+- Database read/write tests may fail.
+- Provider/network failures could be incorrectly diagnosed as application-code regressions.
+
+Required operating rule:
+
+Before Supabase-dependent runtime validation, confirm that the Supabase project is active and reachable.
+
+If authentication or persistence suddenly fails without a related code change:
+
+1. check Supabase project status first,
+2. distinguish provider/project availability from application regression,
+3. do not modify working code until infrastructure status is confirmed.
+
+Do not treat a Supabase pause as evidence that the authenticated ownership or persistence implementation is broken.
+
+Current known safe code checkpoint before the next auth migration stage:
+
+`9f0594b docs(project): add project memory checkpoint`

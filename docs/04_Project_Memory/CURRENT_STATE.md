@@ -457,3 +457,56 @@ Before starting every new stage:
 10. Only then begin the next stage.
 
 Do not silently carry temporary fixes into later stages.
+
+---
+
+## 13. Updated Stage / Commit Protocol
+
+Normal rule:
+
+Do not commit or push after every micro-step.
+
+For each development stage:
+
+1. start from a clean working tree
+2. work in small controlled steps
+3. complete static and runtime validation
+4. update only the relevant Project Memory files
+5. review the complete stage diff
+6. create one stage-level commit
+7. push once
+8. confirm local/remote synchronization
+9. confirm clean working tree
+10. begin the next stage
+
+Separate checkpoint commits are reserved for major recovery points, high-risk changes, governance changes, or interrupted stages that require a safe recovery point.
+
+Project Memory behavior:
+
+- `CURRENT_STATE.md` → refresh/update current state
+- `STAGE_LOG.md` → append-only
+- `DEFERRED_FIXES.md` → update only when deferred items change
+- `DECISIONS_AND_RISKS.md` → update only when decisions or risks change
+
+---
+
+## 14. Supabase Availability Warning
+
+Operational risk noted:
+
+A recent Supabase email warned that the project may be paused.
+
+Before any Supabase-dependent runtime validation, confirm that the Supabase project is active and reachable.
+
+This applies especially to:
+
+- Sign In
+- Dashboard authentication
+- password recovery
+- registration / OTP
+- interview persistence
+- future interview read/history APIs
+
+If auth or persistence suddenly fails without a corresponding code change, check Supabase project availability before modifying application code.
+
+Do not diagnose a paused/unavailable Supabase project as an application regression.

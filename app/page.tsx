@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase'
 import styles from './page.module.css'
 
 const INTERVIEWERS = [
@@ -15,7 +16,7 @@ const UI: Record<string, Record<string, string>> = {
     selectIV: 'MÜLAKATÇIYı SEÇ', position: 'POZİSYON', company: 'ŞİRKET / SEKTÖR',
     level: 'SEVİYE', itype: 'MÜLAKAT TÜRÜ', persona: 'MÜLAKATÇı TARZI',
     lang: 'DİL', cv: 'CV YÜKLE (opsiyonel)', cvLoaded: 'CV yüklendi',
-    start: '📹 Görüşmeye Başla', login: 'Giriş Yap', signup: 'Kayıt Ol',
+    start: '📹 Görüşmeye Başla', login: 'Giriş Yap', signup: 'Kayıt Ol', logout: 'Çıkış Yap',
     remove: 'Kaldır',
     junior: 'Junior (0–2 yıl)', mid: 'Mid-level (2–5 yıl)', senior: 'Senior (5+ yıl)',
     behavioral: 'Davranışsal / HR', technical: 'Teknik', mixed: 'Karma', case: 'Vaka Analizi',
@@ -27,7 +28,7 @@ const UI: Record<string, Record<string, string>> = {
     selectIV: 'SELECT INTERVIEWER', position: 'POSITION', company: 'COMPANY / INDUSTRY',
     level: 'LEVEL', itype: 'INTERVIEW TYPE', persona: 'INTERVIEWER STYLE',
     lang: 'LANGUAGE', cv: 'UPLOAD CV (optional)', cvLoaded: 'CV uploaded',
-    start: '📹 Start Interview', login: 'Log In', signup: 'Sign Up',
+    start: '📹 Start Interview', login: 'Log In', signup: 'Sign Up', logout: 'Log Out',
     remove: 'Remove',
     junior: 'Junior (0–2 yrs)', mid: 'Mid-level (2–5 yrs)', senior: 'Senior (5+ yrs)',
     behavioral: 'Behavioral / HR', technical: 'Technical', mixed: 'Mixed', case: 'Case Study',
@@ -39,7 +40,7 @@ const UI: Record<string, Record<string, string>> = {
     selectIV: 'INTERVIEWER WÄHLEN', position: 'POSITION', company: 'UNTERNEHMEN / BRANCHE',
     level: 'NIVEAU', itype: 'GESPRÄCHSTYP', persona: 'INTERVIEWER-STIL',
     lang: 'SPRACHE', cv: 'LEBENSLAUF HOCHLADEN (optional)', cvLoaded: 'Lebenslauf hochgeladen',
-    start: '📹 Gespräch starten', login: 'Anmelden', signup: 'Registrieren',
+    start: '📹 Gespräch starten', login: 'Anmelden', signup: 'Registrieren', logout: 'Abmelden',
     remove: 'Entfernen',
     junior: 'Junior (0–2 J.)', mid: 'Mid-level (2–5 J.)', senior: 'Senior (5+ J.)',
     behavioral: 'Verhalten / HR', technical: 'Technisch', mixed: 'Gemischt', case: 'Fallstudie',
@@ -48,6 +49,8 @@ const UI: Record<string, Record<string, string>> = {
 }
 export default function SetupPage() {
   const router = useRouter()
+  const [supabase] = useState(() => createClient())
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [uiLang, setUiLang] = useState('tr')
   const [selected, setSelected] = useState('f')
   const [role, setRole] = useState('')
@@ -64,13 +67,31 @@ export default function SetupPage() {
     const savedCv = localStorage.getItem('interviewai_cv')
     if (savedCv) setCvText(savedCv)
   }, [])
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsAuthenticated(!!user)
+    })
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session?.user)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase])
   function changeUiLang(lang: string) {
     setUiLang(lang)
     setLanguage(lang)
     localStorage.setItem('interviewai_uilang', lang)
   }
+  async function handleSignOut() {
+    const { error } = await supabase.auth.signOut()
 
+    if (error) {
+      console.error('Sign out failed:', error)
+    }
+  }
   async function handleCV(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -111,8 +132,20 @@ export default function SetupPage() {
                 </button>
               ))}
             </div>
-            <a href="/login" style={{padding:'7px 14px',background:'transparent',border:'1px solid #1b2630',borderRadius:8,color:'#455566',fontSize:13,textDecoration:'none'}}>{t.login}</a>
-            <a href="/login" style={{padding:'7px 14px',background:'#00c8f0',border:'none',borderRadius:8,color:'#07090d',fontSize:13,fontWeight:700,textDecoration:'none'}}>{t.signup}</a>
+            {isAuthenticated ? (
+              <button
+                onClick={handleSignOut}
+                style={{padding:'7px 14px',background:'transparent',border:'1px solid #1b2630',borderRadius:8,color:'#455566',fontSize:13,cursor:'pointer'}}
+              >
+                {t.logout}
+              </button>
+            ) : (
+              <>
+                <a href="/login" style={{padding:'7px 14px',background:'transparent',border:'1px solid #1b2630',borderRadius:8,color:'#455566',fontSize:13,textDecoration:'none'}}>{t.login}</a>
+                <a href="/login" style={{padding:'7px 14px',background:'#00c8f0',border:'none',borderRadius:8,color:'#07090d',fontSize:13,fontWeight:700,textDecoration:'none'}}>{t.signup}</a>
+              </>
+            )}
+
           </div>
         </div>
 

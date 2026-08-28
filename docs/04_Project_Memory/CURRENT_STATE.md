@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 ## 1. Canonical Repository State
 
@@ -14,15 +14,17 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-eb38e15 feat(dashboard): protect dashboard route
+bd26ab7 feat(auth): implement Talentry sign in
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `eb38e15`.
+Local and remote feature branches were synchronized after commit `bd26ab7`.
 
-The working tree was clean immediately after the push of `eb38e15`.
+The working tree was clean immediately after the push of `bd26ab7`.
+
+The completed Register / OTP provider integration is currently uncommitted and awaiting its authorized stage-level commit.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -39,8 +41,8 @@ Implemented:
 - Talentry design tokens
 - Talentry UI Kit
 - AuthShell
-- Create Account UI
-- OTP Verification UI
+- Provider-integrated Create Account flow
+- Provider-integrated OTP Verification flow
 - Forgot Password UI
 - Reset Password flow
 - Password Reset Success UI
@@ -218,29 +220,31 @@ This is the latest safe recovery checkpoint.
 
 ## 7. Current Auth Journey Status
 
-### Working legacy authentication
+### Talentry Sign In
 
-`/login`
-
-Legacy login currently performs real:
+`/login` performs real:
 
 `supabase.auth.signInWithPassword({ email, password })`
 
-Legacy page also contains older signup / OTP / reset modes.
-
-These old modes must NOT be copied into the new Talentry Sign In component.
+and redirects successful authentication to `/dashboard`.
 
 ### New Talentry auth screens
 
 `/register`
 - polished Talentry UI
-- currently local validation only
-- Supabase signup not yet connected
+- real Supabase `auth.signUp`
+- normalized email and password submission
+- provider-safe loading and error states
+- pending verification email handoff through tab-scoped `sessionStorage`
+- successful signup navigation to `/verify`
 
 `/verify`
 - polished OTP UI
-- currently local only
-- no provider verification yet
+- actual pending recipient email display
+- six-digit verification through `verifyOtp` with `type: 'email'`
+- signup confirmation resend through `resend` with `type: 'signup'`
+- successful authenticated continuation to `/dashboard`
+- safe missing-handoff and provider-error handling
 
 `/forgot-password`
 - real Supabase reset email integration
@@ -289,72 +293,66 @@ and use:
 
 ## 9. Deferred Fixes — Do Not Forget
 
-These are known issues intentionally NOT fixed yet.
+This section summarizes resolved auth migration items and remaining deferred work.
 
 ### Authentication
 
-1. `AUTH_ROUTES.verifyCode` currently points to:
+1. `AUTH_ROUTES.verifyCode` now resolves to `/verify`. RESOLVED.
 
-`/verify-code`
+2. `/register` now performs real Supabase signup. RESOLVED.
 
-but the implemented route is:
+3. `/verify` now performs real OTP verification and signup resend. RESOLVED.
 
-`/verify`
+4. AuthShell Language selector remains presentation-only. DEFERRED.
 
-Resolve during Register / OTP integration stage.
+5. Talentry Sign In is implemented and runtime-validated. RESOLVED.
 
-2. `/register` is still local-only.
-
-3. `/verify` is still local-only.
-
-4. AuthShell Language selector is presentation-only.
-
-5. New Talentry Sign In does not exist yet.
+6. Supabase authentication emails were observed in Junk/Spam during acceptance testing. Production deliverability review is DEFERRED.
 
 ### Dashboard
 
-6. Dashboard cards are title-only placeholders.
+7. Dashboard cards are title-only placeholders.
 
-7. Quick Actions is not connected to Interview Setup.
+8. Quick Actions is not connected to Interview Setup.
 
-8. Recent Interviews / My Interviews have no data source.
+9. Recent Interviews / My Interviews have no data source.
 
-9. Jobs, AI Coach, Reports, Saved Roles, Settings, Premium remain unavailable placeholders.
+10. Jobs, AI Coach, Reports, Saved Roles, Settings, Premium remain unavailable placeholders.
 
-10. Dashboard currently has its own embedded CSS / palette instead of full Talentry token convergence.
+11. Dashboard currently has its own embedded CSS / palette instead of full Talentry token convergence.
 
 Do not refactor this during Sign In migration.
 
 ### Interview
 
-11. Legacy Interview UI remains active.
+12. Legacy Interview UI remains active.
 
-12. Interview business/runtime logic must be preserved during future migration.
+13. Interview business/runtime logic must be preserved during future migration.
 
-13. `getUserMedia` currently requests:
+14. `getUserMedia` currently requests:
 
 `video: true`
 `audio: false`
 
 while microphone toggle logic searches for audio tracks.
 
-14. `connected` state is never set to true.
+15. `connected` state is never set to true.
 
-15. `videoRef` is currently unused.
+16. `videoRef` is currently unused.
 
-16. HeyGen integration is incomplete / inactive in the current live interview component.
+17. HeyGen integration is incomplete / inactive in the current live interview component.
 
-17. Generated audio object URLs are not currently revoked.
+18. Generated audio object URLs are not currently revoked.
 
-18. CV is placed into setup navigation / local storage flow but is not consumed by the interview engine.
+19. CV is placed into setup navigation / local storage flow but is not consumed by the interview engine.
 
-19. Interview answer count behavior should later be reviewed; one runtime test produced four persisted answers while UI reached question 5.
+20. Interview answer count behavior should later be reviewed; one runtime test produced four persisted answers while UI reached question 5.
 
 Do not allow this issue to derail the current auth migration.
 
 ### Result / History
 
-20. `/result` currently trusts:
+21. `/result` currently trusts:
 
 `score`
 and
@@ -362,13 +360,13 @@ and
 
 from URL query parameters.
 
-21. The UUID returned by interview persistence is currently ignored.
+22. The UUID returned by interview persistence is currently ignored.
 
-22. Result is not owner-authorized or database-backed.
+23. Result is not owner-authorized or database-backed.
 
-23. No authenticated interview GET/read API exists yet.
+24. No authenticated interview GET/read API exists yet.
 
-24. No Interview History implementation exists yet.
+25. No Interview History implementation exists yet.
 
 Before migrating Result to an ID-based route, create and validate an owner-authorized read boundary.
 
@@ -403,41 +401,21 @@ Do not redesign and refactor the engine at the same time unless a specific stage
 
 ---
 
-## 11. Next Stage
+## 11. Register / OTP Provider Integration
 
-Next planned stage:
+Status:
 
-Talentry Sign In
+COMPLETED — PASS
 
-Target permanent flow:
+Permanent flow:
 
-`/login`
-→ real Supabase `signInWithPassword`
+`/register`
+→ Supabase `auth.signUp`
+→ `/verify`
+→ Supabase six-digit email OTP verification
 → `/dashboard`
-→ server-side dashboard authentication guard
 
-Planned new component:
-
-`components/auth/SignInForm.tsx`
-
-Existing legacy `/login` business behavior will be used only as the functional reference.
-
-Legacy inline styling and multi-mode auth UI will not be migrated.
-
-After Sign In passes:
-
-- TypeScript
-- diff checks
-- unauthenticated behavior
-- valid login
-- invalid credentials
-- password visibility
-- Register link
-- Forgot Password link
-- successful `/dashboard` redirect
-- session persistence
-
-the stage must be documented, committed, pushed, and Project Memory updated before continuing.
+Real provider acceptance, invalid-code handling, resend, authenticated Dashboard redirect, and session persistence all passed.
 
 ---
 
@@ -657,26 +635,20 @@ No login-route guard or broader auth middleware was introduced during the Sign I
 
 This is not currently blocking the authenticated product flow and should not be opportunistically expanded during unrelated stages.
 
+### Authentication email deliverability
+
+During Register / OTP acceptance testing, Talentry/Supabase authentication emails were observed in the recipient's Junk/Spam folder.
+
+This is a production-readiness and email-deliverability risk, not a functional Register / OTP failure.
+
+No SMTP, domain, sender, or provider configuration change was attempted during this stage.
+
 ---
 
 ## 17. Current Stage Position
 
-Talentry Sign In:
+Register / OTP provider integration:
 
 COMPLETED — PASS
 
-Next planned migration stage:
-
-Register / OTP provider integration
-
-Known prerequisite issue for that stage:
-
-`AUTH_ROUTES.verifyCode = /verify-code`
-
-while the implemented route is:
-
-`/verify`
-
-Resolve this only as part of the Register / OTP stage.
-
-The Sign In implementation and stage-close Project Memory updates have passed final review. The canonical completion commit is recorded in Git history rather than duplicated here.
+The implementation and real provider acceptance test passed. Project Memory closure is complete; the stage remains uncommitted until explicit commit authorization.

@@ -1,23 +1,32 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import { SectionHeader, TalentryButton, TalentryCard } from '@/components/ui'
+import { AUTH_ROUTES, PENDING_VERIFICATION_EMAIL_KEY } from '@/lib/auth/auth-constants'
+import { createClient } from '@/lib/supabase'
 
 import PasswordRequirements, { getPasswordRequirementStatus } from './PasswordRequirements'
 import PasswordVisibilityIcon from './PasswordVisibilityIcon'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const PROVIDER_ERROR_ID = 'register-provider-error'
 
 export default function CreateAccountForm() {
+  const router = useRouter()
+  const [supabase] = useState(createClient)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isPending, setIsPending] = useState(false)
+  const [providerError, setProviderError] = useState('')
 
-  const emailIsValid = EMAIL_PATTERN.test(email)
+  const trimmedEmail = email.trim()
+  const emailIsValid = EMAIL_PATTERN.test(trimmedEmail)
   const passwordStatus = getPasswordRequirementStatus(password)
   const passwordIsValid =
     passwordStatus.minimumLength &&
@@ -27,8 +36,32 @@ export default function CreateAccountForm() {
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword
   const formIsValid = emailIsValid && passwordIsValid && passwordsMatch
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!formIsValid || isPending) return
+
+    setIsPending(true)
+    setProviderError('')
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: trimmedEmail,
+        password,
+      })
+
+      if (error || !data.user) {
+        setProviderError("We couldn't create your account. Please check your details and try again.")
+        setIsPending(false)
+        return
+      }
+
+      window.sessionStorage.setItem(PENDING_VERIFICATION_EMAIL_KEY, trimmedEmail)
+      router.push(AUTH_ROUTES.verifyCode)
+    } catch {
+      setProviderError("We couldn't reach the registration service. Please try again.")
+      setIsPending(false)
+    }
   }
 
   return (
@@ -39,7 +72,12 @@ export default function CreateAccountForm() {
         title="Create Account"
       />
 
-      <form className="talentry-create-account__form" noValidate onSubmit={handleSubmit}>
+      <form
+        aria-describedby={providerError ? PROVIDER_ERROR_ID : undefined}
+        className="talentry-create-account__form"
+        noValidate
+        onSubmit={handleSubmit}
+      >
         <div className="talentry-auth-field">
           <label htmlFor="register-email">Email</label>
           <div className="talentry-auth-input-control">
@@ -138,9 +176,21 @@ export default function CreateAccountForm() {
           )}
         </div>
 
+        {providerError && (
+          <p
+            className="talentry-auth-field__message talentry-auth-field__message--error"
+            id={PROVIDER_ERROR_ID}
+            role="alert"
+          >
+            <span aria-hidden="true">!</span> {providerError}
+          </p>
+        )}
+
         <TalentryButton
           className="talentry-create-account__submit"
-          disabled={!formIsValid}
+          disabled={!formIsValid || isPending}
+          loading={isPending}
+          loadingText="Creating account..."
           size="large"
           type="submit"
         >

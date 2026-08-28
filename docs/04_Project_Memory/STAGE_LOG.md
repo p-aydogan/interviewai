@@ -614,3 +614,94 @@ This is not currently blocking the authenticated product flow.
 PASS
 
 Project Memory update and final stage diff review completed successfully before the canonical stage commit.
+
+---
+
+## Stage — Register / OTP Provider Integration
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-08-28
+
+Purpose:
+
+Connect the existing Talentry Create Account and OTP Verification screens to the real Supabase signup and email-confirmation flow.
+
+### Implementation
+
+- `/register` calls `supabase.auth.signUp` with normalized email and password.
+- Existing email, password-standard, and password-confirmation validation remains active.
+- Loading states, duplicate-submit guards, and provider-safe errors are present.
+- Successful signup stores the pending verification email in tab-scoped `sessionStorage`.
+- Successful signup navigates to the canonical `/verify` route.
+- `AUTH_ROUTES.verifyCode` now resolves to `/verify`.
+- No `/verify-code` route was created.
+- `/verify` reads and safely validates the pending email handoff.
+- Six-digit OTP verification calls `verifyOtp` with `type: 'email'`.
+- Signup confirmation resend calls `resend` with `type: 'signup'`.
+- Successful verification requires a returned user and session, clears the pending email, and redirects to `/dashboard`.
+- Missing verification-email handoff is handled safely.
+
+### Supabase configuration
+
+Supabase project health was manually confirmed Healthy before provider testing.
+
+The Confirm signup email template was manually updated in Supabase to include `{{ .Token }}` for six-digit manual OTP entry.
+
+`{{ .ConfirmationURL }}` was retained as a fallback confirmation link.
+
+No other remote Supabase configuration was changed during this stage.
+
+### Compatibility validation
+
+Installed stack:
+
+- `@supabase/supabase-js` 2.110.8
+- transitive `@supabase/auth-js` 2.110.8
+- `@supabase/ssr` 0.12.3
+
+The installed API types, documentation, and implementation confirmed:
+
+- `verifyOtp` with `type: 'email'` is preferred for signup email OTP verification.
+- deprecated `verifyOtp` type `signup` is not used.
+- `resend` with `type: 'signup'` remains the correct signup-confirmation resend API.
+
+### Static validation
+
+`npx tsc --noEmit --incremental false`
+
+PASS
+
+`git diff --check`
+
+PASS
+
+Only known Windows LF → CRLF informational warnings were observed.
+
+### Real provider acceptance
+
+- Fresh account creation from `/register` → PASS
+- Navigation to `/verify` → PASS
+- Correct recipient email displayed → PASS
+- Real six-digit OTP email received → PASS
+- Invalid OTP rejected with safe visible error → PASS
+- Provider resend succeeded and cooldown restarted → PASS
+- Valid OTP verification → PASS
+- Authenticated redirect to `/dashboard` → PASS
+- Dashboard refresh retained the authenticated session → PASS
+
+### Operational observation
+
+Authentication emails were observed in the recipient's Junk/Spam folder.
+
+This is recorded as a deferred production email-deliverability risk, not a Register / OTP functional failure.
+
+No SMTP, sender-domain, or provider configuration change was attempted.
+
+### Stage result
+
+PASS
+
+Project Memory was updated after real provider and session acceptance passed. No stage commit or push was performed during this documentation step.

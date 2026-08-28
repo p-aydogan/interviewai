@@ -12,11 +12,13 @@ export const PASSWORD_MIN_LENGTH = 8
 
 export const OTP_LENGTH = 6
 
+export const PENDING_VERIFICATION_EMAIL_KEY = 'talentry.pending-verification-email'
+
 export const AUTH_ROUTES = {
   login: '/login',
   register: '/register',
   forgotPassword: '/forgot-password',
-  verifyCode: '/verify-code',
+  verifyCode: '/verify',
   resetPassword: '/reset-password',
   resetPasswordSuccess: '/reset-password/success',
   dashboard: '/dashboard',

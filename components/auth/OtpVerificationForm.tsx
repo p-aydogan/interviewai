@@ -1,17 +1,41 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, ClipboardEvent, FormEvent, KeyboardEvent } from 'react'
 
 import { TalentryButton, TalentryCard, SectionHeader } from '@/components/ui'
-import { OTP_LENGTH } from '@/lib/auth/auth-constants'
+import {
+  AUTH_ROUTES,
+  OTP_LENGTH,
+  PENDING_VERIFICATION_EMAIL_KEY,
+} from '@/lib/auth/auth-constants'
+import { createClient } from '@/lib/supabase'
 
 const COUNTDOWN_SECONDS = 119
+const PROVIDER_ERROR_ID = 'otp-provider-error'
 
 export default function OtpVerificationForm() {
+  const router = useRouter()
+  const [supabase] = useState(createClient)
   const [digits, setDigits] = useState(() => Array<string>(OTP_LENGTH).fill(''))
   const [secondsRemaining, setSecondsRemaining] = useState(COUNTDOWN_SECONDS)
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [providerError, setProviderError] = useState('')
   const inputRefs = useRef<Array<HTMLInputElement | null>>([])
+
+  useEffect(() => {
+    const pendingEmail = window.sessionStorage.getItem(PENDING_VERIFICATION_EMAIL_KEY) ?? ''
+    setVerificationEmail(pendingEmail)
+
+    if (!pendingEmail) {
+      setProviderError(
+        "We couldn't identify the email address to verify. Return to Create Account and try again.",
+      )
+    }
+  }, [])
 
   useEffect(() => {
     if (secondsRemaining === 0) return
@@ -30,6 +54,7 @@ export default function OtpVerificationForm() {
 
   function updateDigit(index: number, value: string) {
     const digit = value.replace(/\D/g, '').slice(-1)
+    if (verificationEmail) setProviderError('')
     setDigits((current) => current.map((item, position) => (position === index ? digit : item)))
 
     if (digit && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus()
@@ -51,14 +76,62 @@ export default function OtpVerificationForm() {
     inputRefs.current[Math.min(pastedDigits.length, OTP_LENGTH) - 1]?.focus()
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    if (!codeIsComplete || !verificationEmail || isVerifying || isResending) return
+
+    setIsVerifying(true)
+    setProviderError('')
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: verificationEmail,
+        token: digits.join(''),
+        type: 'email',
+      })
+
+      if (error || !data.user || !data.session) {
+        setProviderError(
+          'That verification code is invalid or has expired. Request a new code and try again.',
+        )
+        setIsVerifying(false)
+        return
+      }
+
+      window.sessionStorage.removeItem(PENDING_VERIFICATION_EMAIL_KEY)
+      router.replace(AUTH_ROUTES.dashboard)
+    } catch {
+      setProviderError("We couldn't verify the code. Please try again.")
+      setIsVerifying(false)
+    }
   }
 
-  function handleResend() {
-    setDigits(Array<string>(OTP_LENGTH).fill(''))
-    setSecondsRemaining(COUNTDOWN_SECONDS)
-    inputRefs.current[0]?.focus()
+  async function handleResend() {
+    if (!verificationEmail || isResending || isVerifying) return
+
+    setIsResending(true)
+    setProviderError('')
+
+    try {
+      const { error } = await supabase.auth.resend({
+        email: verificationEmail,
+        type: 'signup',
+      })
+
+      if (error) {
+        setProviderError("We couldn't resend the verification code. Please try again.")
+        return
+      }
+
+      setDigits(Array<string>(OTP_LENGTH).fill(''))
+      setSecondsRemaining(COUNTDOWN_SECONDS)
+      inputRefs.current[0]?.focus()
+    } catch {
+      setProviderError("We couldn't resend the verification code. Please try again.")
+    } finally {
+      setIsResending(false)
+    }
   }
 
   return (
@@ -67,17 +140,28 @@ export default function OtpVerificationForm() {
         description={
           <span className="talentry-otp-recipient">
             <span>We&apos;ve sent a 6-digit verification code to</span>
-            <strong>p***@example.com</strong>
+            <strong>
+              {verificationEmail === null
+                ? 'Preparing verification details...'
+                : verificationEmail || 'Email address unavailable'}
+            </strong>
           </span>
         }
         headingAs="h1"
         title="Verify your email"
       />
 
-      <form className="talentry-create-account__form" noValidate onSubmit={handleSubmit}>
+      <form
+        aria-describedby={providerError ? PROVIDER_ERROR_ID : undefined}
+        className="talentry-create-account__form"
+        noValidate
+        onSubmit={handleSubmit}
+      >
         <div className="talentry-auth-field">
           <label id="otp-code-label">Verification code</label>
           <div
+            aria-describedby={providerError ? PROVIDER_ERROR_ID : undefined}
+            aria-invalid={providerError ? true : undefined}
             aria-labelledby="otp-code-label"
             className="talentry-auth-input-control talentry-otp-inputs"
             role="group"
@@ -106,11 +190,28 @@ export default function OtpVerificationForm() {
           </div>
         </div>
 
+        {providerError && (
+          <p
+            className="talentry-auth-field__message talentry-auth-field__message--error"
+            id={PROVIDER_ERROR_ID}
+            role="alert"
+          >
+            <span aria-hidden="true">!</span> {providerError}
+          </p>
+        )}
+
         <div className="talentry-otp-resend" aria-live="polite">
           {secondsRemaining > 0 ? (
             <p className="talentry-password-requirements__title">Resend in {countdown}</p>
           ) : (
-            <TalentryButton onClick={handleResend} size="small" variant="ghost">
+            <TalentryButton
+              disabled={!verificationEmail || isVerifying}
+              loading={isResending}
+              loadingText="Resending code..."
+              onClick={handleResend}
+              size="small"
+              variant="ghost"
+            >
               Resend code
             </TalentryButton>
           )}
@@ -118,7 +219,9 @@ export default function OtpVerificationForm() {
 
         <TalentryButton
           className="talentry-otp-submit"
-          disabled={!codeIsComplete}
+          disabled={!codeIsComplete || !verificationEmail || isResending || isVerifying}
+          loading={isVerifying}
+          loadingText="Verifying..."
           size="large"
           type="submit"
         >

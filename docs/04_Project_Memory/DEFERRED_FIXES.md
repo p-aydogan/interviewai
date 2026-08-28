@@ -13,9 +13,9 @@ Rules:
 
 ## AUTH-001 — Verify Route Mismatch
 
-Status: DEFERRED
+Status: RESOLVED
 
-Current state:
+Previous state:
 
 `AUTH_ROUTES.verifyCode`
 
@@ -27,65 +27,63 @@ but the implemented route is:
 
 `/verify`
 
-Planned stage:
+Resolved stage:
 
 Register / OTP integration
 
-Risk:
+Resolution:
 
-Broken navigation once registration and OTP become functional.
+`AUTH_ROUTES.verifyCode` now resolves to `/verify`.
 
-Do not fix during Talentry Sign In unless the Sign In implementation directly depends on it.
+No `/verify-code` route was created.
+
+Runtime validation: PASS
 
 ---
 
 ## AUTH-002 — Register Is Local-Only
 
-Status: DEFERRED
+Status: RESOLVED
 
-Current state:
+Previous state:
 
 `/register`
 
 has Talentry UI and local validation but does not create a Supabase account.
 
-Planned stage:
+Resolved stage:
 
 Registration integration
 
-Required later:
+Resolution:
 
-- real `supabase.auth.signUp`
-- provider errors
-- loading state
-- post-submit OTP journey
-- validation parity
-- no duplicate account flow
+`/register` now performs real `supabase.auth.signUp`, preserves validation, prevents duplicate submits, presents loading/provider errors, hands off the pending email, and navigates to `/verify`.
+
+Runtime validation: PASS
 
 ---
 
 ## AUTH-003 — OTP Verification Is Local-Only
 
-Status: DEFERRED
+Status: RESOLVED
 
-Current state:
+Previous state:
 
 `/verify`
 
 contains OTP UI behavior but does not verify a real provider code.
 
-Planned stage:
+Resolved stage:
 
 Registration / OTP integration
 
-Required later:
+Resolution:
 
-- recipient email state
-- real OTP verification
-- resend behavior
-- expired code behavior
-- invalid code behavior
-- successful authenticated continuation
+`/verify` now displays the pending signup email, verifies the six-digit code with `type: 'email'`, resends signup confirmation with `type: 'signup'`, establishes the authenticated session, and continues to `/dashboard`.
+
+Invalid codes, resend failures, missing email handoff, loading, and duplicate submits are handled safely.
+
+Runtime validation: PASS
 
 ---
 
@@ -593,11 +591,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 # Current Priority
 
-Next active stage:
+Current stage closure:
 
-Talentry Sign In
+Register / OTP provider integration — COMPLETED / PASS
 
-Do not work on deferred items above unless the current stage explicitly requires one of them.
+Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
 
 ## AUTH-006 — Authenticated User Can Still Open `/login`
@@ -635,3 +633,30 @@ Planned stage:
 Auth route hardening / authenticated navigation cleanup
 
 Future validation should determine the preferred permanent behavior for authenticated access to `/login`, such as redirecting to `/dashboard`, without creating redirect loops or weakening existing session behavior.
+
+---
+
+## AUTH-007 — Authentication Email Deliverability
+
+Status: DEFERRED — PRODUCTION READINESS
+
+Observed:
+
+2026-08-28
+
+Current state:
+
+Talentry/Supabase authentication emails were received successfully during real Register / OTP acceptance testing, but they landed in the recipient's Junk/Spam folder.
+
+Current impact:
+
+Register, resend, OTP verification, authenticated redirect, and session persistence all passed. This is not a functional auth-flow failure.
+
+Deferred review:
+
+- sender identity and domain reputation
+- SPF, DKIM, and DMARC alignment
+- production SMTP/provider configuration
+- email content and deliverability monitoring
+
+Do not change SMTP, domain, sender, or provider configuration opportunistically during unrelated stages.

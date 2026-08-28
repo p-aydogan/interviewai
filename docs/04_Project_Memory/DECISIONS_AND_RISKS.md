@@ -42,7 +42,7 @@ Rollback reference:
 
 Latest safe remote checkpoint as of 2026-08-27:
 
-`eb38e15 feat(dashboard): protect dashboard route`
+`bd26ab7 feat(auth): implement Talentry sign in`
 
 ---
 
@@ -749,9 +749,9 @@ Remote:
 
 `origin/feature/auth-foundation`
 
-Current next stage:
+Current uncommitted completed stage:
 
-Talentry Sign In
+Register / OTP provider integration — PASS
 
 ---
 
@@ -935,3 +935,81 @@ If a `.next` runtime mismatch occurs:
 3. stop conflicting Next.js processes,
 4. regenerate the cache,
 5. do not restore source files unless Git evidence shows a source regression.
+
+---
+
+## DECISION-016 — Register / OTP Uses Canonical Supabase Email OTP Semantics
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-08-28
+
+Decision:
+
+The permanent registration flow is:
+
+`/register`
+→ `supabase.auth.signUp`
+→ tab-scoped pending-email handoff
+→ `/verify`
+→ `verifyOtp` with `type: 'email'`
+→ authenticated session
+→ `/dashboard`
+
+Signup confirmation resend uses:
+
+`supabase.auth.resend({ type: 'signup', email })`
+
+Rationale:
+
+The exact installed `@supabase/supabase-js` and `@supabase/auth-js` 2.110.8 stack documents `email` as the preferred verification type for signup email OTPs. The same installed stack documents `signup` as the correct resend type.
+
+Email handoff decision:
+
+Use tab-scoped `sessionStorage` rather than query parameters or a global auth store. This keeps the email out of the URL and limits its lifetime and scope.
+
+Provider acceptance:
+
+- fresh signup → PASS
+- real six-digit email OTP → PASS
+- invalid OTP rejection → PASS
+- signup resend → PASS
+- valid OTP and session → PASS
+- Dashboard redirect and refresh persistence → PASS
+
+Remote configuration:
+
+The Confirm signup template was manually updated to include `{{ .Token }}` and retain `{{ .ConfirmationURL }}` as a fallback. No other remote Supabase configuration was changed.
+
+---
+
+## RISK-011 — Authentication Email Deliverability
+
+Severity: MEDIUM-HIGH
+
+Status: DEFERRED — PRODUCTION READINESS
+
+Observation:
+
+Talentry/Supabase authentication emails were delivered during acceptance testing but appeared in the recipient's Junk/Spam folder.
+
+Impact:
+
+Users may miss signup, resend, or recovery emails even when the application and provider flow are functioning correctly.
+
+Current assessment:
+
+This does not invalidate the Register / OTP functional PASS.
+
+Deferred mitigation:
+
+- review sender/domain reputation
+- verify SPF, DKIM, and DMARC alignment
+- review production SMTP/provider configuration
+- monitor delivery, bounce, and spam-placement behavior
+
+Operating rule:
+
+Do not make SMTP, sender-domain, or provider changes during unrelated development stages. Treat deliverability work as a controlled production-readiness task.

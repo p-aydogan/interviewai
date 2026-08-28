@@ -417,3 +417,200 @@ After PASS:
 5. confirm branch synchronization
 6. confirm clean working tree
 7. only then begin the next stage
+
+---
+
+## Stage — Talentry Sign In Migration
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-08-28
+
+Purpose:
+
+Replace the legacy multi-mode `/login` page with a focused Talentry Sign In implementation while preserving real Supabase authentication.
+
+### Files changed
+
+Modified:
+
+- `app/login/page.tsx`
+- `styles/talentry-auth.css`
+
+Added:
+
+- `components/auth/SignInForm.tsx`
+
+### Architecture
+
+Current route composition:
+
+`/login`
+→ `AuthShell`
+→ `SignInForm`
+
+The legacy multi-mode login architecture was removed from `/login`.
+
+The following legacy modes were NOT migrated into the new Sign In page:
+
+- signup
+- reset
+- verify
+- new password
+
+These flows remain separated into their dedicated Talentry routes.
+
+### Authentication contract
+
+Real Supabase authentication is preserved through:
+
+`supabase.auth.signInWithPassword({ email, password })`
+
+Successful authentication redirects to:
+
+`/dashboard`
+
+The new Sign In does not use legacy `/` as an intermediate destination.
+
+### UI behavior
+
+Validated:
+
+- Talentry Sign In renders
+- Email field works
+- Password field works
+- Shared `PasswordVisibilityIcon` works
+- Forgot Password link works
+- Create Account link works
+- Provider errors are presented visibly
+- Loading state is implemented
+- Legacy inline styling is no longer used by `/login`
+
+### Static validation
+
+`npx tsc --noEmit --incremental false`
+
+PASS
+
+`git diff --check`
+
+PASS
+
+Only known Windows LF → CRLF informational warnings were observed.
+
+`npm run build`
+
+PASS
+
+- production compilation succeeded
+- type/lint validation succeeded
+- static generation completed successfully
+
+### Runtime validation
+
+Talentry `/login` render:
+
+PASS
+
+Password visibility toggle:
+
+PASS
+
+Invalid credentials:
+
+PASS
+
+Visible authentication error rendered.
+
+Forgot Password navigation:
+
+PASS
+
+Destination:
+
+`/forgot-password`
+
+Create Account navigation:
+
+PASS
+
+Destination:
+
+`/register`
+
+Valid Supabase credentials:
+
+PASS
+
+Successful login destination:
+
+`/dashboard`
+
+PASS
+
+Authenticated Dashboard render:
+
+PASS
+
+Session persistence after Dashboard refresh:
+
+PASS
+
+Authenticated session recognized by legacy `/`:
+
+PASS
+
+Legacy `/` showed:
+
+`Çıkış Yap`
+
+Logout compatibility:
+
+PASS
+
+After logout legacy `/` returned to:
+
+`Giriş Yap / Kayıt Ol`
+
+### Scope protection
+
+The following were intentionally left unchanged:
+
+- Register provider integration
+- OTP provider integration
+- `/verify-code` versus `/verify` mismatch
+- Dashboard auth guard
+- Interview
+- Result
+- password recovery flow
+- Supabase schema
+- interview persistence
+- ownership logic
+
+### Operational observation
+
+Running a production Next.js build while an older development process was using the same `.next` output caused a generated-cache/runtime mismatch.
+
+Recovery required only restarting the verified local Next.js process and regenerating `.next`.
+
+No project source was lost or restored.
+
+Future rule:
+
+Do not run production build and development server concurrently against the same `.next` output during validation.
+
+### Additional auth observation
+
+An already-authenticated user can still manually open `/login`.
+
+No login-route guard or broader middleware migration was added in this stage.
+
+This is not currently blocking the authenticated product flow.
+
+### Stage result
+
+PASS
+
+Project Memory update and final stage diff review completed successfully before the canonical stage commit.

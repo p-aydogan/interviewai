@@ -510,3 +510,173 @@ This applies especially to:
 If auth or persistence suddenly fails without a corresponding code change, check Supabase project availability before modifying application code.
 
 Do not diagnose a paused/unavailable Supabase project as an application regression.
+
+---
+
+## 15. Talentry Sign In — Completed and Runtime Validated
+
+Status:
+
+COMPLETED — PASS
+
+Date:
+
+2026-08-28
+
+Route:
+
+`/login`
+
+Implementation:
+
+The legacy multi-mode InterviewAI login page has been replaced by a focused Talentry Sign In architecture.
+
+Current structure:
+
+`app/login/page.tsx`
+→ `AuthShell`
+→ `SignInForm`
+
+New component:
+
+`components/auth/SignInForm.tsx`
+
+Styling:
+
+`styles/talentry-auth.css`
+
+Functional authentication contract:
+
+`supabase.auth.signInWithPassword({ email, password })`
+
+Permanent successful-login destination:
+
+`/dashboard`
+
+The new Sign In does NOT redirect to legacy `/`.
+
+### Sign In capabilities now validated
+
+- Talentry Sign In screen renders at `/login`
+- email field works
+- password field works
+- shared password visibility icon works
+- invalid credentials display a visible provider error
+- loading state is implemented
+- Forgot Password links to `/forgot-password`
+- Create Account links to `/register`
+- valid Supabase credentials authenticate successfully
+- successful Sign In redirects to `/dashboard`
+- server-protected Dashboard renders for the authenticated session
+- Dashboard remains authenticated after browser refresh
+- the same authenticated session is recognized by legacy `/`
+- legacy `/` displays `Çıkış Yap` while authenticated
+- existing logout remains compatible with the new Sign In
+- after logout, legacy `/` returns to `Giriş Yap / Kayıt Ol`
+
+### Static validation
+
+`npx tsc --noEmit --incremental false`
+
+PASS
+
+`git diff --check`
+
+PASS
+
+`npm run build`
+
+PASS
+
+Build generated all static pages successfully.
+
+### Current Sign In stage files
+
+Modified:
+
+- `app/login/page.tsx`
+- `styles/talentry-auth.css`
+
+Added:
+
+- `components/auth/SignInForm.tsx`
+
+No unrelated source file was changed.
+
+### Scope intentionally preserved
+
+The following were NOT changed during this stage:
+
+- Register provider behavior
+- OTP provider behavior
+- `/verify-code` versus `/verify` mismatch
+- Dashboard authentication guard
+- Interview
+- Result
+- password recovery flow
+- interview persistence
+- Supabase schema
+- ownership logic
+
+### Expected legacy behavior still visible
+
+Opening:
+
+`/`
+
+still shows the legacy Interview Setup screen.
+
+This is expected.
+
+The root Welcome migration has not started and remains intentionally deferred.
+
+---
+
+## 16. New Operational Observations
+
+### Next.js generated-cache concurrency
+
+Do not run the production build and development server against the same `.next` output concurrently.
+
+During Sign In validation, a production build running beside an older development process caused a generated `.next` runtime mismatch.
+
+Recovery required only:
+
+- stopping/restarting the verified local Next.js process
+- regenerating `.next`
+
+No source-code recovery was required.
+
+Treat `.next` as generated cache, not project source.
+
+### Authenticated `/login` access
+
+An already-authenticated user can still manually open `/login`.
+
+No login-route guard or broader auth middleware was introduced during the Sign In stage.
+
+This is not currently blocking the authenticated product flow and should not be opportunistically expanded during unrelated stages.
+
+---
+
+## 17. Current Stage Position
+
+Talentry Sign In:
+
+COMPLETED — PASS
+
+Next planned migration stage:
+
+Register / OTP provider integration
+
+Known prerequisite issue for that stage:
+
+`AUTH_ROUTES.verifyCode = /verify-code`
+
+while the implemented route is:
+
+`/verify`
+
+Resolve this only as part of the Register / OTP stage.
+
+The Sign In implementation and stage-close Project Memory updates have passed final review. The canonical completion commit is recorded in Git history rather than duplicated here.

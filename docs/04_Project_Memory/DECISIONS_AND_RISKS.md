@@ -162,7 +162,7 @@ UI duplication, inconsistent behavior, harder rollback, and confused navigation.
 
 ## DECISION-005 — Talentry Sign In Is the Next Active Migration Stage
 
-Status: APPROVED
+Status:  IMPLEMENTED — PASS
 
 Decision:
 
@@ -222,6 +222,41 @@ Validation required before commit:
 - redirect behavior
 - TypeScript
 - diff cleanliness
+
+Implementation completed:
+
+2026-08-28
+
+Implemented architecture:
+
+`/login`
+→ `AuthShell`
+→ `SignInForm`
+→ Supabase `signInWithPassword`
+→ `/dashboard`
+
+Runtime validation:
+
+- Talentry Sign In render → PASS
+- invalid credentials → PASS
+- password visibility → PASS
+- Forgot Password navigation → PASS
+- Create Account navigation → PASS
+- valid Supabase credentials → PASS
+- successful `/dashboard` redirect → PASS
+- authenticated Dashboard render → PASS
+- session persistence after refresh → PASS
+- compatibility with existing logout → PASS
+
+Files:
+
+- `app/login/page.tsx`
+- `components/auth/SignInForm.tsx`
+- `styles/talentry-auth.css`
+
+Stage commit:
+
+Pending final stage-close commit.
 
 ---
 
@@ -799,3 +834,104 @@ Do not treat a Supabase pause as evidence that the authenticated ownership or pe
 Current known safe code checkpoint before the next auth migration stage:
 
 `9f0594b docs(project): add project memory checkpoint`
+
+---
+
+## DECISION-015 — Codex Interruption / Recovery Protocol
+
+Status: APPROVED
+
+Date:
+
+2026-08-28
+
+Purpose:
+
+Prevent duplicate edits, accidental re-runs, or unnecessary recovery actions when Codex disappears, restarts, loses its visible panel, or requests a new local permission.
+
+Operating rule:
+
+If Codex unexpectedly disappears, closes, restarts, or loses its visible session during an active stage:
+
+1. Do NOT immediately rerun the original implementation prompt.
+2. Do NOT reinstall or reset the repository as the first response.
+3. Do NOT use `git restore`, `git reset`, `git stash`, or branch changes before checking the working tree.
+4. First run:
+
+   `git status --short`
+
+5. If stage files are already modified, treat those changes as potentially valid in-progress work.
+6. Inspect the existing diff before asking Codex to continue.
+7. Reopen the Codex desktop application or existing conversation if available.
+8. If the original Codex conversation cannot be resumed, use a continuation prompt that explicitly tells Codex to inspect and continue the existing working-tree changes rather than recreating them.
+9. Re-run validation after recovery.
+10. Commit only after the whole stage passes normal stage-close validation.
+
+Permission rule:
+
+When Codex requests permission for a local generated-cache or development-process operation, prefer one-time permission unless a broader permanent permission is explicitly required and reviewed.
+
+Do not grant broad permanent permissions casually.
+
+Primary Codex working surface:
+
+Use the Codex desktop application as the main agent surface for repo-wide implementation stages.
+
+VS Code Codex integration may remain available as a secondary tool, but do not run two Codex agents against the same stage concurrently.
+
+Rationale:
+
+During the 2026-08-28 Talentry Sign In stage, the Codex desktop/permission flow temporarily disappeared from view after a local Next.js process/cache operation.
+
+The implementation itself was not lost.
+
+Working-tree inspection confirmed the in-progress Sign In files were still present:
+
+- `app/login/page.tsx`
+- `styles/talentry-auth.css`
+- `components/auth/SignInForm.tsx`
+
+The existing work was successfully recovered without re-running the original implementation prompt.
+
+---
+
+## RISK-010 — Next.js Build / Dev `.next` Concurrency
+
+Severity: MEDIUM
+
+Status: ACTIVE OPERATING RISK
+
+Observed:
+
+2026-08-28
+
+During Talentry Sign In validation, a production build and an older development process used the same generated `.next` output concurrently.
+
+Result:
+
+A generated runtime/cache mismatch occurred.
+
+Important:
+
+No application source code was damaged or lost.
+
+Recovery required only:
+
+- stopping/restarting the verified local Next.js process
+- regenerating `.next`
+
+Operating rule:
+
+Do not run:
+
+`npm run build`
+
+and the development server concurrently against the same `.next` output during controlled validation.
+
+If a `.next` runtime mismatch occurs:
+
+1. treat `.next` as generated cache,
+2. verify the working tree before changing source,
+3. stop conflicting Next.js processes,
+4. regenerate the cache,
+5. do not restore source files unless Git evidence shows a source regression.

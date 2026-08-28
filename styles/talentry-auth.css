@@ -411,6 +411,30 @@
   color: var(--talentry-color-success);
 }
 
+.talentry-sign-in__link {
+  color: var(--talentry-color-primary);
+  font-size: var(--talentry-font-size-sm);
+  font-weight: var(--talentry-font-weight-semibold);
+  text-underline-offset: var(--talentry-space-1);
+}
+
+.talentry-sign-in__link:focus-visible {
+  border-radius: var(--talentry-radius-sm);
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-sign-in__forgot-link {
+  justify-self: end;
+}
+
+.talentry-sign-in__secondary-action {
+  margin: 0;
+  color: var(--talentry-color-interview-muted);
+  font-size: var(--talentry-font-size-sm);
+  text-align: center;
+}
+
 .talentry-password-requirements {
   padding: var(--talentry-space-2) var(--talentry-space-3);
   border: 1px solid color-mix(in srgb, var(--talentry-color-interview-text) 8%, transparent);

@@ -115,7 +115,7 @@ Application language and interview language must remain separate concepts.
 
 ## AUTH-005 — Legacy Login Contains Obsolete Multi-Mode Auth UI
 
-Status: ACTIVE UNTIL SIGN IN MIGRATION
+Status: RESOLVED
 
 Current state:
 
@@ -134,6 +134,22 @@ This must not be copied into the new Talentry Sign In architecture.
 Planned stage:
 
 Talentry Sign In
+
+Resolved:
+
+2026-08-28
+
+Resolution:
+
+Legacy multi-mode `/login` was replaced by the focused Talentry Sign In architecture.
+
+Runtime validation:
+
+PASS
+
+Commit:
+
+Resolution commit is recorded in Git history.
 
 Permanent target:
 
@@ -582,3 +598,40 @@ Next active stage:
 Talentry Sign In
 
 Do not work on deferred items above unless the current stage explicitly requires one of them.
+---
+
+## AUTH-006 — Authenticated User Can Still Open `/login`
+
+Status: DEFERRED
+
+Observed:
+
+2026-08-28
+
+Current state:
+
+An already-authenticated user can manually navigate to:
+
+`/login`
+
+and the Talentry Sign In screen still renders.
+
+Current impact:
+
+This does not block the authenticated product flow.
+
+Successful authentication still redirects to:
+
+`/dashboard`
+
+and `/dashboard` remains server-protected.
+
+Decision:
+
+Do not introduce a login-route guard, middleware migration, or broader auth redirect architecture opportunistically inside another stage.
+
+Planned stage:
+
+Auth route hardening / authenticated navigation cleanup
+
+Future validation should determine the preferred permanent behavior for authenticated access to `/login`, such as redirecting to `/dashboard`, without creating redirect loops or weakening existing session behavior.

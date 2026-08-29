@@ -823,3 +823,133 @@ Do not begin that implementation until this stage is reviewed and closed.
 PASS
 
 Project Memory was updated after static, runtime, cross-user isolation, and session-refresh acceptance passed. No stage commit or push was performed during this documentation step.
+
+---
+
+## Stage — Owner-Authorized Interview Detail Read Boundary / ID-Based Result Foundation
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-08-29
+
+Purpose:
+
+Add a privacy-preserving authenticated endpoint for reading one persisted interview by ID without modifying existing routes or migrating Result.
+
+### Implementation
+
+- Created `app/api/interviews/[id]/route.ts` for `GET /api/interviews/[id]`.
+- No existing application route or UI file was modified.
+- Authentication uses `getAuthenticatedUser()` and occurs before UUID validation or privileged access.
+- Unauthenticated requests return `401` with `{ "error": "Unauthorized" }`.
+- The interview ID comes only from the dynamic route parameter.
+- Standard hyphenated 8-4-4-4-12 hexadecimal UUID syntax is validated locally.
+- Invalid UUIDs return `400` with `{ "error": "Invalid interview id" }` before Supabase is queried.
+- The server-only admin query combines `id = requested route ID` and `owner_id = auth.user.id`.
+- Client `owner_id`, `user_id`, email, and ownership query values do not control authorization.
+- The query uses an explicit select list and `.maybeSingle()`.
+- No direct browser table read or RLS select policy was added.
+
+### Not-found privacy
+
+A nonexistent valid UUID and another user's valid interview UUID both return:
+
+`404`
+
+`{ "error": "Interview not found" }`
+
+This prevents interview-existence disclosure across users.
+
+### Public detail DTO
+
+Included:
+
+- `id`
+- `interviewerKey`
+- `role`
+- `company`
+- `level`
+- `interviewType`
+- `persona`
+- `language`
+- `answers`
+- `score`
+- `summary`
+- `durationSeconds`
+- `createdAt`
+
+Excluded:
+
+- `owner_id`
+
+### Answers JSONB boundary
+
+Persisted answers are validated as `Array<{ q: string; a: string }>` before being returned.
+
+The guard requires an array, non-null object entries, and string `q` and `a` fields.
+
+Malformed entries are not coerced or discarded. Database read failures and malformed answers return the generic client-safe `500` body `{ "error": "Failed to load interview" }`.
+
+### Static and code review
+
+- `npx tsc --noEmit --incremental false` → PASS
+- `git diff --check` → PASS
+- final read-only detail-route review → PASS
+- Next.js 14.2.5 dynamic App Router compatibility → PASS
+- owner-isolation query review → PASS
+- not-found privacy review → PASS
+- answers JSONB guard review → PASS
+- detail DTO review → PASS
+
+The only stage source change before Project Memory closure was `app/api/interviews/[id]/route.ts`.
+
+No production build was run while the development server was active, respecting the shared `.next` concurrency rule.
+
+### Real runtime acceptance
+
+- unauthenticated valid UUID-shaped detail request → `401` → PASS
+- User B read its own `Runtime Smoke Test` record with complete DTO, answers, summary, and no `owner_id` → PASS
+- User B requested User A's `Read Boundary Runtime Test` → privacy-preserving `404` → PASS
+- nonexistent valid UUID returned the same `404` body/status → PASS
+- `not-a-valid-uuid` returned `400` with `{ "error": "Invalid interview id" }` → PASS
+- fake `owner_id`, `user_id`, and email query parameters did not alter User B authorization → PASS
+- User B list GET remained owner-scoped and returned only `Client Integration Test`, `Owner Spoof Test`, and `Runtime Smoke Test` → PASS
+- POST regression created `Detail Boundary POST Regression Test` for `Talentry Runtime Test` and returned `201` with a persisted UUID → PASS
+- the POST-returned UUID produced a matching detail response with score `88`, persisted summary, q/a answers, and no `owner_id` → PASS
+- User A read its own `Read Boundary Runtime Test` with score `85`, summary, answers, and no `owner_id` → PASS
+
+Accuracy boundaries:
+
+- ownership query parameters were runtime-tested
+- fake ownership headers and bodies were not runtime-tested; their isolation follows from the route architecture
+- no Supabase/database failure was deliberately induced
+- no malformed historical answers row was inserted
+- generic `500` paths were verified through static/code review
+- direct RLS/browser-read testing did not occur in this stage
+- Result UI was not migrated
+- `app/interview/page.tsx` still does not preserve the POST UUID
+
+### Deferred Result handoff
+
+- legacy Result still trusts score and summary query parameters
+- Interview ignores the successful POST UUID
+- persistence failures still continue to legacy Result
+- zero-answer sessions bypass persistence
+- generated database types remain unavailable
+- database JSONB does not enforce q/a structure; this API boundary supplies runtime validation
+
+### Next stage
+
+ID-Based Result Migration
+
+The next stage should preserve the successful POST UUID, navigate by persisted interview ID, load through this detail boundary, and explicitly handle unauthorized, not-found, persistence-failure, and zero-answer behavior.
+
+Do not begin that implementation until this stage is reviewed and closed.
+
+### Stage result
+
+PASS
+
+Project Memory was updated after static, runtime, privacy, cross-user, and POST-to-detail acceptance passed. No stage commit or push was performed during this documentation step.

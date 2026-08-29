@@ -42,7 +42,7 @@ Rollback reference:
 
 Latest safe remote checkpoint as of 2026-08-29:
 
-`425fd81 feat(auth): integrate registration otp verification`
+`79d8b02 feat(api): add owner-scoped interview reads`
 
 ---
 
@@ -598,7 +598,8 @@ Current status:
 
 Write ownership is secure.
 The authenticated list GET now enforces server-derived ownership and passed real cross-user isolation testing.
-Owner-authorized detail-by-ID access remains unimplemented and must preserve the same boundary.
+The owner-authorized detail GET combines interview ID with server-derived ownership and passed real cross-user isolation and not-found privacy testing.
+Result and history UI integrations remain unimplemented.
 
 ---
 
@@ -671,7 +672,7 @@ Potential impact:
 
 Mitigation:
 
-Move to authenticated ID-based Result only after the owner-authorized detail-by-ID read boundary exists and passes non-owner denial testing.
+The owner-authorized detail-by-ID boundary now exists and passed non-owner denial testing. Migrate Result to persisted ID-based data without reintroducing client-trusted score or summary values.
 
 ---
 
@@ -744,7 +745,7 @@ Mitigation:
 
 Latest safe commit:
 
-`425fd81 feat(auth): integrate registration otp verification`
+`79d8b02 feat(api): add owner-scoped interview reads`
 
 Remote:
 
@@ -752,7 +753,7 @@ Remote:
 
 Current uncommitted completed stage:
 
-Authenticated Interview Read Boundary — PASS
+Owner-Authorized Interview Detail Read Boundary — PASS
 
 ---
 
@@ -1069,7 +1070,8 @@ Current state:
 - `GET /api/interviews` is intentionally unpaginated.
 - No `(owner_id, created_at)` index exists.
 - Generated database TypeScript types are not present.
-- The route uses a local row annotation matching the current migration.
+- The list and detail routes use local row annotations matching the current migration.
+- The detail route runtime-validates answers because the database `jsonb` column does not enforce q/a object structure.
 
 Current assessment:
 
@@ -1084,3 +1086,51 @@ Deferred mitigation:
 Operating rule:
 
 Do not combine these scalability/type-system changes with the owner-authorized detail route unless measurements or correctness require them.
+
+---
+
+## DECISION-018 — Interview Detail Reads Preserve Owner Privacy and Validate JSONB
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-08-29
+
+Decision:
+
+`GET /api/interviews/[id]` must:
+
+1. authenticate before UUID validation and privileged access;
+2. read the interview ID only from the dynamic route parameter;
+3. reject malformed UUID syntax before querying;
+4. combine `id = requested ID` with `owner_id = auth.user.id`;
+5. return the same `404` body for nonexistent and non-owner records;
+6. explicitly select the persisted detail fields without `owner_id`;
+7. runtime-validate answers as `Array<{ q: string; a: string }>`;
+8. return generic client-safe errors without Supabase/internal details.
+
+Rationale:
+
+The privileged admin client makes the combined ID/owner filter the critical authorization boundary. Uniform not-found semantics prevent cross-user existence disclosure, while local JSONB validation prevents malformed persisted answer data from crossing the public API boundary.
+
+Runtime validation:
+
+- unauthenticated detail denial → PASS
+- User A own detail → PASS
+- User B own detail → PASS
+- User B request for User A detail → privacy-preserving 404 → PASS
+- nonexistent UUID → identical 404 → PASS
+- invalid UUID → 400 before query → PASS
+- ownership-spoof query parameters ignored → PASS
+- existing list GET regression → PASS
+- existing POST regression → PASS
+- POST UUID → matching detail GET → PASS
+
+Accuracy boundary:
+
+Database failure, malformed historical answers, fake ownership headers/bodies, and direct browser/RLS access were not destructively runtime-tested. Their behavior was established by static architecture review.
+
+Result boundary:
+
+This decision completes the authenticated read prerequisite but does not migrate Result. Legacy Result still trusts score/summary query parameters, and Interview still ignores the persisted POST UUID.

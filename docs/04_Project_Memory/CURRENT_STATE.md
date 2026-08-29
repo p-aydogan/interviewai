@@ -14,17 +14,17 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-425fd81 feat(auth): integrate registration otp verification
+79d8b02 feat(api): add owner-scoped interview reads
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `425fd81`.
+Local and remote feature branches were synchronized after commit `79d8b02`.
 
-The working tree was clean immediately after the push of `425fd81`.
+The working tree was clean immediately after the push of `79d8b02`.
 
-The completed Authenticated Interview Read Boundary is currently uncommitted and awaiting its authorized stage-level commit.
+The completed Owner-Authorized Interview Detail Read Boundary is currently uncommitted and awaiting its authorized stage-level commit.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -52,6 +52,7 @@ Implemented:
 - Server-side authentication helper
 - Authenticated interview persistence API
 - Authenticated owner-scoped interview list API
+- Authenticated owner-authorized interview detail API
 - Supabase interviews table and ownership model
 - Server-protected `/dashboard`
 
@@ -89,6 +90,7 @@ Important files:
 - `lib/supabase/server.ts`
 - `lib/supabase/admin.ts`
 - `app/api/interviews/route.ts`
+- `app/api/interviews/[id]/route.ts`
 - `supabase/migrations/20260818_create_interviews.sql`
 
 Authenticated interview persistence and list-read runtime tests have passed.
@@ -107,6 +109,13 @@ Confirmed behavior:
 - client ownership query parameters cannot alter the owner scope
 - cross-user isolation → PASS
 - returned list DTO omits `owner_id`, answers, summary, persona, and interviewer key
+- unauthenticated detail GET → 401
+- invalid detail UUID → 400 without a database query
+- owner detail read → 200 with the persisted detail DTO
+- non-owner and nonexistent valid UUIDs → identical 404 responses
+- detail ownership-spoof query parameters cannot alter authorization
+- detail response excludes `owner_id` and runtime-validates persisted answers
+- existing list GET and POST regression checks → PASS
 
 Do not weaken or bypass this ownership boundary during UI migration.
 
@@ -371,11 +380,11 @@ from URL query parameters.
 
 23. Result is not owner-authorized or database-backed.
 
-24. Authenticated owner-scoped interview list GET exists. Owner-authorized detail-by-ID access remains deferred.
+24. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
 
 25. No Interview History implementation exists yet.
 
-Before migrating Result to an ID-based route, create and validate the remaining owner-authorized detail-by-ID read boundary.
+The authenticated read prerequisites for an ID-based Result are complete. Result migration itself remains deferred.
 
 ---
 
@@ -654,32 +663,36 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
-Authenticated Interview Read Boundary:
+Owner-Authorized Interview Detail Read Boundary / ID-Based Result Foundation:
 
 COMPLETED — PASS
 
-`GET /api/interviews` now authenticates server-side, queries through the server-only admin client, and enforces `owner_id = auth.user.id`.
+`GET /api/interviews/[id]` now authenticates before UUID validation and privileged access, then enforces both the requested route ID and `owner_id = auth.user.id`.
 
-The public list DTO contains only:
+The public detail DTO contains:
 
 - `id`
+- `interviewerKey`
 - `role`
 - `company`
 - `level`
 - `interviewType`
+- `persona`
 - `language`
+- `answers`
 - `score`
+- `summary`
 - `durationSeconds`
 - `createdAt`
 
-The endpoint intentionally omits ownership, answers, summary, persona, and interviewer-key fields.
+The endpoint excludes `owner_id` and runtime-validates answers as `Array<{ q: string; a: string }>` before returning persisted JSONB.
 
-Runtime acceptance passed for unauthenticated denial, empty-owner response, POST regression, owner-scoped GET, ownership-spoof resistance, real cross-user isolation, session refresh, and observed newest-first ordering.
+Runtime acceptance passed for unauthenticated denial, owner detail reads, cross-user isolation, uniform non-owner/nonexistent 404 semantics, invalid UUID rejection, query-parameter spoof resistance, list GET regression, POST regression, and POST UUID → detail GET continuity.
 
-A database-failure response and same-`created_at` tie collision were verified by static/code review rather than destructive runtime forcing.
+A database failure and malformed historical answers record were not destructively induced. Their generic `500` handling was verified through static/code review.
 
 Next planned stage:
 
-ID-based Result read boundary / owner-authorized interview detail access
+ID-Based Result Migration
 
 Do not begin that implementation until this stage is reviewed and closed.

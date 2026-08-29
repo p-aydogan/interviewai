@@ -207,11 +207,10 @@ Status: DEFERRED
 
 Current state:
 
-An authenticated owner-scoped interview list API now exists and passed cross-user isolation testing.
+Authenticated owner-scoped list and detail APIs now exist and passed cross-user isolation testing.
 
 Remaining:
 
-- interview detail read API
 - dashboard history data
 - history UI
 
@@ -439,9 +438,13 @@ Planned stage:
 
 ID-based Result
 
-Remaining prerequisite:
+Prerequisite status:
 
-Authenticated owner-authorized interview detail-by-ID read API.
+The owner-authorized interview detail-by-ID read boundary is implemented and runtime-validated.
+
+Remaining work:
+
+Migrate Result to persisted ID-based data.
 
 ---
 
@@ -457,6 +460,13 @@ returns an interview UUID.
 
 The client currently ignores that UUID and navigates using score/summary query parameters.
 
+Related handoff gaps:
+
+- persistence failures currently do not prevent legacy Result navigation
+- zero-answer sessions bypass persistence and navigate directly to legacy Result
+
+The owner-authorized detail endpoint now exists, but the Interview client does not yet use it.
+
 Planned stage:
 
 ID-based Result handoff
@@ -465,7 +475,7 @@ ID-based Result handoff
 
 ## RESULT-003 — No Authenticated Interview Read API
 
-Status: PARTIALLY RESOLVED — LIST BOUNDARY PASS
+Status: RESOLVED — LIST AND DETAIL BOUNDARIES PASS
 
 Previous state:
 
@@ -486,16 +496,22 @@ Runtime validation passed for:
 - real cross-user list isolation → PASS
 - refreshed authenticated session → same owner-scoped records
 
-Remaining:
+Detail boundary resolution:
 
-- authenticated owner-authorized interview detail-by-ID read
-- malformed UUID rejection for the future detail route
-- non-owner detail denial
+`GET /api/interviews/[id]` now returns the complete owner-authorized persisted detail DTO without `owner_id`.
 
-Required before:
+Runtime validation passed for:
 
-- Result by interview ID
-- Result can consume persisted answers and summary
+- unauthenticated detail → 401
+- owner detail → 200
+- non-owner detail → privacy-preserving 404
+- nonexistent valid UUID → identical 404
+- invalid UUID → 400 before database access
+- ownership-spoof query parameters → ignored
+- POST-returned UUID → matching detail response
+- answers and summary → persisted values
+
+Result migration is now unblocked architecturally but remains a separate deferred stage.
 
 ---
 
@@ -505,7 +521,7 @@ Status: DEFERRED
 
 Current state:
 
-No owner-backed interview list/detail UI exists.
+Owner-authorized list and detail data boundaries exist, but no interview history UI consumes them.
 
 Planned stage:
 
@@ -600,11 +616,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Authenticated Interview Read Boundary — COMPLETED / PASS
+Owner-Authorized Interview Detail Read Boundary — COMPLETED / PASS
 
 Next planned stage:
 
-ID-based Result read boundary / owner-authorized interview detail access
+ID-Based Result Migration
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---

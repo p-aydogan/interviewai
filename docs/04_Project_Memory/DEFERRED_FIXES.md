@@ -207,11 +207,10 @@ Status: DEFERRED
 
 Current state:
 
-Recent Interviews / My Interviews have no authenticated read data source.
+An authenticated owner-scoped interview list API now exists and passed cross-user isolation testing.
 
-Missing:
+Remaining:
 
-- owner-authorized interview list API
 - interview detail read API
 - dashboard history data
 - history UI
@@ -440,9 +439,9 @@ Planned stage:
 
 ID-based Result
 
-Prerequisite:
+Remaining prerequisite:
 
-Authenticated owner-authorized interview read API.
+Authenticated owner-authorized interview detail-by-ID read API.
 
 ---
 
@@ -466,29 +465,37 @@ ID-based Result handoff
 
 ## RESULT-003 — No Authenticated Interview Read API
 
-Status: DEFERRED — SECURITY PREREQUISITE
+Status: PARTIALLY RESOLVED — LIST BOUNDARY PASS
 
-Current state:
+Previous state:
 
 Write API exists.
 
 Read API does not exist.
 
+Resolved:
+
+`GET /api/interviews` now returns a narrowed owner-scoped list after server-side authentication.
+
+Runtime validation passed for:
+
+- unauthenticated → 401
+- empty authenticated owner → 200 with an empty list
+- owner list read → success
+- ownership-spoof query parameters → ignored
+- real cross-user list isolation → PASS
+- refreshed authenticated session → same owner-scoped records
+
+Remaining:
+
+- authenticated owner-authorized interview detail-by-ID read
+- malformed UUID rejection for the future detail route
+- non-owner detail denial
+
 Required before:
 
 - Result by interview ID
-- Interview History
-- Recent Interviews
-- My Interviews
-- Reports based on saved interviews
-
-Security tests required later:
-
-- unauthenticated → 401
-- owner read → success
-- non-owner read → denied
-- malformed UUID → rejected
-- list returns only authenticated owner rows
+- Result can consume persisted answers and summary
 
 ---
 
@@ -593,7 +600,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Register / OTP provider integration — COMPLETED / PASS
+Authenticated Interview Read Boundary — COMPLETED / PASS
+
+Next planned stage:
+
+ID-based Result read boundary / owner-authorized interview detail access
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---

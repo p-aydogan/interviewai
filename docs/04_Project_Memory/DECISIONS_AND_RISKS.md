@@ -40,9 +40,9 @@ A developer may incorrectly compare against or restore from an outdated `origin/
 
 Rollback reference:
 
-Latest safe remote checkpoint as of 2026-08-27:
+Latest safe remote checkpoint as of 2026-08-29:
 
-`bd26ab7 feat(auth): implement Talentry sign in`
+`425fd81 feat(auth): integrate registration otp verification`
 
 ---
 
@@ -582,7 +582,7 @@ Severity: CRITICAL
 
 Area:
 
-Future read/history implementation
+Interview read/history implementation
 
 Potential failure:
 
@@ -597,7 +597,8 @@ Test non-owner denial before exposing UI.
 Current status:
 
 Write ownership is secure.
-Read API does not yet exist.
+The authenticated list GET now enforces server-derived ownership and passed real cross-user isolation testing.
+Owner-authorized detail-by-ID access remains unimplemented and must preserve the same boundary.
 
 ---
 
@@ -670,7 +671,7 @@ Potential impact:
 
 Mitigation:
 
-Move to authenticated ID-based Result only after read API exists.
+Move to authenticated ID-based Result only after the owner-authorized detail-by-ID read boundary exists and passes non-owner denial testing.
 
 ---
 
@@ -743,7 +744,7 @@ Mitigation:
 
 Latest safe commit:
 
-`eb38e15 feat(dashboard): protect dashboard route`
+`425fd81 feat(auth): integrate registration otp verification`
 
 Remote:
 
@@ -751,7 +752,7 @@ Remote:
 
 Current uncommitted completed stage:
 
-Register / OTP provider integration — PASS
+Authenticated Interview Read Boundary — PASS
 
 ---
 
@@ -1013,3 +1014,73 @@ Deferred mitigation:
 Operating rule:
 
 Do not make SMTP, sender-domain, or provider changes during unrelated development stages. Treat deliverability work as a controlled production-readiness task.
+
+---
+
+## DECISION-017 — Interview List Reads Use a Narrow Server-Owned Boundary
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-08-29
+
+Decision:
+
+`GET /api/interviews` must:
+
+1. resolve the authenticated user through `getAuthenticatedUser()`;
+2. create the server-only privileged client only after authentication succeeds;
+3. enforce `owner_id = auth.user.id`;
+4. ignore all client-provided ownership identity;
+5. select only the fields required by the public list DTO;
+6. omit ownership, answers, summary, persona, and interviewer-key fields;
+7. return newest-first records with deterministic ID tie-breaking.
+
+Rationale:
+
+The privileged client bypasses browser table restrictions, so server-derived ownership filtering and explicit data minimization form the critical read boundary.
+
+Runtime validation:
+
+- unauthenticated denial → PASS
+- empty authenticated owner → PASS
+- POST regression → PASS
+- owner list read → PASS
+- ownership-spoof query parameters ignored → PASS
+- real User A / User B isolation → PASS
+- session refresh preserved owner scope → PASS
+- observed newest-first ordering → PASS
+
+Sequencing clarification:
+
+`DECISION-010` originally listed single-record read before list read. This explicitly approved stage delivered and validated the bounded list read first. It does not authorize Result migration. The next required dependency remains an owner-authorized interview detail-by-ID boundary.
+
+---
+
+## RISK-012 — Interview List Scalability and Database Typing Debt
+
+Severity: LOW-MEDIUM
+
+Status: DEFERRED — NON-BLOCKING
+
+Current state:
+
+- `GET /api/interviews` is intentionally unpaginated.
+- No `(owner_id, created_at)` index exists.
+- Generated database TypeScript types are not present.
+- The route uses a local row annotation matching the current migration.
+
+Current assessment:
+
+These constraints do not block the validated owner-isolation boundary at the current scale.
+
+Deferred mitigation:
+
+- introduce pagination before owner histories become large
+- add an owner/time index when query volume and execution plans justify it
+- adopt generated database types in a dedicated schema-typing stage
+
+Operating rule:
+
+Do not combine these scalability/type-system changes with the owner-authorized detail route unless measurements or correctness require them.

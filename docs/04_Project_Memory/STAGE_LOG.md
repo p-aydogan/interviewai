@@ -705,3 +705,121 @@ No SMTP, sender-domain, or provider configuration change was attempted.
 PASS
 
 Project Memory was updated after real provider and session acceptance passed. No stage commit or push was performed during this documentation step.
+
+---
+
+## Stage — Authenticated Interview Read Boundary
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-08-29
+
+Purpose:
+
+Add a secure authenticated list-read boundary for persisted interviews without changing the existing POST behavior or exposing interview details.
+
+### Implementation
+
+- Added `GET /api/interviews` to `app/api/interviews/route.ts`.
+- Existing `POST /api/interviews` behavior remains functionally unchanged.
+- GET resolves the authenticated user server-side with `getAuthenticatedUser()`.
+- Unauthenticated GET returns `401` with `{ "error": "Unauthorized" }`.
+- The server-only privileged Supabase client is created only after authentication succeeds.
+- Ownership is enforced exclusively with `owner_id = auth.user.id`.
+- Client query parameters, headers, email, `user_id`, and `owner_id` cannot control the read scope.
+- No browser table access or RLS select policy was added.
+- The query uses an explicit narrowed select list and maps database fields to a public camelCase DTO.
+- Records are ordered by `created_at` descending and then `id` descending.
+- Empty owner result returns `200` with `{ "interviews": [] }`.
+- Query failures return a generic client-safe `500` response.
+
+### Public list DTO
+
+Included:
+
+- `id`
+- `role`
+- `company`
+- `level`
+- `interviewType`
+- `language`
+- `score`
+- `durationSeconds`
+- `createdAt`
+
+Intentionally omitted:
+
+- `owner_id`
+- `answers`
+- `summary`
+- `persona`
+- `interviewer_key`
+
+### Static validation
+
+`npx tsc --noEmit --incremental false`
+
+PASS
+
+`git diff --check`
+
+PASS
+
+Only the known informational Windows LF → CRLF warning was observed.
+
+Final read-only diff review:
+
+PASS
+
+POST behavior review:
+
+PASS
+
+GET security boundary review:
+
+PASS
+
+Only `app/api/interviews/route.ts` was modified before Project Memory closure.
+
+No production build was run while the development server was active, avoiding the known shared `.next` concurrency risk.
+
+### Real runtime acceptance
+
+- unauthenticated GET → `401` with `{ "error": "Unauthorized" }` → PASS
+- authenticated User A with no records → `200` with `{ "interviews": [] }` → PASS
+- existing authenticated POST regression created `Read Boundary Runtime Test` for `Talentry Runtime Test` and returned `201` → PASS
+- authenticated GET returned the new User A record with the correct camelCase DTO and without omitted fields → PASS
+- fake `owner_id`, `user_id`, and `email` query parameters did not alter owner scope → PASS
+- User A saw only User A's runtime record → PASS
+- User B did not see User A's runtime record → PASS
+- User B saw only `Client Integration Test`, `Owner Spoof Test`, and `Runtime Smoke Test` → PASS
+- refreshed User B session returned the same owner-scoped records → PASS
+- observed records were newest-first → PASS
+
+Not runtime-forced:
+
+- a synthetic database-failure `500` condition
+- a same-`created_at` tie-break collision
+
+Those paths were verified through static/code review rather than destructive runtime forcing.
+
+### Deferred design debt
+
+- list GET is intentionally unpaginated
+- no `(owner_id, created_at)` index exists yet
+- generated database TypeScript types are not present; the route uses a local row annotation matching the migration
+- owner-authorized detail-by-ID access remains required before Result integration
+
+### Next stage
+
+ID-based Result read boundary / owner-authorized interview detail access
+
+Do not begin that implementation until this stage is reviewed and closed.
+
+### Stage result
+
+PASS
+
+Project Memory was updated after static, runtime, cross-user isolation, and session-refresh acceptance passed. No stage commit or push was performed during this documentation step.

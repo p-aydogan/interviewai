@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 
 ## 1. Canonical Repository State
 
@@ -14,17 +14,17 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-bd26ab7 feat(auth): implement Talentry sign in
+425fd81 feat(auth): integrate registration otp verification
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `bd26ab7`.
+Local and remote feature branches were synchronized after commit `425fd81`.
 
-The working tree was clean immediately after the push of `bd26ab7`.
+The working tree was clean immediately after the push of `425fd81`.
 
-The completed Register / OTP provider integration is currently uncommitted and awaiting its authorized stage-level commit.
+The completed Authenticated Interview Read Boundary is currently uncommitted and awaiting its authorized stage-level commit.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -51,6 +51,7 @@ Implemented:
 - Dashboard sidebar / topbar foundation
 - Server-side authentication helper
 - Authenticated interview persistence API
+- Authenticated owner-scoped interview list API
 - Supabase interviews table and ownership model
 - Server-protected `/dashboard`
 
@@ -90,7 +91,7 @@ Important files:
 - `app/api/interviews/route.ts`
 - `supabase/migrations/20260818_create_interviews.sql`
 
-Authenticated interview persistence runtime tests have already passed.
+Authenticated interview persistence and list-read runtime tests have passed.
 
 Confirmed behavior:
 
@@ -100,6 +101,12 @@ Confirmed behavior:
 - authenticated valid payload → 201
 - client-supplied fake owner identity cannot override server owner
 - persisted `owner_id` matches authenticated Supabase user
+- unauthenticated GET → 401
+- authenticated owner with no rows → 200 with `{ "interviews": [] }`
+- authenticated GET returns only the signed-in owner's records
+- client ownership query parameters cannot alter the owner scope
+- cross-user isolation → PASS
+- returned list DTO omits `owner_id`, answers, summary, persona, and interviewer key
 
 Do not weaken or bypass this ownership boundary during UI migration.
 
@@ -315,7 +322,7 @@ This section summarizes resolved auth migration items and remaining deferred wor
 
 8. Quick Actions is not connected to Interview Setup.
 
-9. Recent Interviews / My Interviews have no data source.
+9. Recent Interviews / My Interviews have an authenticated list data source but no Dashboard/history UI integration.
 
 10. Jobs, AI Coach, Reports, Saved Roles, Settings, Premium remain unavailable placeholders.
 
@@ -364,11 +371,11 @@ from URL query parameters.
 
 23. Result is not owner-authorized or database-backed.
 
-24. No authenticated interview GET/read API exists yet.
+24. Authenticated owner-scoped interview list GET exists. Owner-authorized detail-by-ID access remains deferred.
 
 25. No Interview History implementation exists yet.
 
-Before migrating Result to an ID-based route, create and validate an owner-authorized read boundary.
+Before migrating Result to an ID-based route, create and validate the remaining owner-authorized detail-by-ID read boundary.
 
 ---
 
@@ -647,8 +654,32 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
-Register / OTP provider integration:
+Authenticated Interview Read Boundary:
 
 COMPLETED — PASS
 
-The implementation and real provider acceptance test passed. Project Memory closure is complete; the stage remains uncommitted until explicit commit authorization.
+`GET /api/interviews` now authenticates server-side, queries through the server-only admin client, and enforces `owner_id = auth.user.id`.
+
+The public list DTO contains only:
+
+- `id`
+- `role`
+- `company`
+- `level`
+- `interviewType`
+- `language`
+- `score`
+- `durationSeconds`
+- `createdAt`
+
+The endpoint intentionally omits ownership, answers, summary, persona, and interviewer-key fields.
+
+Runtime acceptance passed for unauthenticated denial, empty-owner response, POST regression, owner-scoped GET, ownership-spoof resistance, real cross-user isolation, session refresh, and observed newest-first ordering.
+
+A database-failure response and same-`created_at` tie collision were verified by static/code review rather than destructive runtime forcing.
+
+Next planned stage:
+
+ID-based Result read boundary / owner-authorized interview detail access
+
+Do not begin that implementation until this stage is reviewed and closed.

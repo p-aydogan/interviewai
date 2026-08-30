@@ -417,11 +417,57 @@ Do not combine visual redesign with uncontrolled runtime refactoring.
 
 ---
 
+## INTERVIEW-009 — End Interview Control Is Not Explicitly Labeled
+
+Status: DEFERRED UX / ACCESSIBILITY
+
+Observed:
+
+2026-08-30 during ID-Based Result runtime acceptance.
+
+Current state:
+
+The red circular `📵` control ends the interview, but it has no clear visible `End Interview` / `Mülakatı Bitir` label and no explicit `aria-label`, title, or tooltip.
+
+Impact:
+
+Users must infer the action from the icon, and assistive-technology naming is not sufficiently explicit.
+
+Planned stage:
+
+Talentry Live Interview UX/accessibility migration.
+
+Required direction:
+
+Provide a visible action label and appropriate accessible naming/tooltip while preserving the validated completion behavior.
+
+---
+
+## INTERVIEW-010 — Obsolete Completion Error Can Remain Visible
+
+Status: DEFERRED UX
+
+Observed:
+
+After the zero-answer warning was shown, the user submitted an answer and received feedback while the earlier warning remained visible.
+
+Current behavior:
+
+`completionError` clears when a new completion attempt begins, so persistence and Result correctness are unaffected.
+
+Deferred refinement:
+
+Clear obsolete completion errors when productive interview activity resumes, if consistent with the future Talentry Live Interview interaction design.
+
+Do not alter the validated completion guard or persistence flow opportunistically.
+
+---
+
 ## RESULT-001 — Result Trusts Query Parameters
 
-Status: DEFERRED
+Status: RESOLVED — ID-BASED RESULT PASS
 
-Current contract:
+Previous contract:
 
 `/result?score=<score>&summary=<summary>`
 
@@ -434,42 +480,49 @@ Risks:
 - no ownership validation
 - no database-backed refresh
 
-Planned stage:
+Resolved stage:
 
-ID-based Result
+ID-Based Result Migration
 
-Prerequisite status:
+Resolution:
 
-The owner-authorized interview detail-by-ID read boundary is implemented and runtime-validated.
+- `app/result/page.tsx` is now a server redirect to `/`;
+- query-supplied score and summary are never rendered;
+- `/result/[id]` renders runtime-validated persisted data from the owner-authorized detail API;
+- forged query-string, cross-user, invalid, nonexistent, and unauthenticated access tests passed.
 
-Remaining work:
-
-Migrate Result to persisted ID-based data.
+Runtime validation: PASS
 
 ---
 
 ## RESULT-002 — Persistence UUID Is Ignored by Client
 
-Status: DEFERRED
+Status: RESOLVED — UUID HANDOFF PASS
 
-Current state:
+Previous state:
 
 `POST /api/interviews`
 
 returns an interview UUID.
 
-The client currently ignores that UUID and navigates using score/summary query parameters.
+The client ignored that UUID and navigated using score/summary query parameters.
 
-Related handoff gaps:
+Previous handoff gaps:
 
-- persistence failures currently do not prevent legacy Result navigation
-- zero-answer sessions bypass persistence and navigate directly to legacy Result
+- persistence failures did not prevent legacy Result navigation
+- zero-answer sessions bypassed persistence and navigated directly to legacy Result
 
-The owner-authorized detail endpoint now exists, but the Interview client does not yet use it.
+Resolution:
 
-Planned stage:
+- completion is synchronously guarded;
+- final evaluation is validated;
+- persistence must succeed;
+- the returned UUID is parsed and validated;
+- successful navigation is only `/result/<UUID>`;
+- failures remain on Interview for explicit retry;
+- zero-answer termination creates no fake record.
 
-ID-based Result handoff
+Runtime validation: PASS
 
 ---
 
@@ -511,7 +564,7 @@ Runtime validation passed for:
 - POST-returned UUID → matching detail response
 - answers and summary → persisted values
 
-Result migration is now unblocked architecturally but remains a separate deferred stage.
+The ID-Based Result Migration is complete and runtime-validated.
 
 ---
 
@@ -526,6 +579,34 @@ Owner-authorized list and detail data boundaries exist, but no interview history
 Planned stage:
 
 Dashboard history integration
+
+---
+
+## RESULT-005 — Completion Persistence Is Not Idempotent
+
+Status: DEFERRED PERSISTENCE HARDENING
+
+Current state:
+
+Recoverable completion failures preserve Interview state and allow explicit retry. No automatic POST retry exists.
+
+Remaining risk:
+
+If the server commits successfully but the client never receives the response, an explicit retry may create a duplicate persisted interview.
+
+Runtime-test boundary:
+
+The accepted blocked-POST test failed before server submission and therefore did not reproduce the ambiguous committed-but-response-lost case.
+
+Planned stage:
+
+Interview persistence idempotency / completion hardening.
+
+Related risk:
+
+`RISK-013`
+
+Do not claim idempotency is solved or add ad hoc client-only retry identity during unrelated UI work.
 
 ---
 
@@ -616,11 +697,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Owner-Authorized Interview Detail Read Boundary — COMPLETED / PASS
+ID-Based Result Migration — COMPLETED / PASS
 
 Next planned stage:
 
-ID-Based Result Migration
+Talentry Interview Setup
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---

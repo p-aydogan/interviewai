@@ -655,11 +655,13 @@ Talentry Sign In will go directly to `/dashboard`, not legacy `/`.
 
 Severity: HIGH
 
+Status: MITIGATED — ID-BASED RESULT RUNTIME PASS
+
 Area:
 
-Current `/result`
+Result data boundary
 
-Current behavior:
+Previous behavior:
 
 Score and summary come from URL query parameters.
 
@@ -670,9 +672,27 @@ Potential impact:
 - no ownership verification
 - direct route access is disconnected from persistence
 
-Mitigation:
+Implemented mitigation:
 
-The owner-authorized detail-by-ID boundary now exists and passed non-owner denial testing. Migrate Result to persisted ID-based data without reintroducing client-trusted score or summary values.
+- legacy `/result` redirects to `/` and cannot render supplied query values;
+- successful Interview completion requires valid evaluation, successful persistence, and a validated returned UUID;
+- `/result/[id]` loads persisted data only through owner-authorized `GET /api/interviews/[id]`;
+- unauthenticated access redirects to `/login`;
+- invalid, nonexistent, and non-owner IDs do not disclose Result data;
+- malformed API responses are not rendered.
+
+Runtime validation:
+
+- forged query-string Result → denied by redirect → PASS
+- owner Result and direct refresh → PASS
+- cross-user UUID access → safe unavailable state → PASS
+- invalid/nonexistent IDs → uniform unavailable state → PASS
+- unauthenticated Result → `/login` → PASS
+- persistence failure → no successful Result → PASS
+
+Remaining boundary:
+
+The UUID remains an identifier, not authorization. Server-enforced owner filtering must remain intact in all future Result and history work.
 
 ---
 
@@ -1134,3 +1154,88 @@ Database failure, malformed historical answers, fake ownership headers/bodies, a
 Result boundary:
 
 This decision completes the authenticated read prerequisite but does not migrate Result. Legacy Result still trusts score/summary query parameters, and Interview still ignores the persisted POST UUID.
+
+---
+
+## DECISION-019 — Result Uses Persisted UUID Handoff and Owner-Authorized Reads
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-08-30
+
+Decision:
+
+The permanent Result data flow is:
+
+completed Interview
+→ validated final evaluation
+→ successful authenticated `POST /api/interviews`
+→ validated persisted UUID
+→ `/result/<UUID>`
+→ owner-authorized `GET /api/interviews/[id]`
+→ runtime-validated persisted Result rendering
+
+Rules:
+
+1. score and summary must never be trusted from Result query parameters;
+2. persistence must succeed before Result navigation;
+3. zero-answer and failed-evaluation flows must not fabricate a Result;
+4. the client must not supply ownership identity;
+5. Result must read through the established same-origin API boundary, not Supabase directly;
+6. invalid, nonexistent, and non-owner records must remain privacy-preserving;
+7. malformed API responses must not render as trusted Result data;
+8. duplicate completion work must be synchronously guarded;
+9. explicit retry may reuse current Interview state after a recoverable failure;
+10. zero-answer termination intentionally creates no persisted Result.
+
+Rationale:
+
+The persisted UUID identifies the record while the authenticated API enforces ownership. This removes browser-controlled Result values and makes direct refresh compatible with the stored interview record without moving privileged credentials or authorization logic into the client.
+
+Runtime validation:
+
+- real Interview → persisted UUID Result → PASS
+- Result refresh → PASS
+- forged legacy query values → not rendered → PASS
+- cross-user UUID access → denied without data disclosure → PASS
+- invalid/nonexistent UUID → uniform unavailable UI → PASS
+- unauthenticated Result → `/login` → PASS
+- zero-answer completion → no evaluation/POST/Result → PASS
+- duplicate completion → one POST → PASS
+- persistence failure → remains on Interview → PASS
+- explicit persistence retry → PASS
+- detail network failure and same-ID Retry → PASS
+
+Design boundary:
+
+This stage migrated Result data trust and routing. It did not perform the future Talentry Result visual redesign.
+
+---
+
+## RISK-013 — Ambiguous Persistence Retry Can Duplicate an Interview
+
+Severity: MEDIUM
+
+Status: DEFERRED — NON-BLOCKING
+
+Scenario:
+
+The server may commit an interview successfully while the client never receives the response. A later explicit completion retry could then create a second persisted record.
+
+Acceptance boundary:
+
+The runtime persistence-failure test blocked the POST before server submission. It proved safe client failure and retry behavior but did not reproduce an ambiguous committed-but-response-lost condition.
+
+Current assessment:
+
+This does not invalidate the ID-Based Result Migration PASS. The current stage deliberately added no automatic retry and no idempotency architecture.
+
+Deferred mitigation:
+
+Design a server-recognized idempotency key or equivalent completion identity in a dedicated persistence-hardening stage before retry ambiguity becomes operationally significant.
+
+Operating rule:
+
+Do not claim idempotency is solved, and do not add ad hoc client-only duplicate suppression during unrelated UI migration.

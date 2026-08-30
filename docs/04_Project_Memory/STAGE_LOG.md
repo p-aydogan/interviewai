@@ -953,3 +953,154 @@ Do not begin that implementation until this stage is reviewed and closed.
 PASS
 
 Project Memory was updated after static, runtime, privacy, cross-user, and POST-to-detail acceptance passed. No stage commit or push was performed during this documentation step.
+
+---
+
+## Stage — ID-Based Result Migration
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-08-30
+
+Purpose:
+
+Replace browser-controlled query-string Result rendering with a persisted UUID handoff and owner-authorized Result read while preserving the existing Interview runtime core.
+
+### Source scope
+
+Modified:
+
+- `app/interview/page.tsx`
+- `app/result/page.tsx`
+
+Created:
+
+- `app/result/[id]/page.tsx`
+
+No API, auth, Supabase, migration, Dashboard, package, or configuration file changed.
+
+### Interview completion and persistence handoff
+
+- Completion is synchronously protected by a `useRef` in-flight guard across evaluation, persistence, and navigation.
+- At least one submitted answer is required before final evaluation or persistence.
+- Final Claude evaluation retains the existing architecture but must produce an integer score from 0 through 100 and a non-empty summary.
+- Invalid evaluation data does not produce a fabricated fallback Result.
+- `POST /api/interviews` is awaited and must succeed.
+- The client payload contains no `owner_id`, `user_id`, email, or other ownership identity.
+- The successful response is parsed as `unknown` and must contain a valid hyphenated 8-4-4-4-12 hexadecimal UUID.
+- Successful completion navigates only to `/result/<persisted UUID>`.
+- Score and summary are no longer placed in the Result URL.
+- Evaluation, persistence, network, JSON, and UUID-validation failures remain on Interview with a safe visible error and release the guard for explicit retry.
+- Media cleanup occurs only at the successful Result-navigation point.
+- Automatic POST retry and idempotency architecture were not added.
+
+### Zero-answer behavior and visibility correction
+
+Zero submitted answers produce:
+
+`A result requires at least one submitted answer.`
+
+The branch performs no final Claude evaluation, POST, Result navigation, fake persistence, or media cleanup. Interview remains active and the completion guard is released.
+
+Runtime acceptance initially found the existing alert state effectively invisible because its inline colors referenced undefined legacy CSS variables. A minimal styling-only correction changed only the alert border, background, and text declarations to:
+
+- border `#ff5f5f`
+- background `rgba(14, 19, 24, 0.96)`
+- text `#dde6ee`
+
+No completion logic changed. The alert was then visibly confirmed. Fast Refresh preserved the already generated `completionError`; this was not a second completion attempt.
+
+### Legacy Result trust removal
+
+`app/result/page.tsx` is now a minimal server component that redirects to `/`.
+
+It no longer uses `useSearchParams`, reads score or summary from the URL, or renders browser-controlled Result data.
+
+`/result?score=99&summary=FORGED_RESULT_TEST` redirected to `/` and rendered none of the forged values.
+
+### ID-based Result route
+
+`app/result/[id]/page.tsx`:
+
+- is a Next.js 14.2.5 client route;
+- fetches only same-origin `GET /api/interviews/[id]` with `cache: 'no-store'`;
+- relies on authenticated cookies and does not import Supabase;
+- sends no ownership identity;
+- treats response JSON as `unknown` and runtime-validates the public interview DTO;
+- renders persisted score, summary, role, company, level, interview type, language, duration, created date, and q/a transcript;
+- keeps ID, interviewer key, and persona in the validated DTO without expanding the UI around them;
+- redirects `401` to `/login`;
+- maps `400` and `404` to the same safe `Result unavailable` state;
+- maps server, network, and malformed-response failures to `Result could not be loaded`;
+- provides Retry for the same route ID and Start again navigation to `/`;
+- uses abort cleanup to prevent obsolete request state updates.
+
+### Static and production validation
+
+- Initial implementation review → PASS
+- Exact three-file source scope review → PASS
+- Interview completion guard review → PASS
+- Evaluation/persistence/UUID handoff review → PASS
+- Zero-answer behavior review → PASS
+- Legacy `/result` security review → PASS
+- New Result API boundary usage review → PASS
+- Result response validator review → PASS
+- Fetch lifecycle/error-state review → PASS
+- Interview core regression review → PASS
+- Next.js 14.2.5 compatibility review → PASS
+- Security invariant review → PASS
+- `npx tsc --noEmit --incremental false` → PASS
+- `git diff --check` → PASS; only known informational LF → CRLF warnings
+- `npm run build` → PASS after the development server was no longer active
+- compile, lint/type validity, page-data collection, static generation 17/17, build traces, and final optimization → PASS
+- production route output included dynamic `/api/interviews/[id]` and `/result/[id]`
+
+The Result client validates finite score and duration values rather than independently repeating the database integer/range/non-negative constraints. The authenticated API and schema enforce those constraints, so this remains a non-blocking defense-in-depth observation.
+
+### Real runtime acceptance
+
+- forged legacy Result query parameters did not render and redirected to `/` → PASS
+- authenticated `ID Result Runtime Test` for `Talentry Runtime Test` completed through question, TTS, answer, feedback, evaluation, persistence, and `/result/<UUID>` navigation → PASS
+- Result URL contained no `score=` or `summary=` → PASS
+- persisted score, summary, context, duration/date, and answers rendered → PASS
+- refresh of `/result/[id]` reloaded the same persisted Result without previous component state → PASS
+- User B opening User A's UUID saw only the safe unavailable state and no User A data → PASS
+- invalid UUID and nonexistent valid UUID produced the same safe unavailable UI → PASS
+- unauthenticated direct Result access redirected to `/login` without rendering Result data → PASS
+- zero-answer completion remained on Interview, preserved the active UI, and displayed the corrected error → PASS
+- rapid duplicate completion produced exactly one `POST /api/interviews` and successful Result navigation → PASS
+- browser-blocked persistence POST remained on Interview with a safe error and preserved state → PASS
+- explicit retry after removing the block returned `201`, loaded detail with `200`, and opened Result from the same interview state → PASS
+- blocked detail GET rendered the generic load error with Retry and Start again → PASS
+- retry after removing the detail block fetched the same UUID, returned `200`, rendered persisted data, and created no POST or record → PASS
+- request blocking was disabled after testing → PASS
+
+The persistence-failure test blocked the request before server submission. It does not prove or solve the ambiguous committed-but-response-lost duplicate-record case.
+
+### Interview core regression boundary
+
+Runtime acceptance exercised Interview startup, Claude question generation, written and ElevenLabs/TTS question delivery, answer submission, feedback, final evaluation, persistence, and Result handoff. It was not an exhaustive regression of every historical Interview feature.
+
+### Deferred observations
+
+- The red circular end-interview control lacks a clear visible label and explicit accessible name/title/tooltip.
+- A previous zero-answer error can remain visible after productive answer activity until another completion attempt clears it.
+- Persistence retry remains non-idempotent for ambiguous commit/response-loss conditions.
+- Zero-answer termination intentionally creates no Result record.
+
+### Next planned sequence
+
+1. Talentry Interview Setup
+2. Talentry Live Interview
+3. Dashboard / History / Sidebar integration
+4. Welcome/root cutover
+
+The next session should begin with a read-only architecture inspection for Talentry Interview Setup.
+
+### Stage result
+
+PASS
+
+Project Memory was updated after static, production-build, security, failure-path, retry, and real cross-user runtime acceptance passed. No stage commit or push was performed during this documentation step.

@@ -28,6 +28,44 @@ const T: Record<string,string> = {
   mixed:'karma',
   case:'vaka analizi'
 }
+const RESULT_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const COMPLETION_ERROR = "We couldn't complete and save your interview result. Please try again."
+
+type EvaluationResult = {
+  score: number
+  summary: string
+}
+
+type PersistedInterviewResponse = {
+  id: string
+}
+
+function isEvaluationResult(value: unknown): value is EvaluationResult {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'score' in value &&
+    typeof value.score === 'number' &&
+    Number.isFinite(value.score) &&
+    Number.isInteger(value.score) &&
+    value.score >= 0 &&
+    value.score <= 100 &&
+    'summary' in value &&
+    typeof value.summary === 'string' &&
+    value.summary.trim().length > 0
+  )
+}
+
+function isPersistedInterviewResponse(value: unknown): value is PersistedInterviewResponse {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    typeof value.id === 'string' &&
+    RESULT_UUID_PATTERN.test(value.id)
+  )
+}
+
 function InterviewContent() {
   const params = useSearchParams()
   const router = useRouter()
@@ -52,6 +90,7 @@ function InterviewContent() {
   const qNumRef = useRef(0)
   const camStreamRef = useRef<MediaStream | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const completionInFlightRef = useRef(false)
   const [question, setQuestion] = useState('')
   const [qLoading, setQLoading] = useState(false)
   const [answer, setAnswer] = useState('')
@@ -64,6 +103,8 @@ function InterviewContent() {
   const [awaitingNext, setAwaitingNext] = useState(false)
   const [subtitle, setSubtitle] = useState('')
   const [connected, setConnected] = useState(false)
+  const [completionError, setCompletionError] = useState('')
+  const [isCompleting, setIsCompleting] = useState(false)
   const MAX_Q = 5
   useEffect(() => {
     const iv = setInterval(() => setSecs(s => s+1), 1000)
@@ -152,45 +193,65 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
   }
 
   async function endCall() {
-    camStreamRef.current?.getTracks().forEach(t=>t.stop())
+    if (completionInFlightRef.current) return
+    completionInFlightRef.current = true
+    setIsCompleting(true)
+    setCompletionError('')
+
     const answers = answersRef.current
     if (!answers.length) {
-      router.push('/result?score=0&summary=Cevap+verilmedi')
+      setCompletionError('A result requires at least one submitted answer.')
+      completionInFlightRef.current = false
+      setIsCompleting(false)
       return
     }
-    const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
-   const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
-    const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
-    try {
-      const p = JSON.parse(raw.replace(/```json|```/g,'').trim())
-      try {
-        const saveRes = await fetch('/api/interviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            interviewerKey: ivKey,
-            role,
-            company,
-            level,
-            interviewType: itype,
-            persona,
-            language,
-            answers,
-            score: p.score,
-            summary: p.summary,
-            durationSeconds: secs,
-          }),
-        })
 
-        if (!saveRes.ok) {
-          console.error('Interview save failed:', await saveRes.text())
-        }
-      } catch (saveError) {
-        console.error('Interview save request failed:', saveError)
+    try {
+      const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
+      const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
+      const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
+      const evaluation: unknown = JSON.parse(raw.replace(/```json|```/g,'').trim())
+
+      if (!isEvaluationResult(evaluation)) {
+        throw new Error('Invalid final interview evaluation')
       }
-      router.push(`/result?score=${p.score}&summary=${encodeURIComponent(p.summary)}`)
-    } catch {
-      router.push('/result?score=0&summary=Değerlendirme+alınamadı')
+
+      const saveRes = await fetch('/api/interviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          interviewerKey: ivKey,
+          role,
+          company,
+          level,
+          interviewType: itype,
+          persona,
+          language,
+          answers,
+          score: evaluation.score,
+          summary: evaluation.summary,
+          durationSeconds: secs,
+        }),
+      })
+
+      if (!saveRes.ok) {
+        console.error('Interview save failed with status:', saveRes.status)
+        throw new Error('Interview persistence failed')
+      }
+
+      const savedInterview: unknown = await saveRes.json()
+
+      if (!isPersistedInterviewResponse(savedInterview)) {
+        throw new Error('Invalid interview persistence response')
+      }
+
+      camStreamRef.current?.getTracks().forEach(t=>t.stop())
+      router.push(`/result/${encodeURIComponent(savedInterview.id)}`)
+    } catch (error) {
+      console.error('Interview completion failed:', error)
+      setCompletionError(COMPLETION_ERROR)
+      completionInFlightRef.current = false
+      setIsCompleting(false)
     }
   }
 
@@ -255,16 +316,16 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
               <label className={styles.aLabel}>CEVABINI YAZ</label>
               <textarea className={styles.ata} placeholder="Cevabını buraya yaz..."
                 value={answer} onChange={e=>setAnswer(e.target.value)}
-                disabled={qLoading||awaitingNext}/>
+                disabled={qLoading||awaitingNext||isCompleting}/>
               <div className={styles.actRow}>
                 {!awaitingNext
                   ? <button className={styles.bSend} onClick={submitAnswer}
-                      disabled={qLoading||!answer.trim()}>Gönder ↵</button>
+                      disabled={qLoading||isCompleting||!answer.trim()}>Gönder ↵</button>
                   : <button className={styles.bSend} onClick={nextQuestion}
-                      disabled={qLoading}>{qNum>=MAX_Q?'Bitir 🏁':'Sonraki →'}</button>
+                      disabled={qLoading||isCompleting}>{qNum>=MAX_Q?'Bitir 🏁':'Sonraki →'}</button>
                 }
                 <button className={styles.bSkip} onClick={nextQuestion}
-                  disabled={qLoading}>Atla</button>
+                  disabled={qLoading||isCompleting}>Atla</button>
               </div>
               {feedback && (
                 <div className={styles.fbCard}>
@@ -283,12 +344,36 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
           )}
         </div>
       </div>
+      {completionError && (
+        <div
+          role="alert"
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: 76,
+            transform: 'translateX(-50%)',
+            zIndex: 20,
+            width: 'max-content',
+            maxWidth: 'calc(100vw - 32px)',
+            padding: '10px 14px',
+            border: '1px solid #ff5f5f',
+            borderRadius: 8,
+            background: 'rgba(14, 19, 24, 0.96)',
+            color: '#dde6ee',
+            fontSize: 13,
+            lineHeight: 1.5,
+            textAlign: 'center',
+          }}
+        >
+          {completionError}
+        </div>
+      )}
       <div className={styles.controls}>
         <button className={`${styles.ctrl} ${!micOn?styles.ctrlOff:''}`}
           onClick={toggleMic}>{micOn?'🎙️':'🔇'}</button>
         <button className={`${styles.ctrl} ${!camOn?styles.ctrlOff:''}`}
           onClick={toggleCam}>{camOn?'📷':'🚫'}</button>
-        <button className={styles.endBtn} onClick={endCall}>📵</button>
+        <button className={styles.endBtn} onClick={endCall} disabled={isCompleting}>📵</button>
       </div>
     </div>
   )

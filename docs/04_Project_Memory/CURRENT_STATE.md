@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 
 ## 1. Canonical Repository State
 
@@ -14,17 +14,17 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-79d8b02 feat(api): add owner-scoped interview reads
+6b2024e feat(api): add owner-authorized interview detail read
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `79d8b02`.
+Local and remote feature branches were synchronized after commit `6b2024e`.
 
-The working tree was clean immediately after the push of `79d8b02`.
+The working tree was clean immediately after the push of `6b2024e`.
 
-The completed Owner-Authorized Interview Detail Read Boundary is currently uncommitted and awaiting its authorized stage-level commit.
+The completed ID-Based Result Migration is currently uncommitted and awaiting its authorized stage-level commit.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -53,15 +53,16 @@ Implemented:
 - Authenticated interview persistence API
 - Authenticated owner-scoped interview list API
 - Authenticated owner-authorized interview detail API
+- Persisted UUID-based Result handoff and owner-authorized Result rendering
 - Supabase interviews table and ownership model
 - Server-protected `/dashboard`
 
 ### Legacy InterviewAI generation still active
 
 - `/`
-- `/login`
 - `/interview`
-- `/result`
+
+`/result/[id]` now uses persisted owner-authorized data while retaining the existing Result visual language. Legacy `/result` redirects safely to `/` and no longer renders query-controlled score or summary values.
 
 These legacy routes are not evidence of lost Talentry work.
 
@@ -123,7 +124,7 @@ Do not weaken or bypass this ownership boundary during UI migration.
 
 ## 4. Completed Client Persistence Integration
 
-Legacy `/interview` currently persists completed interviews through:
+Legacy `/interview` persists completed interviews through:
 
 `POST /api/interviews`
 
@@ -145,7 +146,9 @@ Client does not send owner identity.
 
 Server derives ownership from the authenticated session.
 
-Persistence failure currently does not block Result navigation.
+Completion requires a valid final evaluation, successful persistence, and a valid returned UUID before navigating to `/result/<UUID>`.
+
+Persistence, network, or response-validation failures remain on Interview and preserve the current state for explicit retry. Zero-answer completion creates no fake Result and preserves media.
 
 Latest related safe commit:
 
@@ -368,23 +371,23 @@ Do not allow this issue to derail the current auth migration.
 
 ### Result / History
 
-21. `/result` currently trusts:
+21. Legacy `/result` query-string trust is removed. RESOLVED.
 
-`score`
-and
-`summary`
+22. Interview now validates and uses the UUID returned by persistence. RESOLVED.
 
-from URL query parameters.
-
-22. The UUID returned by interview persistence is currently ignored.
-
-23. Result is not owner-authorized or database-backed.
+23. `/result/[id]` now renders persisted data through the owner-authorized detail API. RESOLVED.
 
 24. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
 
 25. No Interview History implementation exists yet.
 
-The authenticated read prerequisites for an ID-based Result are complete. Result migration itself remains deferred.
+26. The red end-interview control lacks a clear visible label and explicit accessible naming/tooltip. DEFERRED.
+
+27. A zero-answer completion error can remain visible after productive interview activity resumes. DEFERRED UX.
+
+28. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
+
+The ID-based Result flow is complete. Dashboard/history integration remains deferred.
 
 ---
 
@@ -663,36 +666,24 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
-Owner-Authorized Interview Detail Read Boundary / ID-Based Result Foundation:
+ID-Based Result Migration:
 
 COMPLETED — PASS
 
-`GET /api/interviews/[id]` now authenticates before UUID validation and privileged access, then enforces both the requested route ID and `owner_id = auth.user.id`.
+Interview completion now validates the final evaluation, awaits authenticated persistence, validates the returned UUID, and navigates only to `/result/<UUID>`. Failed evaluation or persistence cannot create an apparently successful local Result.
 
-The public detail DTO contains:
+`/result/[id]` fetches only `GET /api/interviews/[id]`, validates the public DTO, renders persisted score/summary/context/answers, redirects unauthenticated users to `/login`, preserves privacy by treating invalid/nonexistent/non-owner IDs uniformly, and supports generic failure retry for the same ID.
 
-- `id`
-- `interviewerKey`
-- `role`
-- `company`
-- `level`
-- `interviewType`
-- `persona`
-- `language`
-- `answers`
-- `score`
-- `summary`
-- `durationSeconds`
-- `createdAt`
+Legacy `/result` no longer trusts browser query values and redirects to `/`.
 
-The endpoint excludes `owner_id` and runtime-validates answers as `Array<{ q: string; a: string }>` before returning persisted JSONB.
+Static review, TypeScript, production build, real Interview → UUID Result, direct refresh, cross-user isolation, invalid/nonexistent/unauthenticated access, zero-answer behavior, duplicate-completion prevention, persistence failure/retry, detail failure/retry, and legacy query-string security all passed.
 
-Runtime acceptance passed for unauthenticated denial, owner detail reads, cross-user isolation, uniform non-owner/nonexistent 404 semantics, invalid UUID rejection, query-parameter spoof resistance, list GET regression, POST regression, and POST UUID → detail GET continuity.
-
-A database failure and malformed historical answers record were not destructively induced. Their generic `500` handling was verified through static/code review.
+The Result client validator intentionally checks finite numeric score/duration values without duplicating every database constraint. The authenticated API and database schema remain the authoritative constraint boundary.
 
 Next planned stage:
 
-ID-Based Result Migration
+Talentry Interview Setup
 
-Do not begin that implementation until this stage is reviewed and closed.
+Then proceed to Talentry Live Interview, Dashboard/history/sidebar integration, and Welcome/root cutover in that order.
+
+Do not begin Talentry Interview Setup until this stage is reviewed and closed with its stage-level commit and push.

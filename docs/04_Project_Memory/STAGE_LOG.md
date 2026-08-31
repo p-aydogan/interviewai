@@ -1104,3 +1104,120 @@ The next session should begin with a read-only architecture inspection for Talen
 PASS
 
 Project Memory was updated after static, production-build, security, failure-path, retry, and real cross-user runtime acceptance passed. No stage commit or push was performed during this documentation step.
+
+---
+
+## Stage — Talentry Interview Setup
+
+Status: COMPLETED — PASS
+
+Date:
+
+2026-09-01
+
+Purpose:
+
+Replace the active legacy root Setup with a canonical, authenticated, responsive Talentry Setup while preserving the existing Live Interview engine and exact query handoff.
+
+### Source scope
+
+Modified:
+
+- `app/page.tsx`
+
+Created:
+
+- `app/interview/setup/page.tsx`
+- `components/interview/InterviewSetupForm.tsx`
+- `styles/talentry-interview-setup.css`
+
+No Live Interview, Result, API, Dashboard, auth-helper, Supabase, migration, package, token, UI Kit, or configuration file changed.
+
+### Route and authentication architecture
+
+- `/interview/setup` is the canonical Setup route.
+- It authenticates server-side through the existing `getAuthenticatedUser()` primitive.
+- Unauthorized requests redirect to `/login` before the client form renders.
+- Authenticated requests render `InterviewSetupForm`.
+- `/` temporarily redirects to `/interview/setup`; Welcome/root cutover remains deferred.
+- The Setup header contains Talentry branding, an independent UI-language selector, and a localized Back to Dashboard link using the existing Dashboard route.
+- Sign In, Create Account, Logout, profile, middleware, and client-side session management were intentionally excluded from Setup.
+
+### Setup form and compatibility contract
+
+The form preserves exactly these query keys:
+
+- `iv`
+- `role`
+- `company`
+- `level`
+- `itype`
+- `persona`
+- `language`
+- `cv`
+
+Compatible values remain:
+
+- interviewer: `f | m`
+- level: `junior | mid | senior`
+- interview type: `behavioral | technical | mixed | case`
+- persona: `friendly | formal | tough | curious`
+- interview language: `tr | en | de`
+
+The UI label `Analytical` intentionally submits `persona=curious`.
+
+Role and company remain optional and are trimmed before URL construction. CV is not displayed, legacy `interviewai_cv` storage is neither read nor deleted, and the compatibility handoff remains `cv=`.
+
+Application language and interview language are independent. Changing the TR/EN/DE Setup presentation does not mutate the selected interview language.
+
+### Visual and accessibility implementation
+
+- Talentry tokens and existing `TalentryCard`, `TalentryButton`, and `SectionHeader` components are reused.
+- Desktop uses a two-column interviewer/configuration composition.
+- Tablet and mobile collapse to interviewer-first one-column layouts.
+- Interviewer selection uses native radios, `fieldset`, `legend`, associated labels, keyboard focus, and visible selected text.
+- No legacy, recovered, auth-only, or Dashboard-specific palette was introduced.
+
+### Static and production validation
+
+- final implementation review → PASS
+- authenticated-route correction review → PASS
+- persona label/value compatibility review → PASS
+- `npx tsc --noEmit --incremental false` → PASS
+- `git diff --check` → PASS; only known informational LF → CRLF warnings
+- `npm run build` with Next.js 14.2.5 → PASS
+- compile, lint/type validation, page-data collection, static generation 18/18, build traces, and finalization → PASS
+- `/interview/setup` was recognized as a dynamic server-rendered route
+- `/result/[id]` and interview APIs remained present
+
+### Runtime acceptance
+
+- unauthenticated direct `/interview/setup` redirected to `/login` → PASS
+- authenticated direct `/interview/setup` rendered Setup → PASS
+- header contained Talentry, UI language, and Back to Dashboard with no auth actions → PASS
+- Back to Dashboard navigation → PASS
+- UI switched TR → EN while interview language remained Türkçe → PASS
+- interview language then switched independently to English → PASS
+- exact non-default handoff produced `/interview?iv=m&role=Setup+Runtime+Test&company=Talentry+Runtime+Test&level=senior&itype=technical&persona=curious&language=en&cv=` → PASS
+- Marcus Reid identity carried into Live Interview → PASS
+- whitespace-only role/company became `role=&company=` → PASS
+- empty company used the existing `Genel` fallback through Result → PASS
+- authenticated `/` redirected to `/interview/setup` → PASS
+- tablet 768×1024 and mobile 390×844 had no horizontal overflow or overlap → PASS
+- mobile form stacked correctly and Start Interview remained reachable → PASS
+- full Setup → Live Interview → answer → evaluation → persistence → `/result/[id]` → PASS
+- persisted Result URL was `/result/eb396bb5-33d3-4873-a347-9ad9a0dec069` → PASS
+- Result refresh returned the same persisted Result → PASS
+- Live Interview produced written and spoken questions after Setup handoff → PASS
+
+### Deferred boundary
+
+The next Talentry Live Interview stage must preserve the validated engine, persistence, UUID Result handoff, retry, and failure behavior while addressing the legacy visual mismatch, duplicated question presentation, written/spoken synchronization, canonical normalized question delivery, extra TTS-word investigation, explicit End Interview labeling/accessibility, and stale completion-error cleanup.
+
+Dashboard wiring to `/interview/setup`, history/sidebar integration, and Welcome/root cutover remain deferred.
+
+### Stage result
+
+PASS
+
+Implementation, runtime acceptance, and production validation are complete. The stage remains uncommitted and unpushed pending final diff review and stage-level commit authorization.

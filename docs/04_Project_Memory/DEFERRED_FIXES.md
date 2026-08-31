@@ -189,11 +189,11 @@ Status: DEFERRED
 
 Current state:
 
-No Dashboard Quick Action currently starts the interview setup flow.
+The canonical authenticated Setup route now exists at `/interview/setup`, but no Dashboard Quick Action currently links to it.
 
 Planned stage:
 
-Talentry Interview Setup integration
+Dashboard / History / Sidebar integration
 
 Important:
 
@@ -350,7 +350,9 @@ Status: DEFERRED
 
 Current state:
 
-CV-related data is carried from setup/local storage/navigation but the active interview engine does not consume it.
+The Talentry Setup UI no longer displays a CV control and does not read, expose, mutate, or delete legacy `interviewai_cv` storage.
+
+For exact Live Interview compatibility, Setup continues to emit an empty `cv=` query parameter. The active interview engine does not consume CV content.
 
 Planned stage:
 
@@ -460,6 +462,45 @@ Deferred refinement:
 Clear obsolete completion errors when productive interview activity resumes, if consistent with the future Talentry Live Interview interaction design.
 
 Do not alter the validated completion guard or persistence flow opportunistically.
+
+---
+
+## INTERVIEW-011 — Question Presentation and Written/Spoken Delivery Need One Canonical Source
+
+Status: DEFERRED LIVE INTERVIEW MIGRATION
+
+Current state:
+
+The generated question is displayed in both the dark interview canvas and the right-side panel. Written and spoken delivery can diverge because the future Talentry presentation boundary has not yet established one canonical normalized question string for both UI and ElevenLabs.
+
+Planned stage:
+
+Talentry Live Interview migration
+
+Required direction:
+
+- remove unintended duplicate question presentation;
+- normalize the generated question once;
+- feed the same canonical string to visible question UI and ElevenLabs;
+- preserve question generation, answer collection, feedback, persistence, and Result behavior.
+
+---
+
+## INTERVIEW-012 — Extra Spoken TTS Words Need Investigation
+
+Status: DEFERRED INVESTIGATION
+
+Current state:
+
+Runtime observation indicates that spoken question output may contain extra words beyond the intended written question.
+
+Planned stage:
+
+Talentry Live Interview migration / TTS diagnostics
+
+Required boundary:
+
+Identify whether the cause is prompt output, text normalization, request construction, or provider behavior before changing code. Do not apply speculative ElevenLabs or Claude changes.
 
 ---
 
@@ -612,7 +653,7 @@ Do not claim idempotency is solved or add ad hoc client-only retry identity duri
 
 ## ROOT-001 — Legacy Root Still Acts as Interview Setup
 
-Status: DEFERRED MIGRATION
+Status: PARTIALLY RESOLVED — WELCOME CUTOVER DEFERRED
 
 Current route:
 
@@ -620,7 +661,9 @@ Current route:
 
 Current behavior:
 
-Legacy Interview Setup
+Temporary server redirect to the canonical authenticated `/interview/setup` route.
+
+Unauthenticated root access therefore continues to `/login` through the Setup server auth guard.
 
 Approved Welcome blueprint is referenced in project governance, but no Talentry Welcome implementation exists.
 
@@ -630,28 +673,28 @@ Planned order:
 2. registration / OTP connection
 3. authenticated interview read boundary
 4. ID-based Result
-5. Talentry Interview Setup
+5. Talentry Interview Setup — COMPLETE / PASS
 6. Talentry Live Interview
 7. Dashboard integrations
 8. Welcome cutover at `/`
 
-Do not replace `/` prematurely.
+Do not replace the temporary root redirect until the Welcome/root cutover stage is explicitly approved.
 
 ---
 
 ## ROOT-002 — Legacy Home Session Header Is Temporary Legacy Functionality
 
-Status: KEEP UNTIL ROOT CUTOVER
+Status: RESOLVED IN TALENTRY SETUP STAGE — COMMIT PENDING
 
 Current state:
 
-Legacy `/` correctly reflects authenticated session state.
+The legacy root Setup and its browser session-aware header are no longer active. `/` now redirects to the server-protected `/interview/setup` route, whose header intentionally contains no Sign In, Create Account, or Logout actions.
 
 Commit:
 
 `3941426 fix(auth): reflect session state in home header`
 
-Do not remove until the legacy root is intentionally retired.
+Historical commit retained for recovery context. The current Setup stage remains uncommitted until authorized stage closure.
 
 ---
 
@@ -697,11 +740,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-ID-Based Result Migration — COMPLETED / PASS
+Talentry Interview Setup — COMPLETED / PASS
 
 Next planned stage:
 
-Talentry Interview Setup
+Talentry Live Interview migration/redesign
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---

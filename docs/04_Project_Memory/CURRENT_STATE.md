@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-08-30
+Last updated: 2026-09-01
 
 ## 1. Canonical Repository State
 
@@ -14,17 +14,17 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-6b2024e feat(api): add owner-authorized interview detail read
+7848be9 feat(result): migrate to persisted interview results
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `6b2024e`.
+Local and remote feature branches were synchronized after commit `7848be9`.
 
-The working tree was clean immediately after the push of `6b2024e`.
+The working tree was clean immediately after the push of `7848be9`.
 
-The completed ID-Based Result Migration is currently uncommitted and awaiting its authorized stage-level commit.
+The completed Talentry Interview Setup stage is currently uncommitted and awaiting its authorized stage-level commit.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -56,17 +56,18 @@ Implemented:
 - Persisted UUID-based Result handoff and owner-authorized Result rendering
 - Supabase interviews table and ownership model
 - Server-protected `/dashboard`
+- Authenticated canonical `/interview/setup` route with responsive Talentry UI
+- Temporary `/` redirect to `/interview/setup`
 
 ### Legacy InterviewAI generation still active
 
-- `/`
 - `/interview`
 
 `/result/[id]` now uses persisted owner-authorized data while retaining the existing Result visual language. Legacy `/result` redirects safely to `/` and no longer renders query-controlled score or summary values.
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that Talentry versions of Welcome, Sign In, Interview Setup, Live Interview, and Result were not implemented and later lost.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In and Interview Setup have since been implemented; Welcome and the Live Interview visual migration remain outstanding, and Result still retains its legacy visual language over the secured persisted-data flow.
 
 The project is in an unfinished migration state.
 
@@ -156,7 +157,9 @@ Latest related safe commit:
 
 ---
 
-## 5. Completed Home Session-State Fix
+## 5. Historical Home Session-State Fix
+
+The behavior below is preserved as implementation history but is no longer active because `/` now redirects to the authenticated `/interview/setup` route.
 
 Legacy `/` header now reflects Supabase session state.
 
@@ -340,7 +343,7 @@ This section summarizes resolved auth migration items and remaining deferred wor
 
 11. Dashboard currently has its own embedded CSS / palette instead of full Talentry token convergence.
 
-Do not refactor this during Sign In migration.
+Do not refactor this during unrelated stages.
 
 ### Interview
 
@@ -363,29 +366,35 @@ while microphone toggle logic searches for audio tracks.
 
 18. Generated audio object URLs are not currently revoked.
 
-19. CV is placed into setup navigation / local storage flow but is not consumed by the interview engine.
+19. The Talentry Setup UI no longer reads or displays legacy CV data. It preserves an empty `cv=` compatibility parameter, while the interview engine still does not consume CV content.
 
 20. Interview answer count behavior should later be reviewed; one runtime test produced four persisted answers while UI reached question 5.
 
-Do not allow this issue to derail the current auth migration.
+21. The current question is duplicated in the dark canvas and right-side panel.
+
+22. Written and spoken question delivery needs one canonical normalized question string for both UI and ElevenLabs.
+
+23. Extra spoken TTS words require investigation without speculative engine changes.
+
+Do not allow these issues to derail unrelated stages; they belong to the Talentry Live Interview migration.
 
 ### Result / History
 
-21. Legacy `/result` query-string trust is removed. RESOLVED.
+24. Legacy `/result` query-string trust is removed. RESOLVED.
 
-22. Interview now validates and uses the UUID returned by persistence. RESOLVED.
+25. Interview now validates and uses the UUID returned by persistence. RESOLVED.
 
-23. `/result/[id]` now renders persisted data through the owner-authorized detail API. RESOLVED.
+26. `/result/[id]` now renders persisted data through the owner-authorized detail API. RESOLVED.
 
-24. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
+27. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
 
-25. No Interview History implementation exists yet.
+28. No Interview History implementation exists yet.
 
-26. The red end-interview control lacks a clear visible label and explicit accessible naming/tooltip. DEFERRED.
+29. The red end-interview control lacks a clear visible label and explicit accessible naming/tooltip. DEFERRED.
 
-27. A zero-answer completion error can remain visible after productive interview activity resumes. DEFERRED UX.
+30. A zero-answer completion error can remain visible after productive interview activity resumes. DEFERRED UX.
 
-28. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
+31. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
 
 The ID-based Result flow is complete. Dashboard/history integration remains deferred.
 
@@ -666,24 +675,26 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
-ID-Based Result Migration:
+Talentry Interview Setup:
 
 COMPLETED — PASS
 
-Interview completion now validates the final evaluation, awaits authenticated persistence, validates the returned UUID, and navigates only to `/result/<UUID>`. Failed evaluation or persistence cannot create an apparently successful local Result.
+The canonical Setup route is `/interview/setup`. It authenticates server-side with `getAuthenticatedUser()`, redirects unauthorized requests to `/login`, and renders the responsive Talentry Setup form only for authenticated users.
 
-`/result/[id]` fetches only `GET /api/interviews/[id]`, validates the public DTO, renders persisted score/summary/context/answers, redirects unauthenticated users to `/login`, preserves privacy by treating invalid/nonexistent/non-owner IDs uniformly, and supports generic failure retry for the same ID.
+`/` temporarily redirects to `/interview/setup`. The authenticated header contains Talentry branding, an independent TR/EN/DE UI-language selector, and a localized Back to Dashboard action. It contains no Sign In, Create Account, or Logout controls.
 
-Legacy `/result` no longer trusts browser query values and redirects to `/`.
+The exact Setup-to-Live handoff remains `iv`, `role`, `company`, `level`, `itype`, `persona`, `language`, and empty `cv`. Role/company are optional and trimmed. The UI label `Analytical` intentionally submits the compatible value `curious`. Legacy `interviewai_cv` data is neither read nor deleted.
 
-Static review, TypeScript, production build, real Interview → UUID Result, direct refresh, cross-user isolation, invalid/nonexistent/unauthenticated access, zero-answer behavior, duplicate-completion prevention, persistence failure/retry, detail failure/retry, and legacy query-string security all passed.
+Static review, TypeScript, production build, authenticated/unauthenticated route behavior, independent language controls, exact non-default and whitespace handoffs, tablet/mobile layout, full Setup → Interview → persisted UUID Result, and Result refresh all passed.
 
-The Result client validator intentionally checks finite numeric score/duration values without duplicating every database constraint. The authenticated API and database schema remain the authoritative constraint boundary.
+Verified persisted Result:
+
+`/result/eb396bb5-33d3-4873-a347-9ad9a0dec069`
 
 Next planned stage:
 
-Talentry Interview Setup
+Talentry Live Interview migration/redesign
 
-Then proceed to Talentry Live Interview, Dashboard/history/sidebar integration, and Welcome/root cutover in that order.
+Then proceed to Dashboard/history/sidebar integration and Welcome/root cutover.
 
-Do not begin Talentry Interview Setup until this stage is reviewed and closed with its stage-level commit and push.
+Do not begin Talentry Live Interview until the completed Setup stage is reviewed and closed with its stage-level commit and push.

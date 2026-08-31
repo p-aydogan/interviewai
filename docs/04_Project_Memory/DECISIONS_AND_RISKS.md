@@ -1239,3 +1239,64 @@ Design a server-recognized idempotency key or equivalent completion identity in 
 Operating rule:
 
 Do not claim idempotency is solved, and do not add ad hoc client-only duplicate suppression during unrelated UI migration.
+
+---
+
+## DECISION-020 — Interview Setup Is a Canonical Authenticated Route
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-09-01
+
+Decision:
+
+The permanent Setup route is:
+
+`/interview/setup`
+
+It is an authenticated product step in this journey:
+
+Welcome
+→ Sign In / Create Account / Verify
+→ Dashboard
+→ Interview Setup
+→ Live Interview
+→ persisted Result
+→ Dashboard / History
+
+Rules:
+
+1. `/interview/setup` authenticates server-side through the existing `getAuthenticatedUser()` primitive.
+2. Unauthorized requests redirect to `/login` before the client Setup form renders.
+3. The client Setup form does not perform session detection, subscribe to auth changes, or provide Sign In, Create Account, or Logout controls.
+4. The Setup header contains only Talentry branding, independent application-language selection, and a localized Back to Dashboard action.
+5. Setup preserves the exact `iv`, `role`, `company`, `level`, `itype`, `persona`, `language`, and `cv` handoff to the existing Live Interview.
+6. Application language and interview language remain independent.
+7. Role/company remain optional and are trimmed; CV remains hidden and is emitted only as empty `cv=` compatibility data.
+8. `/` temporarily redirects to `/interview/setup` until the separate Welcome/root cutover stage.
+9. Dashboard wiring to Setup remains deferred to Dashboard / History / Sidebar integration.
+
+Rationale:
+
+Setup belongs after authenticated Dashboard entry and before Live Interview. Enforcing authentication at the server route reuses the established session boundary, avoids client-only access control, and keeps identity out of the query handoff. A stable canonical route prevents future Dashboard and Welcome work from depending on the temporary root location.
+
+Runtime validation:
+
+- unauthenticated Setup denial → `/login` → PASS
+- authenticated Setup render → PASS
+- localized Dashboard return → PASS
+- UI/interview language independence → PASS
+- exact non-default and whitespace query handoffs → PASS
+- tablet/mobile responsiveness → PASS
+- full Setup → Live Interview → persisted UUID Result → PASS
+- persisted Result refresh → PASS
+
+Temporary root boundary:
+
+Until Welcome is implemented, `/` redirects to `/interview/setup`; unauthenticated root access consequently reaches `/login` through the Setup auth guard. This is intentional temporary route debt, not the permanent Welcome behavior.
+
+Live Interview boundary:
+
+This decision changes Setup presentation and routing only. The validated Live Interview engine, persistence, authenticated ownership, UUID Result handoff, retry, and failure behavior remain protected for the next Talentry Live Interview migration.

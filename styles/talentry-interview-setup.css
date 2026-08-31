@@ -1,0 +1,373 @@
+@import './talentry-tokens.css';
+
+.talentry-setup-shell,
+.talentry-setup-shell * {
+  box-sizing: border-box;
+}
+
+.talentry-setup-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--talentry-space-5);
+  background:
+    radial-gradient(circle at top right, var(--talentry-color-primary-soft), transparent 38%),
+    var(--talentry-color-canvas);
+  color: var(--talentry-color-text);
+  font-family: var(--talentry-font-family);
+}
+
+.talentry-setup-header,
+.talentry-setup-content {
+  width: min(100%, calc(var(--talentry-space-16) * 18));
+  margin-inline: auto;
+}
+
+.talentry-setup-header {
+  display: flex;
+  min-height: var(--talentry-button-height-lg);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--talentry-space-4);
+}
+
+.talentry-setup-brand {
+  display: inline-flex;
+  min-height: var(--talentry-button-height-md);
+  align-items: center;
+  gap: var(--talentry-space-2);
+  color: var(--talentry-color-navy);
+  font-size: var(--talentry-font-size-lg);
+  font-weight: var(--talentry-font-weight-bold);
+  letter-spacing: var(--talentry-letter-spacing-tight);
+  text-decoration: none;
+}
+
+.talentry-setup-brand__mark {
+  display: grid;
+  width: var(--talentry-space-8);
+  height: var(--talentry-space-8);
+  place-items: center;
+  border-radius: var(--talentry-radius-md);
+  background: linear-gradient(135deg, var(--talentry-color-primary), var(--talentry-color-indigo));
+  box-shadow: var(--talentry-shadow-primary);
+  color: var(--talentry-color-text-on-primary);
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-setup-header__actions,
+.talentry-setup-language {
+  display: flex;
+  align-items: center;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-setup-language {
+  padding: var(--talentry-space-1);
+  border: 1px solid var(--talentry-color-border);
+  border-radius: var(--talentry-radius-pill);
+  background: var(--talentry-color-surface);
+}
+
+.talentry-setup-language button {
+  min-width: var(--talentry-button-height-md);
+  min-height: var(--talentry-button-height-md);
+  padding-inline: var(--talentry-space-2);
+  border: 0;
+  border-radius: var(--talentry-radius-pill);
+  background: transparent;
+  color: var(--talentry-color-text-muted);
+  font: inherit;
+  font-size: var(--talentry-font-size-xs);
+  font-weight: var(--talentry-font-weight-bold);
+  cursor: pointer;
+}
+
+.talentry-setup-language button[aria-pressed='true'] {
+  background: var(--talentry-color-primary-soft);
+  color: var(--talentry-color-primary-pressed);
+}
+
+.talentry-setup-dashboard-link {
+  display: inline-flex;
+  min-height: var(--talentry-button-height-md);
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--talentry-space-3);
+  border-radius: var(--talentry-radius-md);
+  border: 1px solid var(--talentry-color-border-strong);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  font-size: var(--talentry-font-size-sm);
+  font-weight: var(--talentry-font-weight-semibold);
+  text-decoration: none;
+}
+
+.talentry-setup-dashboard-link:hover {
+  border-color: var(--talentry-color-border-focus);
+  background: var(--talentry-color-primary-soft);
+  color: var(--talentry-color-primary-pressed);
+}
+
+.talentry-setup-brand:focus-visible,
+.talentry-setup-language button:focus-visible,
+.talentry-setup-dashboard-link:focus-visible,
+.talentry-setup-field input:focus-visible,
+.talentry-setup-field select:focus-visible {
+  box-shadow: var(--talentry-shadow-focus);
+  outline: none;
+}
+
+.talentry-setup-content {
+  display: grid;
+  gap: var(--talentry-space-8);
+  padding-block: var(--talentry-space-12) var(--talentry-space-16);
+}
+
+.talentry-setup-intro {
+  max-width: calc(var(--talentry-space-16) * 10);
+}
+
+.talentry-setup-intro .talentry-section-header__title {
+  color: var(--talentry-color-navy);
+  font-size: var(--talentry-font-page-title-size);
+}
+
+.talentry-setup-form {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: var(--talentry-space-6);
+}
+
+.talentry-setup-interviewers,
+.talentry-setup-configuration {
+  min-width: 0;
+}
+
+.talentry-setup-interviewers fieldset {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.talentry-setup-interviewers legend,
+.talentry-setup-configuration .talentry-section-header__title {
+  color: var(--talentry-color-navy);
+  font-size: var(--talentry-font-card-title-size);
+  font-weight: var(--talentry-font-weight-bold);
+  letter-spacing: var(--talentry-letter-spacing-tight);
+  line-height: var(--talentry-line-height-snug);
+}
+
+.talentry-setup-interviewers fieldset > p {
+  margin: var(--talentry-space-2) 0 var(--talentry-space-5);
+  color: var(--talentry-color-text-secondary);
+  font-size: var(--talentry-font-size-sm);
+  line-height: var(--talentry-line-height-normal);
+}
+
+.talentry-setup-interviewer-list {
+  display: grid;
+  gap: var(--talentry-space-3);
+}
+
+.talentry-setup-interviewer-option {
+  position: relative;
+}
+
+.talentry-setup-interviewer-option input {
+  position: absolute;
+  width: var(--talentry-space-1);
+  height: var(--talentry-space-1);
+  opacity: 0;
+}
+
+.talentry-setup-interviewer-option label {
+  display: grid;
+  min-height: calc(var(--talentry-space-16) * 1.5);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--talentry-space-4);
+  padding: var(--talentry-space-4);
+  border: 1px solid var(--talentry-color-border-strong);
+  border-radius: var(--talentry-radius-lg);
+  background: var(--talentry-color-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    box-shadow var(--talentry-motion-fast) var(--talentry-ease-standard),
+    background-color var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-setup-interviewer-option label:hover {
+  border-color: var(--talentry-color-border-focus);
+}
+
+.talentry-setup-interviewer-option input:focus-visible + label {
+  box-shadow: var(--talentry-shadow-focus);
+}
+
+.talentry-setup-interviewer-option input:checked + label {
+  border-color: var(--talentry-color-primary);
+  background: var(--talentry-color-primary-soft);
+}
+
+.talentry-setup-interviewer-option img {
+  width: calc(var(--talentry-space-16) + var(--talentry-space-4));
+  height: calc(var(--talentry-space-16) + var(--talentry-space-4));
+  border: 1px solid var(--talentry-color-border-strong);
+  border-radius: var(--talentry-radius-pill);
+  object-fit: cover;
+  object-position: top;
+}
+
+.talentry-setup-interviewer-option__identity {
+  display: grid;
+  min-width: 0;
+  gap: var(--talentry-space-1);
+}
+
+.talentry-setup-interviewer-option__identity strong {
+  color: var(--talentry-color-navy);
+  font-size: var(--talentry-font-size-md);
+}
+
+.talentry-setup-interviewer-option__identity span {
+  color: var(--talentry-color-text-secondary);
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-setup-interviewer-option__selected {
+  visibility: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--talentry-space-1);
+  color: var(--talentry-color-primary-pressed);
+  font-size: var(--talentry-font-size-xs);
+  font-weight: var(--talentry-font-weight-bold);
+}
+
+.talentry-setup-interviewer-option input:checked + label .talentry-setup-interviewer-option__selected {
+  visibility: visible;
+}
+
+.talentry-setup-configuration .talentry-section-header {
+  margin-block-end: var(--talentry-space-6);
+}
+
+.talentry-setup-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--talentry-space-4);
+}
+
+.talentry-setup-field {
+  display: grid;
+  min-width: 0;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-setup-field label {
+  color: var(--talentry-color-text);
+  font-size: var(--talentry-font-label-size);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-setup-field label span {
+  color: var(--talentry-color-text-muted);
+  font-size: var(--talentry-font-helper-size);
+  font-weight: var(--talentry-font-weight-regular);
+}
+
+.talentry-setup-field input,
+.talentry-setup-field select {
+  width: 100%;
+  min-height: var(--talentry-button-height-md);
+  padding-inline: var(--talentry-space-3);
+  border: 1px solid var(--talentry-color-border-strong);
+  border-radius: var(--talentry-radius-md);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  font: inherit;
+  font-size: var(--talentry-font-size-sm);
+  transition:
+    border-color var(--talentry-motion-fast) var(--talentry-ease-standard),
+    box-shadow var(--talentry-motion-fast) var(--talentry-ease-standard);
+}
+
+.talentry-setup-field input::placeholder {
+  color: var(--talentry-color-text-subtle);
+}
+
+.talentry-setup-field input:focus-visible,
+.talentry-setup-field select:focus-visible {
+  border-color: var(--talentry-color-border-focus);
+}
+
+.talentry-setup-submit {
+  width: 100%;
+  margin-block-start: var(--talentry-space-6);
+}
+
+@media (max-width: 64rem) {
+  .talentry-setup-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  .talentry-setup-shell {
+    padding: var(--talentry-space-4);
+  }
+
+  .talentry-setup-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .talentry-setup-header__actions {
+    width: 100%;
+    align-items: stretch;
+    justify-content: space-between;
+  }
+
+  .talentry-setup-content {
+    padding-block: var(--talentry-space-8) var(--talentry-space-12);
+  }
+
+  .talentry-setup-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .talentry-setup-interviewer-option label {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .talentry-setup-interviewer-option__selected {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 26rem) {
+  .talentry-setup-header__actions {
+    flex-direction: column;
+  }
+
+  .talentry-setup-language,
+  .talentry-setup-dashboard-link {
+    justify-content: center;
+  }
+
+  .talentry-setup-dashboard-link {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .talentry-setup-interviewer-option label,
+  .talentry-setup-field input,
+  .talentry-setup-field select {
+    transition: none;
+  }
+}

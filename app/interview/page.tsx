@@ -1,6 +1,13 @@
 'use client'
 import { useEffect, useRef, useState, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import LiveInterviewHeader from '@/components/interview/LiveInterviewHeader'
+import InterviewerStage from '@/components/interview/InterviewerStage'
+import type { SpeechStatus } from '@/components/interview/InterviewerStage'
+import InterviewWorkspace from '@/components/interview/InterviewWorkspace'
+import type { InterviewFeedback, InterviewTab, InterviewWorkspaceLabels } from '@/components/interview/InterviewWorkspace'
+import LiveInterviewControls from '@/components/interview/LiveInterviewControls'
+import { TalentryButton } from '@/components/ui'
 import styles from './interview.module.css'
 
 const IV: Record<string, any> = {
@@ -29,7 +36,95 @@ const T: Record<string,string> = {
   case:'vaka analizi'
 }
 const RESULT_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const COMPLETION_ERROR = "We couldn't complete and save your interview result. Please try again."
+type InterviewLanguage = 'tr' | 'en' | 'de'
+type MobileInterviewPanel = 'interviewer' | 'interview'
+
+type LiveInterviewCopy = {
+  backToInterviewer: string
+  cameraOff: string
+  cameraToggleOff: string
+  cameraToggleOn: string
+  completionFailure: string
+  endInterview: string
+  feedbackUnavailable: string
+  goToQuestions: string
+  interviewPanel: string
+  interviewerPanel: string
+  leaveWithoutSaving: string
+  microphoneToggleOff: string
+  microphoneToggleOn: string
+  mobilePager: string
+  returnToInterview: string
+  sessionLabel: string
+  speech: Record<SpeechStatus, string>
+  timerLabel: string
+  workspace: InterviewWorkspaceLabels
+  you: string
+  zeroAnswerWarning: string
+}
+
+const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
+  tr: {
+    backToInterviewer: 'Mülakatçıya Dön',
+    cameraOff: 'Kamera kapalı', cameraToggleOff: 'Kamerayı kapat', cameraToggleOn: 'Kamerayı aç',
+    completionFailure: 'Sonuç oluşturulamadı. Tekrar deneyebilir veya görüşmeden kaydetmeden çıkabilirsiniz.',
+    endInterview: 'Mülakatı Bitir', feedbackUnavailable: 'Geri bildirim şu anda gösterilemiyor.',
+    goToQuestions: 'Sorulara Geç', interviewPanel: 'Mülakat soruları', interviewerPanel: 'Mülakatçı',
+    leaveWithoutSaving: 'Kaydetmeden Çık',
+    microphoneToggleOff: 'Mikrofonu kapat', microphoneToggleOn: 'Mikrofonu aç', sessionLabel: 'Canlı mülakat',
+    mobilePager: 'Mülakat bölümleri',
+    returnToInterview: 'Mülakata Dön',
+    speech: { preparing: 'Ses hazırlanıyor', speaking: 'Mülakatçı konuşuyor', ready: 'Ses hazır', unavailable: 'Ses kullanılamıyor' },
+    timerLabel: 'Geçen süre', you: 'Sen',
+    workspace: {
+      answer: 'Cevabını yaz', answerPlaceholder: 'Cevabını buraya yaz...', currentQuestion: 'Güncel soru',
+      feedback: 'Geri bildirim', finish: 'Mülakatı tamamla', improvement: 'Geliştirilebilir', loadingQuestion: 'Soru hazırlanıyor',
+      next: 'Sonraki soru', notes: 'Notlar', notesLabel: 'Notlarım', notesPlaceholder: 'Not al...', question: 'Soru',
+      skip: 'Atla', strength: 'Güçlü yön', submit: 'Cevabı gönder', suggestion: 'Öneri',
+    },
+    zeroAnswerWarning: 'Henüz bir cevap göndermediniz. Şimdi çıkarsanız bu görüşme için sonuç oluşturulmayacak ve görüşme kaydedilmeyecek.',
+  },
+  en: {
+    backToInterviewer: 'Back to Interviewer',
+    cameraOff: 'Camera off', cameraToggleOff: 'Turn camera off', cameraToggleOn: 'Turn camera on',
+    completionFailure: 'Result could not be created. You can try again or leave the interview without saving.',
+    endInterview: 'End Interview', feedbackUnavailable: 'Feedback is currently unavailable.',
+    goToQuestions: 'Go to Questions', interviewPanel: 'Interview questions', interviewerPanel: 'Interviewer',
+    leaveWithoutSaving: 'Leave Without Saving',
+    microphoneToggleOff: 'Mute microphone', microphoneToggleOn: 'Unmute microphone', sessionLabel: 'Live interview',
+    mobilePager: 'Interview panels',
+    returnToInterview: 'Return to Interview',
+    speech: { preparing: 'Preparing voice', speaking: 'Interviewer speaking', ready: 'Voice ready', unavailable: 'Voice unavailable' },
+    timerLabel: 'Elapsed time', you: 'You',
+    workspace: {
+      answer: 'Write your answer', answerPlaceholder: 'Write your answer here...', currentQuestion: 'Current question',
+      feedback: 'Feedback', finish: 'Complete interview', improvement: 'Could improve', loadingQuestion: 'Preparing question',
+      next: 'Next question', notes: 'Notes', notesLabel: 'My notes', notesPlaceholder: 'Take notes...', question: 'Question',
+      skip: 'Skip', strength: 'Strength', submit: 'Submit answer', suggestion: 'Suggestion',
+    },
+    zeroAnswerWarning: 'You haven’t submitted an answer yet. If you leave now, no result will be created and this interview will not be saved.',
+  },
+  de: {
+    backToInterviewer: 'Zurück zum Interviewer',
+    cameraOff: 'Kamera aus', cameraToggleOff: 'Kamera ausschalten', cameraToggleOn: 'Kamera einschalten',
+    completionFailure: 'Das Ergebnis konnte nicht erstellt werden. Sie können es erneut versuchen oder das Interview ohne Speichern verlassen.',
+    endInterview: 'Interview beenden', feedbackUnavailable: 'Feedback ist derzeit nicht verfügbar.',
+    goToQuestions: 'Zu den Fragen', interviewPanel: 'Interviewfragen', interviewerPanel: 'Interviewer',
+    leaveWithoutSaving: 'Ohne Speichern verlassen',
+    microphoneToggleOff: 'Mikrofon stummschalten', microphoneToggleOn: 'Mikrofon einschalten', sessionLabel: 'Live-Interview',
+    mobilePager: 'Interviewbereiche',
+    returnToInterview: 'Zum Interview zurück',
+    speech: { preparing: 'Stimme wird vorbereitet', speaking: 'Interviewer spricht', ready: 'Stimme bereit', unavailable: 'Stimme nicht verfügbar' },
+    timerLabel: 'Verstrichene Zeit', you: 'Du',
+    workspace: {
+      answer: 'Antwort schreiben', answerPlaceholder: 'Schreibe deine Antwort hier...', currentQuestion: 'Aktuelle Frage',
+      feedback: 'Feedback', finish: 'Interview abschließen', improvement: 'Verbesserungsmöglichkeit', loadingQuestion: 'Frage wird vorbereitet',
+      next: 'Nächste Frage', notes: 'Notizen', notesLabel: 'Meine Notizen', notesPlaceholder: 'Notizen machen...', question: 'Frage',
+      skip: 'Überspringen', strength: 'Stärke', submit: 'Antwort senden', suggestion: 'Empfehlung',
+    },
+    zeroAnswerWarning: 'Sie haben noch keine Antwort gesendet. Wenn Sie jetzt gehen, wird kein Ergebnis erstellt und dieses Interview nicht gespeichert.',
+  },
+}
 
 type EvaluationResult = {
   score: number
@@ -66,6 +161,29 @@ function isPersistedInterviewResponse(value: unknown): value is PersistedIntervi
   )
 }
 
+function parseInterviewFeedback(value: string, fallbackText: string): InterviewFeedback {
+  const normalized = value.replace(/```json|```/gi, '').trim()
+
+  try {
+    const parsed: unknown = JSON.parse(normalized)
+    if (
+      typeof parsed === 'object' && parsed !== null &&
+      'strength' in parsed && typeof parsed.strength === 'string' && parsed.strength.trim() &&
+      'improvement' in parsed && typeof parsed.improvement === 'string' && parsed.improvement.trim() &&
+      'suggestion' in parsed && typeof parsed.suggestion === 'string' && parsed.suggestion.trim()
+    ) {
+      return {
+        kind: 'structured',
+        strength: parsed.strength.trim(),
+        improvement: parsed.improvement.trim(),
+        suggestion: parsed.suggestion.trim(),
+      }
+    }
+  } catch {}
+
+  return { kind: 'fallback', text: value.trim() || fallbackText }
+}
+
 function InterviewContent() {
   const params = useSearchParams()
   const router = useRouter()
@@ -77,32 +195,38 @@ function InterviewContent() {
   const itype = params.get('itype') || 'behavioral'
   const persona = params.get('persona') || 'formal'
   const language = params.get('language') || 'tr'
+  const selectedLanguage: InterviewLanguage = language === 'en' || language === 'de' ? language : 'tr'
+  const copy = LIVE_COPY[selectedLanguage]
   const languageInstruction =
   language === 'en'
     ? 'Respond only in English.'
     : language === 'de'
       ? 'Antworte ausschließlich auf Deutsch.'
       : 'Yalnızca Türkçe yanıt ver.'
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const mobilePagerRef = useRef<HTMLDivElement>(null)
   const camRef = useRef<HTMLVideoElement>(null)
   const answersRef = useRef<{q:string;a:string}[]>([])
   const curQRef = useRef('')
   const qNumRef = useRef(0)
   const camStreamRef = useRef<MediaStream | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioObjectUrlRef = useRef<string | null>(null)
+  const audioRequestRef = useRef(0)
+  const questionGenerationInFlightRef = useRef(false)
   const completionInFlightRef = useRef(false)
   const [question, setQuestion] = useState('')
   const [qLoading, setQLoading] = useState(false)
   const [answer, setAnswer] = useState('')
-  const [feedback, setFeedback] = useState('')
+  const [feedback, setFeedback] = useState<InterviewFeedback | null>(null)
   const [qNum, setQNum] = useState(0)
-  const [activeTab, setActiveTab] = useState<'q'|'n'>('q')
+  const [activeTab, setActiveTab] = useState<InterviewTab>('q')
+  const [mobilePanel, setMobilePanel] = useState<MobileInterviewPanel>('interviewer')
+  const [notes, setNotes] = useState('')
   const [micOn, setMicOn] = useState(true)
   const [camOn, setCamOn] = useState(true)
   const [secs, setSecs] = useState(0)
   const [awaitingNext, setAwaitingNext] = useState(false)
-  const [subtitle, setSubtitle] = useState('')
-  const [connected, setConnected] = useState(false)
+  const [speechStatus, setSpeechStatus] = useState<SpeechStatus>('ready')
   const [completionError, setCompletionError] = useState('')
   const [isCompleting, setIsCompleting] = useState(false)
   const MAX_Q = 5
@@ -126,6 +250,11 @@ function InterviewContent() {
     return () => { camStreamRef.current?.getTracks().forEach(t=>t.stop()) }
   }, [])
 
+  useEffect(() => () => {
+    audioRequestRef.current += 1
+    stopCurrentAudio()
+  }, [])
+
  async function claudeCall (system: string, message: string) {
     const res = await fetch('/api/claude', {
       method:'POST',
@@ -136,6 +265,11 @@ function InterviewContent() {
     return data.text || ''
   }
 async function speakText(text: string) {
+  const requestId = audioRequestRef.current + 1
+  audioRequestRef.current = requestId
+  stopCurrentAudio()
+  setSpeechStatus('preparing')
+
   try {
     console.log('speakText called:', text)
 
@@ -147,44 +281,110 @@ async function speakText(text: string) {
 
     console.log('elevenlabs response status:', res.status)
 
-    if (!res.ok) return
+    if (!res.ok) {
+      if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
+      return
+    }
 
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
 
-    if (audioRef.current) {
-      audioRef.current.pause()
+    if (requestId !== audioRequestRef.current) {
+      URL.revokeObjectURL(url)
+      return
     }
 
     const audio = new Audio(url)
     audioRef.current = audio
-    audio.play().catch(() => {})
+    audioObjectUrlRef.current = url
+    audio.addEventListener('ended', () => {
+      if (audioRef.current === audio) {
+        audioRef.current = null
+      }
+      if (audioObjectUrlRef.current === url) {
+        URL.revokeObjectURL(url)
+        audioObjectUrlRef.current = null
+      }
+      if (requestId === audioRequestRef.current) setSpeechStatus('ready')
+    }, { once: true })
+    void audio.play()
+      .then(() => {
+        if (requestId === audioRequestRef.current && audioRef.current === audio) {
+          setSpeechStatus('speaking')
+        }
+      })
+      .catch(() => {
+        if (audioRef.current === audio) {
+          audioRef.current = null
+        }
+        if (audioObjectUrlRef.current === url) {
+          URL.revokeObjectURL(url)
+          audioObjectUrlRef.current = null
+        }
+        if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
+      })
   } catch (e) {
+    if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
     console.warn('TTS error', e)
   }
 }
+  function stopCurrentAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      try {
+        audioRef.current.currentTime = 0
+      } catch {}
+      audioRef.current = null
+    }
+
+    if (audioObjectUrlRef.current) {
+      URL.revokeObjectURL(audioObjectUrlRef.current)
+      audioObjectUrlRef.current = null
+    }
+  }
   const askQuestion = useCallback(async () => {
-    setFeedback(''); setAnswer(''); setAwaitingNext(false)
+    if (questionGenerationInFlightRef.current) return
+    questionGenerationInFlightRef.current = true
+    let canonicalQuestion: string | null = null
+    setFeedback(null); setAnswer(''); setAwaitingNext(false)
     setQLoading(true)
-    const num = qNumRef.current + 1
-    qNumRef.current = num; setQNum(num)
-const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. ${languageInstruction} SADECE soruyu yaz. Soru ${num}.`
-    const q = await claudeCall(sys, `${num}. mülakat sorusu`)
-    setQuestion(q); setQLoading(false)
-    curQRef.current = q
-    setSubtitle(q)
-    await speakText(q)
+    try {
+      audioRequestRef.current += 1
+      stopCurrentAudio()
+      setSpeechStatus('ready')
+      const num = qNumRef.current + 1
+      qNumRef.current = num; setQNum(num)
+      const previousQuestions = Array.from(new Set(
+        [...answersRef.current.map(item => item.q), curQRef.current]
+          .map(previousQuestion => previousQuestion.trim())
+          .filter(Boolean)
+      ))
+      const previousQuestionsInstruction = previousQuestions.length
+        ? `\nPreviously asked questions:\n${previousQuestions.map(previousQuestion => `- ${previousQuestion}`).join('\n')}\nDo not repeat these questions. Do not ask the same competency or topic again using near-duplicate wording. Ask a meaningfully different interview question appropriate to the same role, interview type, level, company, persona, and language.`
+        : ''
+const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. ${languageInstruction} SADECE soruyu yaz. Soru ${num}.${previousQuestionsInstruction}`
+      const q = await claudeCall(sys, `${num}. mülakat sorusu`)
+      canonicalQuestion = q.trim()
+      setQuestion(canonicalQuestion); setQLoading(false)
+      curQRef.current = canonicalQuestion
+    } finally {
+      setQLoading(false)
+      questionGenerationInFlightRef.current = false
+    }
+    if (canonicalQuestion !== null) {
+      void speakText(canonicalQuestion).catch(error => console.warn('TTS error', error))
+    }
   }, [])
 
   useEffect(() => { askQuestion() }, [])
   async function submitAnswer() {
     if (!answer.trim()) return
+    setCompletionError('')
     answersRef.current.push({q: curQRef.current, a: answer})
     setQLoading(true)
-    const sys = `${persona === 'tough' ? 'Eleştirel' : 'Yapıcı'} bir mülakat koçusun. ${languageInstruction} Adayın cevabını kısa, yapıcı ve profesyonel şekilde değerlendir.`
+    const sys = `${persona === 'tough' ? 'Eleştirel' : 'Yapıcı'} bir mülakat koçusun. ${languageInstruction} Adayın cevabını kısa, yapıcı ve profesyonel şekilde değerlendir. Sadece geçerli JSON döndür: {"strength":"...","improvement":"...","suggestion":"..."}. Her alan kısa, tek bir madde olmalı. Başka metin ekleme.`
     const fb = await claudeCall(sys, `Soru: "${curQRef.current}"\nCevap: "${answer}"`)
-    setFeedback(fb); setQLoading(false); setAwaitingNext(true)
-    setSubtitle(fb)
+    setFeedback(parseInterviewFeedback(fb, copy.feedbackUnavailable)); setQLoading(false); setAwaitingNext(true)
   }
 
   async function nextQuestion() {
@@ -200,7 +400,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
 
     const answers = answersRef.current
     if (!answers.length) {
-      setCompletionError('A result requires at least one submitted answer.')
+      setCompletionError(copy.zeroAnswerWarning)
       completionInFlightRef.current = false
       setIsCompleting(false)
       return
@@ -249,10 +449,17 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       router.push(`/result/${encodeURIComponent(savedInterview.id)}`)
     } catch (error) {
       console.error('Interview completion failed:', error)
-      setCompletionError(COMPLETION_ERROR)
+      setCompletionError(copy.completionFailure)
       completionInFlightRef.current = false
       setIsCompleting(false)
     }
+  }
+
+  function leaveWithoutSaving() {
+    audioRequestRef.current += 1
+    stopCurrentAudio()
+    camStreamRef.current?.getTracks().forEach(track => track.stop())
+    router.push('/dashboard')
   }
 
   function toggleMic() {
@@ -269,113 +476,95 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     })
     
   }
+  function showMobilePanel(panel: MobileInterviewPanel) {
+    const pager = mobilePagerRef.current
+    setMobilePanel(panel)
+    pager?.scrollTo({ left: panel === 'interviewer' ? 0 : pager.clientWidth })
+  }
+
+  function syncMobilePanel() {
+    const pager = mobilePagerRef.current
+    if (!pager?.clientWidth) return
+    setMobilePanel(Math.round(pager.scrollLeft / pager.clientWidth) === 0 ? 'interviewer' : 'interview')
+  }
+
+  const liveInterviewControls = (
+    <LiveInterviewControls
+      cameraLabel={camOn ? copy.cameraToggleOff : copy.cameraToggleOn}
+      cameraOn={camOn}
+      completionError={completionError}
+      endLabel={copy.endInterview}
+      isCompleting={isCompleting}
+      leaveWithoutSavingLabel={copy.leaveWithoutSaving}
+      microphoneLabel={micOn ? copy.microphoneToggleOff : copy.microphoneToggleOn}
+      microphoneOn={micOn}
+      onDismissCompletionError={() => setCompletionError('')}
+      onEnd={endCall}
+      onLeaveWithoutSaving={leaveWithoutSaving}
+      onToggleCamera={toggleCam}
+      onToggleMicrophone={toggleMic}
+      returnToInterviewLabel={copy.returnToInterview}
+    />
+  )
+
   return (
-    <div className={styles.page}>
-      <div className={styles.topbar}>
-        <div className={styles.tbl}>
-          <div className={styles.rec}></div>
-          <span className={styles.tbt}>Mülakat</span>
+    <main className={styles.page}>
+      <LiveInterviewHeader
+        elapsedTime={fmt(secs)}
+        maxQuestions={MAX_Q}
+        questionLabel={copy.workspace.question}
+        questionNumber={qNum}
+        sessionLabel={copy.sessionLabel}
+        timerLabel={copy.timerLabel}
+      />
+      <div className={styles.body} onScroll={syncMobilePanel} ref={mobilePagerRef}>
+        <div aria-label={copy.interviewerPanel} className={`${styles.mobilePanel} ${styles.mobileInterviewerPanel}`} id="mobile-interviewer-panel" role="group">
+          <InterviewerStage
+            cameraOffLabel={copy.cameraOff}
+            cameraOn={camOn}
+            cameraRef={camRef}
+            interviewerName={iv.name}
+            interviewerPhoto={iv.photo}
+            interviewerRole={iv.role}
+            speechLabel={copy.speech[speechStatus]}
+            speechStatus={speechStatus}
+            youLabel={copy.you}
+          />
+          <TalentryButton className={styles.mobilePanelAction} onClick={() => showMobilePanel('interview')} type="button">
+            {copy.goToQuestions}
+          </TalentryButton>
         </div>
-        <div className={styles.tbr}>
-          <span className={styles.timer}>{fmt(secs)}</span>
-          <span className={styles.qpill}>Soru {qNum}/{MAX_Q}</span>
-        </div>
-      </div>
-      <div className={styles.body}>
-        <div className={styles.avPanel}>
-          <div className={styles.avBg}></div>
-          <div className={styles.fallback}>
-            <img className={styles.fallbackPhoto} src={iv.photo} alt={iv.name}/>
-            {!connected && <div className={styles.spinner}></div>}
-          </div>
-          {subtitle && <div className={styles.subtitle}>{subtitle}</div>}
-          <div className={styles.ntag}>
-            <span className={styles.ntagName}>{iv.name}</span>
-            <span className={styles.ntagRole}>{iv.role}</span>
-          </div>
-          <div className={styles.selfView}>
-            <video ref={camRef} autoPlay muted playsInline style={{display:'none'}}/>
-            {!camOn && <div className={styles.camPh}><span>📷</span><span>Kapalı</span></div>}
-            <div className={styles.svLabel}>Sen</div>
-          </div>
-        </div>
-        <div className={styles.rightPanel}>
-          <div className={styles.tabs}>
-            <button className={`${styles.tab} ${activeTab==='q'?styles.tabOn:''}`}
-              onClick={()=>setActiveTab('q')}>Soru</button>
-            <button className={`${styles.tab} ${activeTab==='n'?styles.tabOn:''}`}
-              onClick={()=>setActiveTab('n')}>Notlar</button>
-          </div>
-          {activeTab==='q' && (
-            <div className={styles.tabContent}>
-              <div className={`${styles.qbox} ${qLoading?styles.qboxLoading:''}`}>
-                {qLoading
-                  ? <><div className={styles.dot}></div><div className={styles.dot}></div><div className={styles.dot}></div></>
-                  : question}
-              </div>
-              <label className={styles.aLabel}>CEVABINI YAZ</label>
-              <textarea className={styles.ata} placeholder="Cevabını buraya yaz..."
-                value={answer} onChange={e=>setAnswer(e.target.value)}
-                disabled={qLoading||awaitingNext||isCompleting}/>
-              <div className={styles.actRow}>
-                {!awaitingNext
-                  ? <button className={styles.bSend} onClick={submitAnswer}
-                      disabled={qLoading||isCompleting||!answer.trim()}>Gönder ↵</button>
-                  : <button className={styles.bSend} onClick={nextQuestion}
-                      disabled={qLoading||isCompleting}>{qNum>=MAX_Q?'Bitir 🏁':'Sonraki →'}</button>
-                }
-                <button className={styles.bSkip} onClick={nextQuestion}
-                  disabled={qLoading||isCompleting}>Atla</button>
-              </div>
-              {feedback && (
-                <div className={styles.fbCard}>
-                  <div className={styles.fbLabel}>✦ Geri Bildirim</div>
-                  <div>{feedback}</div>
-                </div>
-              )}
-            </div>
-          )}
-          {activeTab==='n' && (
-            <div className={styles.tabContent}>
-              <label className={styles.aLabel} style={{display:'block',marginBottom:10}}>
-                NOTLARIM</label>
-              <textarea className={styles.notesArea} placeholder="Not al..."/>
-            </div>
-          )}
+        <div aria-label={copy.interviewPanel} className={`${styles.mobilePanel} ${styles.mobileInterviewPanel}`} id="mobile-interview-panel" role="group">
+          <TalentryButton className={styles.mobilePanelBack} onClick={() => showMobilePanel('interviewer')} size="small" type="button" variant="ghost">
+            {copy.backToInterviewer}
+          </TalentryButton>
+          <InterviewWorkspace
+            activeTab={activeTab}
+            answer={answer}
+            awaitingNext={awaitingNext}
+            feedback={feedback}
+            isCompleting={isCompleting}
+            labels={copy.workspace}
+            maxQuestions={MAX_Q}
+            notes={notes}
+            onAnswerChange={setAnswer}
+            onNext={nextQuestion}
+            onNotesChange={setNotes}
+            onSubmit={submitAnswer}
+            onTabChange={setActiveTab}
+            qLoading={qLoading}
+            question={question}
+            questionNumber={qNum}
+          />
+          <div className={styles.mobileControls}>{liveInterviewControls}</div>
         </div>
       </div>
-      {completionError && (
-        <div
-          role="alert"
-          style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: 76,
-            transform: 'translateX(-50%)',
-            zIndex: 20,
-            width: 'max-content',
-            maxWidth: 'calc(100vw - 32px)',
-            padding: '10px 14px',
-            border: '1px solid #ff5f5f',
-            borderRadius: 8,
-            background: 'rgba(14, 19, 24, 0.96)',
-            color: '#dde6ee',
-            fontSize: 13,
-            lineHeight: 1.5,
-            textAlign: 'center',
-          }}
-        >
-          {completionError}
-        </div>
-      )}
-      <div className={styles.controls}>
-        <button className={`${styles.ctrl} ${!micOn?styles.ctrlOff:''}`}
-          onClick={toggleMic}>{micOn?'🎙️':'🔇'}</button>
-        <button className={`${styles.ctrl} ${!camOn?styles.ctrlOff:''}`}
-          onClick={toggleCam}>{camOn?'📷':'🚫'}</button>
-        <button className={styles.endBtn} onClick={endCall} disabled={isCompleting}>📵</button>
-      </div>
-    </div>
+      <nav aria-label={copy.mobilePager} className={styles.mobilePagination}>
+        <button aria-controls="mobile-interviewer-panel" aria-current={mobilePanel === 'interviewer' ? 'step' : undefined} aria-label={copy.interviewerPanel} className={`${styles.mobilePagerDot} ${mobilePanel === 'interviewer' ? styles.mobilePagerDotActive : ''}`} onClick={() => showMobilePanel('interviewer')} type="button" />
+        <button aria-controls="mobile-interview-panel" aria-current={mobilePanel === 'interview' ? 'step' : undefined} aria-label={copy.interviewPanel} className={`${styles.mobilePagerDot} ${mobilePanel === 'interview' ? styles.mobilePagerDotActive : ''}`} onClick={() => showMobilePanel('interview')} type="button" />
+      </nav>
+      <div className={styles.desktopControls}>{liveInterviewControls}</div>
+    </main>
   )
 }
 

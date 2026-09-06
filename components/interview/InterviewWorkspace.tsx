@@ -34,20 +34,45 @@ interface InterviewWorkspaceProps {
   isCompleting: boolean
   labels: InterviewWorkspaceLabels
   maxQuestions: number
+  mobileFeedbackReadyLabel: string
+  mobileViewFeedbackLabel: string
   notes: string
   onAnswerChange: (value: string) => void
   onNext: () => void
   onNotesChange: (value: string) => void
   onSubmit: () => void
   onTabChange: (tab: InterviewTab) => void
+  onViewFeedback: () => void
   qLoading: boolean
   question: string
   questionNumber: number
+  showFeedback: boolean
+}
+
+interface InterviewFeedbackCardProps {
+  feedback: InterviewFeedback
+  labels: InterviewWorkspaceLabels
+}
+
+export function InterviewFeedbackCard({ feedback, labels }: InterviewFeedbackCardProps) {
+  return (
+    <section aria-labelledby="interview-feedback-title" className={styles.feedbackCard}>
+      <h2 id="interview-feedback-title">{labels.feedback}</h2>
+      {feedback.kind === 'structured' ? (
+        <dl className={styles.feedbackList}>
+          <div><dt>{labels.strength}</dt><dd>{feedback.strength}</dd></div>
+          <div><dt>{labels.improvement}</dt><dd>{feedback.improvement}</dd></div>
+          <div><dt>{labels.suggestion}</dt><dd>{feedback.suggestion}</dd></div>
+        </dl>
+      ) : <p className={styles.feedbackFallback}>{feedback.text}</p>}
+    </section>
+  )
 }
 
 export default function InterviewWorkspace({
   activeTab, answer, awaitingNext, feedback, isCompleting, labels, maxQuestions,
-  notes, onAnswerChange, onNext, onNotesChange, onSubmit, onTabChange, qLoading, question, questionNumber,
+  mobileFeedbackReadyLabel, mobileViewFeedbackLabel, notes, onAnswerChange, onNext, onNotesChange,
+  onSubmit, onTabChange, onViewFeedback, qLoading, question, questionNumber, showFeedback,
 }: InterviewWorkspaceProps) {
   return (
     <section className={styles.workspace} aria-label={labels.currentQuestion}>
@@ -88,18 +113,16 @@ export default function InterviewWorkspace({
             <TalentryButton disabled={qLoading || isCompleting} onClick={onNext} variant="secondary">{labels.skip}</TalentryButton>
           </div>
 
-          {feedback && (
-            <section aria-labelledby="interview-feedback-title" className={styles.feedbackCard}>
-              <h2 id="interview-feedback-title">{labels.feedback}</h2>
-              {feedback.kind === 'structured' ? (
-                <dl className={styles.feedbackList}>
-                  <div><dt>{labels.strength}</dt><dd>{feedback.strength}</dd></div>
-                  <div><dt>{labels.improvement}</dt><dd>{feedback.improvement}</dd></div>
-                  <div><dt>{labels.suggestion}</dt><dd>{feedback.suggestion}</dd></div>
-                </dl>
-              ) : <p className={styles.feedbackFallback}>{feedback.text}</p>}
-            </section>
+          {feedback && !showFeedback && (
+            <aside className={styles.mobileFeedbackCue}>
+              <p aria-live="polite">{mobileFeedbackReadyLabel}</p>
+              <TalentryButton onClick={onViewFeedback} size="small" type="button" variant="secondary">
+                {mobileViewFeedbackLabel}
+              </TalentryButton>
+            </aside>
           )}
+
+          {feedback && showFeedback && <InterviewFeedbackCard feedback={feedback} labels={labels} />}
         </div>
       )}
 

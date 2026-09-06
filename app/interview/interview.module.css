@@ -116,6 +116,7 @@
 .mobilePanelAction,
 .mobilePanelBack,
 .mobileControls,
+.mobileFeedbackCue,
 .mobilePagination {
   display: none;
 }
@@ -664,6 +665,112 @@
     flex: none;
   }
 
+  .mobileInterviewPanel {
+    overflow-y: hidden;
+  }
+
+  .mobileInterviewPanel .workspace {
+    min-height: 0;
+    flex: 1;
+  }
+
+  .mobileInterviewPanel .workspaceContent {
+    overflow-y: auto;
+  }
+
+  .mobileFeedbackCue {
+    display: grid;
+    gap: var(--talentry-space-3);
+    margin-top: var(--talentry-space-4);
+    padding: var(--talentry-space-3);
+    border: 1px solid var(--talentry-color-border);
+    border-radius: var(--talentry-radius-md);
+    background: var(--talentry-color-primary-soft);
+  }
+
+  .mobileInterviewPanelPostSubmit {
+    gap: var(--talentry-space-2);
+    padding-top: var(--talentry-space-2);
+    padding-bottom: var(--talentry-space-2);
+  }
+
+  .mobileInterviewPanelPostSubmit .workspaceContent {
+    padding: var(--talentry-space-3);
+  }
+
+  .mobileInterviewPanelPostSubmit .questionCard {
+    min-height: auto;
+    margin-bottom: var(--talentry-space-3);
+    padding: var(--talentry-space-3);
+  }
+
+  .mobileInterviewPanelPostSubmit .questionCard p {
+    margin-top: var(--talentry-space-2);
+    font-size: var(--talentry-font-size-md);
+  }
+
+  .mobileInterviewPanelPostSubmit .answerInput {
+    height: var(--talentry-space-16);
+    min-height: var(--talentry-space-16);
+    padding: var(--talentry-space-3);
+    resize: none;
+  }
+
+  .mobileInterviewPanelPostSubmit .workspaceActions {
+    flex-direction: row;
+    gap: var(--talentry-space-2);
+    margin-top: var(--talentry-space-2);
+  }
+
+  .mobileInterviewPanelPostSubmit .workspaceActions > button {
+    width: auto;
+  }
+
+  .mobileInterviewPanelPostSubmit .primaryAction {
+    flex: 1;
+  }
+
+  .mobileInterviewPanelPostSubmit .mobileFeedbackCue {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--talentry-space-2);
+    margin-top: var(--talentry-space-3);
+    padding: var(--talentry-space-2) var(--talentry-space-3);
+  }
+
+  .mobileInterviewPanelPostSubmit .controlsArea {
+    padding: var(--talentry-space-2);
+  }
+
+  .mobileInterviewPanelPostSubmit .controls {
+    flex-wrap: nowrap;
+  }
+
+  .mobileInterviewPanelPostSubmit .endInterview {
+    flex: 1;
+    flex-basis: auto;
+  }
+
+  .mobileFeedbackCue p,
+  .mobileFeedbackGuidance {
+    margin: 0;
+    color: var(--talentry-color-text-secondary);
+    font-size: var(--talentry-font-size-sm);
+    line-height: var(--talentry-line-height-relaxed);
+  }
+
+  .mobileFeedbackPanel .feedbackCard {
+    flex: none;
+  }
+
+  .mobileFeedbackPanelUnavailable {
+    display: none;
+  }
+
+  .mobileFeedbackGuidance {
+    padding: 0 var(--talentry-space-2) var(--talentry-space-2);
+  }
+
   .mobileControls {
     display: block;
     flex: none;
@@ -701,6 +808,11 @@
 
   .mobilePagerDotActive::before {
     background: var(--talentry-color-primary);
+  }
+
+  .mobilePagerDot:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
   }
 
   .mobilePagerDot:focus-visible {

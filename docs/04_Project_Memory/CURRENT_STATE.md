@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-01
+Last updated: 2026-09-06
 
 ## 1. Canonical Repository State
 
@@ -14,17 +14,15 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-7848be9 feat(result): migrate to persisted interview results
+bbffe9b chore(recovery): checkpoint Talentry live interview work
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-Local and remote feature branches were synchronized after commit `7848be9`.
+The recovery checkpoint before the current Live Interview stage is `bbffe9b`.
 
-The working tree was clean immediately after the push of `7848be9`.
-
-The completed Talentry Interview Setup stage is currently uncommitted and awaiting its authorized stage-level commit.
+The completed and runtime-validated Talentry Live Interview stage is currently uncommitted. Its pure case-only API directory rename is staged; its Live Interview application and Project Memory changes remain unstaged pending review.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -57,17 +55,16 @@ Implemented:
 - Supabase interviews table and ownership model
 - Server-protected `/dashboard`
 - Authenticated canonical `/interview/setup` route with responsive Talentry UI
+- Talentry Live Interview UI with responsive desktop/tablet layout and mobile three-panel pager
 - Temporary `/` redirect to `/interview/setup`
 
-### Legacy InterviewAI generation still active
-
-- `/interview`
+### Legacy visual generation still active
 
 `/result/[id]` now uses persisted owner-authorized data while retaining the existing Result visual language. Legacy `/result` redirects safely to `/` and no longer renders query-controlled score or summary values.
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In and Interview Setup have since been implemented; Welcome and the Live Interview visual migration remain outstanding, and Result still retains its legacy visual language over the secured persisted-data flow.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, and Live Interview have since been implemented. Welcome remains outstanding, and Result still retains its legacy visual language over the secured persisted-data flow.
 
 The project is in an unfinished migration state.
 
@@ -347,7 +344,7 @@ Do not refactor this during unrelated stages.
 
 ### Interview
 
-12. Legacy Interview UI remains active.
+12. Talentry Live Interview UI is implemented and runtime-validated. RESOLVED.
 
 13. Interview business/runtime logic must be preserved during future migration.
 
@@ -362,17 +359,17 @@ while microphone toggle logic searches for audio tracks.
 
 16. `videoRef` is currently unused.
 
-17. HeyGen integration is incomplete / inactive in the current live interview component.
+17. Real HeyGen/live-avatar integration remains deferred.
 
-18. Generated audio object URLs are not currently revoked.
+18. Generated audio object URLs are revoked during replacement, completion, playback failure, and cleanup. RESOLVED.
 
 19. The Talentry Setup UI no longer reads or displays legacy CV data. It preserves an empty `cv=` compatibility parameter, while the interview engine still does not consume CV content.
 
 20. Interview answer count behavior should later be reviewed; one runtime test produced four persisted answers while UI reached question 5.
 
-21. The current question is duplicated in the dark canvas and right-side panel.
+21. Live Interview renders one canonical written question. RESOLVED.
 
-22. Written and spoken question delivery needs one canonical normalized question string for both UI and ElevenLabs.
+22. UI, TTS, current-question reference, and persisted answer pair use one trimmed canonical question. RESOLVED.
 
 23. Extra spoken TTS words require investigation without speculative engine changes.
 
@@ -390,9 +387,9 @@ Do not allow these issues to derail unrelated stages; they belong to the Talentr
 
 28. No Interview History implementation exists yet.
 
-29. The red end-interview control lacks a clear visible label and explicit accessible naming/tooltip. DEFERRED.
+29. Live Interview provides an explicit localized End Interview action. RESOLVED.
 
-30. A zero-answer completion error can remain visible after productive interview activity resumes. DEFERRED UX.
+30. A stale completion warning clears when a valid answer is submitted. RESOLVED.
 
 31. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
 
@@ -675,26 +672,44 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
-Talentry Interview Setup:
+Talentry Live Interview:
 
-COMPLETED — PASS
+COMPLETED AND RUNTIME VALIDATED — PASS
 
-The canonical Setup route is `/interview/setup`. It authenticates server-side with `getAuthenticatedUser()`, redirects unauthorized requests to `/login`, and renders the responsive Talentry Setup form only for authenticated users.
+The Live Interview now uses the Talentry visual system. Header, interviewer stage, question workspace, and controls are separated into presentational components while orchestration remains in `app/interview/page.tsx`.
 
-`/` temporarily redirects to `/interview/setup`. The authenticated header contains Talentry branding, an independent TR/EN/DE UI-language selector, and a localized Back to Dashboard action. It contains no Sign In, Create Account, or Logout controls.
+The engine uses one trimmed canonical question for the visible question, TTS, current-question reference, and persisted answer pair. A synchronous generation guard prevents overlapping question requests. UI question delivery no longer waits for ElevenLabs latency, and stale audio requests are invalidated while object URLs are revoked. Claude receives prior question texts to reduce repeated competencies and near-duplicate topics.
 
-The exact Setup-to-Live handoff remains `iv`, `role`, `company`, `level`, `itype`, `persona`, `language`, and empty `cv`. Role/company are optional and trimmed. The UI label `Analytical` intentionally submits the compatible value `curious`. Legacy `interviewai_cv` data is neither read nor deleted.
+Structured feedback accepts valid or fenced JSON with `strength`, `improvement`, and `suggestion`, retains a readable fallback, and uses localized TR/EN/DE labels. Notes remain controlled and transient across tab changes.
 
-Static review, TypeScript, production build, authenticated/unauthenticated route behavior, independent language controls, exact non-default and whitespace handoffs, tablet/mobile layout, full Setup → Interview → persisted UUID Result, and Result refresh all passed.
+At `<=640px`, Live Interview uses three horizontal panels: Interviewer, Question/Answer, and Feedback. Mobile opens silently on Panel 1. First entry into Panel 2 through CTA, swipe, or pagination triggers Q1/TTS exactly once. Panel 3 remains gated until feedback exists, is review-only, and returns the user to Panel 2 for the existing Next Question flow. The post-submit Panel 2 layout is compact at 390×844 while preserving the pre-submit textarea and accessible controls.
 
-Verified persisted Result:
+Zero-answer completion performs no evaluation, persistence, or Result navigation. The localized warning offers Return to Interview and Leave Without Saving. Leaving invalidates and stops TTS, revokes audio resources, stops media, returns to `/dashboard`, and creates no record. Generic completion failure exposes the same escape path. Failure → return → retry → persisted Result passed runtime validation.
 
-`/result/eb396bb5-33d3-4873-a347-9ad9a0dec069`
+The historical `app/api/Claude` versus `/api/claude` mismatch was fixed through a content-identical case-only rename to `app/api/claude`. The defect predates the new-computer migration. Production build now exposes `ƒ /api/claude`, and runtime question generation and TTS are restored.
 
-Next planned stage:
+Production validation passed compilation, lint/type validation, page-data collection, 18/18 static generation, build tracing, and final optimization. Relevant routes include `/api/claude`, `/api/interviews`, `/api/interviews/[id]`, `/interview`, `/interview/setup`, and `/result/[id]`.
 
-Talentry Live Interview migration/redesign
+Next planned sequence:
 
-Then proceed to Dashboard/history/sidebar integration and Welcome/root cutover.
+1. Review and close this Live Interview stage through the authorized stage-level commit and push.
+2. Dashboard/history/sidebar integration.
+3. Welcome/root cutover.
 
-Do not begin Talentry Live Interview until the completed Setup stage is reviewed and closed with its stage-level commit and push.
+Do not begin the next stage automatically.
+
+---
+
+## 18. Current Recovery / Environment
+
+- Repository: `C:\Users\p-ayd\interviewai`
+- Branch: `feature/auth-foundation`
+- Recovery checkpoint before this stage: `bbffe9b chore(recovery): checkpoint Talentry live interview work`
+- New-computer migration: completed successfully
+- Node.js: `24.18.0`
+- npm: `11.16.0`
+- Git: `2.55.0.windows.3`
+- VS Code: `1.135.0`
+- `.env.local`: restored locally and Git-ignored; contents must never be recorded in Project Memory
+
+The separate USB recovery bundle remains outside the repository and contains no information that should be copied into Project Memory.

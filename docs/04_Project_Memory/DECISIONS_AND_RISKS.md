@@ -929,6 +929,8 @@ Observed:
 
 During Talentry Sign In validation, a production build and an older development process used the same generated `.next` output concurrently.
 
+During Live Interview runtime validation, simultaneous Next development servers also produced confusing port, cache, hot-reload, and route-state observations. Next.js 14.2.5 development/HMR route-state instability remains an environment risk even though the production build passed.
+
 Result:
 
 A generated runtime/cache mismatch occurred.
@@ -957,6 +959,8 @@ If a `.next` runtime mismatch occurs:
 3. stop conflicting Next.js processes,
 4. regenerate the cache,
 5. do not restore source files unless Git evidence shows a source regression.
+
+Run only one Next development server for this repository during controlled acceptance.
 
 ---
 
@@ -1300,3 +1304,99 @@ Until Welcome is implemented, `/` redirects to `/interview/setup`; unauthenticat
 Live Interview boundary:
 
 This decision changes Setup presentation and routing only. The validated Live Interview engine, persistence, authenticated ownership, UUID Result handoff, retry, and failure behavior remain protected for the next Talentry Live Interview migration.
+
+---
+
+## DECISION-021 — Mobile Live Interview Uses a Three-Panel Pager
+
+Status: IMPLEMENTED AND RUNTIME VALIDATED — PASS
+
+Date:
+
+2026-09-06
+
+Decision:
+
+At `<=640px`, Live Interview uses a native horizontal scroll-snap pager with exactly three conceptual panels:
+
+1. Interviewer
+2. Question / Answer / Notes / Controls
+3. Feedback
+
+Rules:
+
+1. Mobile opens silently on the Interviewer panel.
+2. First actual entry into the Question panel through CTA, swipe, or pagination triggers Q1/TTS exactly once.
+3. `initialQuestionTriggeredRef` prevents duplicate generation and replay across navigation paths.
+4. The Feedback panel is gated until the existing feedback state is ready.
+5. The third pagination dot is visible but disabled until feedback exists.
+6. Feedback is not rendered inside the mobile Question panel; that panel shows a compact localized ready cue and explicit View Feedback action.
+7. The Feedback panel is review-only and cannot generate the next question.
+8. The user returns to the Question panel through button, swipe, or pagination before continuing with Next Question.
+9. Starting the next question clears old feedback and gates the third panel again.
+10. Desktop/tablet retain the existing Talentry Live Interview layout and automatic initial-question behavior.
+
+Rationale:
+
+The three-panel structure keeps interviewer presence, answer work, and evaluation readable within a normal phone viewport without placing detailed feedback below a long question form. Native scroll snap preserves familiar swipe behavior, while buttons and pagination ensure that critical navigation is not swipe-only.
+
+Runtime acceptance:
+
+- 390×844 three-panel layout and pagination → PASS
+- silent Panel 1 and one-time Panel 2 Q1/TTS trigger → PASS
+- swipe, pagination, and explicit actions → PASS
+- structured/fallback feedback presentation → PASS
+- return to Panel 2 and Q2 feedback reset → PASS
+- post-submit cue, controls, and pagination visible without scrolling → PASS
+
+---
+
+## DECISION-022 — API Route Segments Use Consistent Lowercase Casing
+
+Status: IMPLEMENTED — PASS
+
+Date:
+
+2026-09-06
+
+Decision:
+
+Application API directory segments and their callers must use consistent lowercase casing. The Claude route is:
+
+`app/api/claude/route.ts` → `/api/claude`
+
+Evidence:
+
+Git history originally tracked `app/api/Claude/route.ts` while the client called lowercase `/api/claude`. Next route matching is case-sensitive. The mismatch caused an HTML 404 response and a downstream JSON parse failure. The defect existed from the initial route history and predates the new-computer migration.
+
+Implementation:
+
+The correction is a 100%-similar, content-identical, case-only Git rename. Production build exposes `ƒ /api/claude`, and runtime question/TTS behavior passed.
+
+Operating rule:
+
+Treat route-segment case differences as cross-platform deployment defects even when a case-insensitive Windows working tree resolves both spellings locally.
+
+---
+
+## RISK-014 — Live Interview Provider Latency and Speech Variability
+
+Severity: LOW / MEDIUM
+
+Status: ACTIVE / NON-BLOCKING
+
+Observed:
+
+- ElevenLabs commonly begins playback about 5–6 seconds after the written question appears.
+- Final feedback generation may take several seconds depending on provider/network latency.
+- One runtime acceptance run confirmed that visible, requested, and audible question text matched.
+
+Mitigation:
+
+- Written question rendering no longer waits for TTS.
+- Speech-state messaging communicates preparation and playback state.
+- Stale TTS requests cannot replace the current request, and object URLs are revoked.
+
+Boundary:
+
+Do not claim that provider TTS can never introduce extra words or variation. Keep INTERVIEW-012 open until repeated diagnostics establish the provider behavior.

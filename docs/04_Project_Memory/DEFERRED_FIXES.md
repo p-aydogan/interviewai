@@ -268,39 +268,37 @@ Interview media/device behavior
 
 ## INTERVIEW-002 — `connected` State Is Never Activated
 
-Status: DEFERRED
+Status: RESOLVED BY TALENTRY LIVE INTERVIEW MIGRATION
 
 Current state:
 
-`connected` starts false and is not set true in the active interview component.
+The legacy `connected` state was not carried into the focused Talentry presentational components.
 
 Impact:
 
-Interviewer connection/spinner behavior is incomplete.
+The obsolete state no longer controls the active Live Interview UI. Speech readiness now uses explicit preparing, speaking, ready, and unavailable states.
 
 Planned stage:
 
-Live Interview engine audit / HeyGen integration
+Real HeyGen/live-avatar connection behavior remains separately deferred under INTERVIEW-004.
 
 ---
 
 ## INTERVIEW-003 — `videoRef` Is Unused
 
-Status: DEFERRED
+Status: RESOLVED BY TALENTRY LIVE INTERVIEW MIGRATION
 
 Current state:
 
-`videoRef` exists in the interview component but is not used.
+The unused legacy `videoRef` is no longer present. The active webcam uses the explicit self-view ref.
 
 Likely origin:
 
-Incomplete HeyGen/live-avatar integration.
+The obsolete ref was removed without claiming completion of HeyGen/live-avatar integration.
 
 Planned stage:
 
-Live Interview engine cleanup after behavior is fully mapped.
-
-Do not remove blindly before confirming intended avatar architecture.
+Real avatar architecture remains deferred under INTERVIEW-004.
 
 ---
 
@@ -326,21 +324,19 @@ Do not replace the current working Claude / ElevenLabs flow until the new avatar
 
 ## INTERVIEW-005 — Audio Object URLs Are Not Revoked
 
-Status: DEFERRED
+Status: RESOLVED — PASS
 
 Current state:
 
-ElevenLabs response blobs create object URLs.
-
-The current code does not revoke those URLs.
+ElevenLabs response blobs still use object URLs, but the active lifecycle revokes them after playback, replacement, playback failure, stale response handling, and exit cleanup.
 
 Risk:
 
-Potential memory/resource leak over repeated use.
+The identified leak path is closed. Request identity also prevents stale audio from replacing the current question audio.
 
 Planned stage:
 
-Interview media lifecycle cleanup
+Completed during the Talentry Live Interview stage.
 
 ---
 
@@ -399,7 +395,7 @@ Test all combinations:
 
 ## INTERVIEW-008 — Legacy Interview UI Still Active
 
-Status: DEFERRED MIGRATION
+Status: RESOLVED — TALENTRY LIVE INTERVIEW PASS
 
 Current route:
 
@@ -407,21 +403,21 @@ Current route:
 
 Current UI:
 
-Legacy InterviewAI
+Talentry Live Interview with approved desktop/tablet layout and mobile three-panel pager.
 
-Current runtime core is functional and must be protected.
+The existing runtime core, persistence, and Result handoff were preserved and runtime-validated.
 
 Planned stage:
 
-Talentry Live Interview migration
+Completed 2026-09-06.
 
-Do not combine visual redesign with uncontrolled runtime refactoring.
+The completed stage used focused hardening only where required for canonical questions, TTS lifecycle, safe exit, and responsive behavior.
 
 ---
 
 ## INTERVIEW-009 — End Interview Control Is Not Explicitly Labeled
 
-Status: DEFERRED UX / ACCESSIBILITY
+Status: RESOLVED — PASS
 
 Observed:
 
@@ -429,25 +425,25 @@ Observed:
 
 Current state:
 
-The red circular `📵` control ends the interview, but it has no clear visible `End Interview` / `Mülakatı Bitir` label and no explicit `aria-label`, title, or tooltip.
+The active Live Interview uses an explicit localized End Interview action with accessible button naming.
 
 Impact:
 
-Users must infer the action from the icon, and assistive-technology naming is not sufficiently explicit.
+The prior ambiguity is removed.
 
 Planned stage:
 
-Talentry Live Interview UX/accessibility migration.
+Completed during the Talentry Live Interview stage.
 
 Required direction:
 
-Provide a visible action label and appropriate accessible naming/tooltip while preserving the validated completion behavior.
+Completion behavior, zero-answer protection, persistence, and Result navigation remain preserved.
 
 ---
 
 ## INTERVIEW-010 — Obsolete Completion Error Can Remain Visible
 
-Status: DEFERRED UX
+Status: RESOLVED — PASS
 
 Observed:
 
@@ -455,34 +451,32 @@ After the zero-answer warning was shown, the user submitted an answer and receiv
 
 Current behavior:
 
-`completionError` clears when a new completion attempt begins, so persistence and Result correctness are unaffected.
+`completionError` now also clears when the user submits a valid answer.
 
 Deferred refinement:
 
-Clear obsolete completion errors when productive interview activity resumes, if consistent with the future Talentry Live Interview interaction design.
-
-Do not alter the validated completion guard or persistence flow opportunistically.
+The stale warning is removed without changing the completion guard or persistence flow.
 
 ---
 
 ## INTERVIEW-011 — Question Presentation and Written/Spoken Delivery Need One Canonical Source
 
-Status: DEFERRED LIVE INTERVIEW MIGRATION
+Status: RESOLVED — PASS
 
 Current state:
 
-The generated question is displayed in both the dark interview canvas and the right-side panel. Written and spoken delivery can diverge because the future Talentry presentation boundary has not yet established one canonical normalized question string for both UI and ElevenLabs.
+The active UI renders one written question. One trimmed canonical value feeds UI, TTS, the current-question ref, and the persisted answer pair.
 
 Planned stage:
 
-Talentry Live Interview migration
+Completed 2026-09-06.
 
 Required direction:
 
-- remove unintended duplicate question presentation;
-- normalize the generated question once;
-- feed the same canonical string to visible question UI and ElevenLabs;
-- preserve question generation, answer collection, feedback, persistence, and Result behavior.
+- duplicate presentation removed;
+- generated output trimmed once;
+- the same value feeds visible UI and ElevenLabs;
+- question generation, answer collection, feedback, persistence, and Result behavior passed runtime acceptance.
 
 ---
 
@@ -740,11 +734,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Talentry Interview Setup — COMPLETED / PASS
+Talentry Live Interview — COMPLETED AND RUNTIME VALIDATED / PASS
 
-Next planned stage:
+Next planned sequence:
 
-Talentry Live Interview migration/redesign
+Dashboard/history/sidebar integration, then Welcome/root cutover.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
@@ -811,3 +805,98 @@ Deferred review:
 - email content and deliverability monitoring
 
 Do not change SMTP, domain, sender, or provider configuration opportunistically during unrelated stages.
+
+---
+
+## INTERVIEW-013 — Direct Live Interview Route Has No Route-Level Auth Guard
+
+Status: DEFERRED — NON-BLOCKING
+
+Current state:
+
+`/interview/setup` is server-protected, but direct navigation to `/interview` does not add an equivalent route-level authentication boundary.
+
+Planned stage:
+
+Interview route hardening. Do not add middleware or broaden authentication architecture during unrelated UI work.
+
+---
+
+## INTERVIEW-014 — Invalid Interviewer Key Hardening
+
+Status: DEFERRED — NON-BLOCKING
+
+Current state:
+
+The compatible Setup flow emits supported interviewer keys, but direct malformed `iv` query input is not explicitly hardened at the Live Interview boundary.
+
+Planned stage:
+
+Query-contract and route-input hardening.
+
+---
+
+## INTERVIEW-015 — Answer Submission Has No Synchronous Duplicate Guard
+
+Status: DEFERRED — NON-BLOCKING
+
+Current state:
+
+Question generation and completion have synchronous in-flight guards. Answer submission relies on UI state and does not yet use an equivalent immediate ref guard against unusually fast duplicate activation.
+
+Planned stage:
+
+Interview state-machine hardening. Preserve the existing feedback request and `awaitingNext` behavior.
+
+---
+
+## INTERVIEW-016 — Refresh Resets Transient Interview State
+
+Status: DEFERRED — NON-BLOCKING
+
+Current state:
+
+A browser refresh during Live Interview resets questions, answers, Notes, timer, panel position, and other transient client state. Browser autoplay policy may also prevent speech from resuming automatically.
+
+Planned stage:
+
+Explicit session-resume architecture. Do not silently persist partial interview state without an approved product contract.
+
+---
+
+## INTERVIEW-017 — Provider Latency Remains User-Visible
+
+Status: KNOWN / NON-BLOCKING
+
+Runtime observation:
+
+- ElevenLabs speech commonly begins about 5–6 seconds after the written question appears.
+- Final feedback provider/network latency may also take several seconds.
+
+Current mitigation:
+
+Written questions render without waiting for TTS, and the UI exposes explicit speech state. No artificial delay or speculative provider change was introduced.
+
+---
+
+## ASSET-001 — Missing Favicon
+
+Status: DEFERRED — LOW PRIORITY
+
+Current state:
+
+`favicon.ico` may return 404 during development. This does not affect the authenticated product journey or Live Interview behavior.
+
+---
+
+## RESULT-006 — Result Visual Migration
+
+Status: DEFERRED
+
+Current state:
+
+`/result/[id]` securely renders persisted owner-authorized data but retains the legacy visual style.
+
+Planned stage:
+
+Talentry Result visual migration after the approved navigation and Dashboard/history sequence.

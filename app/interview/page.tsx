@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import LiveInterviewHeader from '@/components/interview/LiveInterviewHeader'
 import InterviewerStage from '@/components/interview/InterviewerStage'
 import type { SpeechStatus } from '@/components/interview/InterviewerStage'
-import InterviewWorkspace from '@/components/interview/InterviewWorkspace'
+import InterviewWorkspace, { InterviewFeedbackCard } from '@/components/interview/InterviewWorkspace'
 import type { InterviewFeedback, InterviewTab, InterviewWorkspaceLabels } from '@/components/interview/InterviewWorkspace'
 import LiveInterviewControls from '@/components/interview/LiveInterviewControls'
 import { TalentryButton } from '@/components/ui'
@@ -37,7 +37,7 @@ const T: Record<string,string> = {
 }
 const RESULT_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 type InterviewLanguage = 'tr' | 'en' | 'de'
-type MobileInterviewPanel = 'interviewer' | 'interview'
+type MobileInterviewPanel = 'interviewer' | 'interview' | 'feedback'
 
 type LiveInterviewCopy = {
   backToInterviewer: string
@@ -46,6 +46,9 @@ type LiveInterviewCopy = {
   cameraToggleOn: string
   completionFailure: string
   endInterview: string
+  feedbackGuidance: string
+  feedbackPanel: string
+  feedbackReady: string
   feedbackUnavailable: string
   goToQuestions: string
   interviewPanel: string
@@ -55,9 +58,11 @@ type LiveInterviewCopy = {
   microphoneToggleOn: string
   mobilePager: string
   returnToInterview: string
+  returnToQuestions: string
   sessionLabel: string
   speech: Record<SpeechStatus, string>
   timerLabel: string
+  viewFeedback: string
   workspace: InterviewWorkspaceLabels
   you: string
   zeroAnswerWarning: string
@@ -68,14 +73,18 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     backToInterviewer: 'Mülakatçıya Dön',
     cameraOff: 'Kamera kapalı', cameraToggleOff: 'Kamerayı kapat', cameraToggleOn: 'Kamerayı aç',
     completionFailure: 'Sonuç oluşturulamadı. Tekrar deneyebilir veya görüşmeden kaydetmeden çıkabilirsiniz.',
-    endInterview: 'Mülakatı Bitir', feedbackUnavailable: 'Geri bildirim şu anda gösterilemiyor.',
+    endInterview: 'Mülakatı Bitir',
+    feedbackGuidance: 'Sonraki soruya devam etmek için sola kaydır veya Sorulara Dön seçeneğini kullan.',
+    feedbackPanel: 'Değerlendirme', feedbackReady: 'Değerlendirmen hazır — görmek için sağa kaydır.',
+    feedbackUnavailable: 'Geri bildirim şu anda gösterilemiyor.',
     goToQuestions: 'Sorulara Geç', interviewPanel: 'Mülakat soruları', interviewerPanel: 'Mülakatçı',
     leaveWithoutSaving: 'Kaydetmeden Çık',
     microphoneToggleOff: 'Mikrofonu kapat', microphoneToggleOn: 'Mikrofonu aç', sessionLabel: 'Canlı mülakat',
     mobilePager: 'Mülakat bölümleri',
     returnToInterview: 'Mülakata Dön',
+    returnToQuestions: 'Sorulara Dön',
     speech: { preparing: 'Ses hazırlanıyor', speaking: 'Mülakatçı konuşuyor', ready: 'Ses hazır', unavailable: 'Ses kullanılamıyor' },
-    timerLabel: 'Geçen süre', you: 'Sen',
+    timerLabel: 'Geçen süre', viewFeedback: 'Değerlendirmeyi Gör', you: 'Sen',
     workspace: {
       answer: 'Cevabını yaz', answerPlaceholder: 'Cevabını buraya yaz...', currentQuestion: 'Güncel soru',
       feedback: 'Geri bildirim', finish: 'Mülakatı tamamla', improvement: 'Geliştirilebilir', loadingQuestion: 'Soru hazırlanıyor',
@@ -88,14 +97,18 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     backToInterviewer: 'Back to Interviewer',
     cameraOff: 'Camera off', cameraToggleOff: 'Turn camera off', cameraToggleOn: 'Turn camera on',
     completionFailure: 'Result could not be created. You can try again or leave the interview without saving.',
-    endInterview: 'End Interview', feedbackUnavailable: 'Feedback is currently unavailable.',
+    endInterview: 'End Interview',
+    feedbackGuidance: 'Swipe left or use Back to Questions to continue with the next question.',
+    feedbackPanel: 'Feedback', feedbackReady: 'Your feedback is ready — swipe right to view it.',
+    feedbackUnavailable: 'Feedback is currently unavailable.',
     goToQuestions: 'Go to Questions', interviewPanel: 'Interview questions', interviewerPanel: 'Interviewer',
     leaveWithoutSaving: 'Leave Without Saving',
     microphoneToggleOff: 'Mute microphone', microphoneToggleOn: 'Unmute microphone', sessionLabel: 'Live interview',
     mobilePager: 'Interview panels',
     returnToInterview: 'Return to Interview',
+    returnToQuestions: 'Back to Questions',
     speech: { preparing: 'Preparing voice', speaking: 'Interviewer speaking', ready: 'Voice ready', unavailable: 'Voice unavailable' },
-    timerLabel: 'Elapsed time', you: 'You',
+    timerLabel: 'Elapsed time', viewFeedback: 'View Feedback', you: 'You',
     workspace: {
       answer: 'Write your answer', answerPlaceholder: 'Write your answer here...', currentQuestion: 'Current question',
       feedback: 'Feedback', finish: 'Complete interview', improvement: 'Could improve', loadingQuestion: 'Preparing question',
@@ -108,14 +121,18 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     backToInterviewer: 'Zurück zum Interviewer',
     cameraOff: 'Kamera aus', cameraToggleOff: 'Kamera ausschalten', cameraToggleOn: 'Kamera einschalten',
     completionFailure: 'Das Ergebnis konnte nicht erstellt werden. Sie können es erneut versuchen oder das Interview ohne Speichern verlassen.',
-    endInterview: 'Interview beenden', feedbackUnavailable: 'Feedback ist derzeit nicht verfügbar.',
+    endInterview: 'Interview beenden',
+    feedbackGuidance: 'Wische nach links oder nutze Zurück zu den Fragen, um mit der nächsten Frage fortzufahren.',
+    feedbackPanel: 'Feedback', feedbackReady: 'Dein Feedback ist bereit — wische nach rechts, um es anzusehen.',
+    feedbackUnavailable: 'Feedback ist derzeit nicht verfügbar.',
     goToQuestions: 'Zu den Fragen', interviewPanel: 'Interviewfragen', interviewerPanel: 'Interviewer',
     leaveWithoutSaving: 'Ohne Speichern verlassen',
     microphoneToggleOff: 'Mikrofon stummschalten', microphoneToggleOn: 'Mikrofon einschalten', sessionLabel: 'Live-Interview',
     mobilePager: 'Interviewbereiche',
     returnToInterview: 'Zum Interview zurück',
+    returnToQuestions: 'Zurück zu den Fragen',
     speech: { preparing: 'Stimme wird vorbereitet', speaking: 'Interviewer spricht', ready: 'Stimme bereit', unavailable: 'Stimme nicht verfügbar' },
-    timerLabel: 'Verstrichene Zeit', you: 'Du',
+    timerLabel: 'Verstrichene Zeit', viewFeedback: 'Feedback ansehen', you: 'Du',
     workspace: {
       answer: 'Antwort schreiben', answerPlaceholder: 'Schreibe deine Antwort hier...', currentQuestion: 'Aktuelle Frage',
       feedback: 'Feedback', finish: 'Interview abschließen', improvement: 'Verbesserungsmöglichkeit', loadingQuestion: 'Frage wird vorbereitet',
@@ -213,6 +230,7 @@ function InterviewContent() {
   const audioObjectUrlRef = useRef<string | null>(null)
   const audioRequestRef = useRef(0)
   const questionGenerationInFlightRef = useRef(false)
+  const initialQuestionTriggeredRef = useRef(false)
   const completionInFlightRef = useRef(false)
   const [question, setQuestion] = useState('')
   const [qLoading, setQLoading] = useState(false)
@@ -221,6 +239,7 @@ function InterviewContent() {
   const [qNum, setQNum] = useState(0)
   const [activeTab, setActiveTab] = useState<InterviewTab>('q')
   const [mobilePanel, setMobilePanel] = useState<MobileInterviewPanel>('interviewer')
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [notes, setNotes] = useState('')
   const [micOn, setMicOn] = useState(true)
   const [camOn, setCamOn] = useState(true)
@@ -376,7 +395,24 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     }
   }, [])
 
-  useEffect(() => { askQuestion() }, [])
+  const triggerInitialQuestion = useCallback(() => {
+    if (initialQuestionTriggeredRef.current) return
+    initialQuestionTriggeredRef.current = true
+    void askQuestion()
+  }, [askQuestion])
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 640px)')
+    const triggerForViewport = () => {
+      const isMobile = mobileQuery.matches
+      setIsMobileViewport(isMobile)
+      if (!isMobile) triggerInitialQuestion()
+    }
+
+    triggerForViewport()
+    mobileQuery.addEventListener('change', triggerForViewport)
+    return () => mobileQuery.removeEventListener('change', triggerForViewport)
+  }, [triggerInitialQuestion])
   async function submitAnswer() {
     if (!answer.trim()) return
     setCompletionError('')
@@ -477,15 +513,25 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     
   }
   function showMobilePanel(panel: MobileInterviewPanel) {
+    if (panel === 'feedback' && !feedback) return
     const pager = mobilePagerRef.current
     setMobilePanel(panel)
-    pager?.scrollTo({ left: panel === 'interviewer' ? 0 : pager.clientWidth })
+    if (panel === 'interview') triggerInitialQuestion()
+    const panelIndex = panel === 'interviewer' ? 0 : panel === 'interview' ? 1 : 2
+    pager?.scrollTo({ left: panelIndex * pager.clientWidth })
   }
 
   function syncMobilePanel() {
     const pager = mobilePagerRef.current
     if (!pager?.clientWidth) return
-    setMobilePanel(Math.round(pager.scrollLeft / pager.clientWidth) === 0 ? 'interviewer' : 'interview')
+    const panelIndex = Math.round(pager.scrollLeft / pager.clientWidth)
+    const panel: MobileInterviewPanel = panelIndex === 0 ? 'interviewer' : panelIndex === 1 ? 'interview' : 'feedback'
+    if (panel === 'feedback' && !feedback) {
+      showMobilePanel('interview')
+      return
+    }
+    setMobilePanel(panel)
+    if (panel === 'interview') triggerInitialQuestion()
   }
 
   const liveInterviewControls = (
@@ -534,7 +580,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
             {copy.goToQuestions}
           </TalentryButton>
         </div>
-        <div aria-label={copy.interviewPanel} className={`${styles.mobilePanel} ${styles.mobileInterviewPanel}`} id="mobile-interview-panel" role="group">
+        <div aria-label={copy.interviewPanel} className={`${styles.mobilePanel} ${styles.mobileInterviewPanel} ${awaitingNext ? styles.mobileInterviewPanelPostSubmit : ''}`} id="mobile-interview-panel" role="group">
           <TalentryButton className={styles.mobilePanelBack} onClick={() => showMobilePanel('interviewer')} size="small" type="button" variant="ghost">
             {copy.backToInterviewer}
           </TalentryButton>
@@ -546,22 +592,40 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
             isCompleting={isCompleting}
             labels={copy.workspace}
             maxQuestions={MAX_Q}
+            mobileFeedbackReadyLabel={copy.feedbackReady}
+            mobileViewFeedbackLabel={copy.viewFeedback}
             notes={notes}
             onAnswerChange={setAnswer}
             onNext={nextQuestion}
             onNotesChange={setNotes}
             onSubmit={submitAnswer}
             onTabChange={setActiveTab}
+            onViewFeedback={() => showMobilePanel('feedback')}
             qLoading={qLoading}
             question={question}
             questionNumber={qNum}
+            showFeedback={!isMobileViewport}
           />
           <div className={styles.mobileControls}>{liveInterviewControls}</div>
         </div>
+        {isMobileViewport && (
+          <div aria-hidden={!feedback} aria-label={copy.feedbackPanel} className={`${styles.mobilePanel} ${styles.mobileFeedbackPanel} ${!feedback ? styles.mobileFeedbackPanelUnavailable : ''}`} id="mobile-feedback-panel" role="group">
+            {feedback && (
+              <>
+                <TalentryButton className={styles.mobilePanelBack} onClick={() => showMobilePanel('interview')} size="small" type="button" variant="ghost">
+                  {copy.returnToQuestions}
+                </TalentryButton>
+                <InterviewFeedbackCard feedback={feedback} labels={copy.workspace} />
+                <p className={styles.mobileFeedbackGuidance}>{copy.feedbackGuidance}</p>
+              </>
+            )}
+          </div>
+        )}
       </div>
       <nav aria-label={copy.mobilePager} className={styles.mobilePagination}>
         <button aria-controls="mobile-interviewer-panel" aria-current={mobilePanel === 'interviewer' ? 'step' : undefined} aria-label={copy.interviewerPanel} className={`${styles.mobilePagerDot} ${mobilePanel === 'interviewer' ? styles.mobilePagerDotActive : ''}`} onClick={() => showMobilePanel('interviewer')} type="button" />
         <button aria-controls="mobile-interview-panel" aria-current={mobilePanel === 'interview' ? 'step' : undefined} aria-label={copy.interviewPanel} className={`${styles.mobilePagerDot} ${mobilePanel === 'interview' ? styles.mobilePagerDotActive : ''}`} onClick={() => showMobilePanel('interview')} type="button" />
+        <button aria-controls="mobile-feedback-panel" aria-current={mobilePanel === 'feedback' ? 'step' : undefined} aria-disabled={!feedback} aria-label={copy.feedbackPanel} className={`${styles.mobilePagerDot} ${mobilePanel === 'feedback' ? styles.mobilePagerDotActive : ''}`} disabled={!feedback} onClick={() => showMobilePanel('feedback')} type="button" />
       </nav>
       <div className={styles.desktopControls}>{liveInterviewControls}</div>
     </main>

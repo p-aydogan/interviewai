@@ -1221,3 +1221,159 @@ Dashboard wiring to `/interview/setup`, history/sidebar integration, and Welcome
 PASS
 
 Implementation, runtime acceptance, and production validation are complete. The stage remains uncommitted and unpushed pending final diff review and stage-level commit authorization.
+
+---
+
+## Stage — Talentry Live Interview
+
+Date:
+
+2026-09-06
+
+Status:
+
+COMPLETED AND RUNTIME VALIDATED — PASS
+
+Recovery checkpoint before implementation:
+
+`bbffe9b chore(recovery): checkpoint Talentry live interview work`
+
+### Source scope
+
+Staged case-only rename:
+
+- `app/api/Claude/route.ts` → `app/api/claude/route.ts`
+
+Modified application files:
+
+- `app/interview/page.tsx`
+- `app/interview/interview.module.css`
+- `components/interview/InterviewWorkspace.tsx`
+
+Presentational component boundaries used by the final Live Interview include:
+
+- `components/interview/LiveInterviewHeader.tsx`
+- `components/interview/InterviewerStage.tsx`
+- `components/interview/InterviewWorkspace.tsx`
+- `components/interview/LiveInterviewControls.tsx`
+
+No Setup, Result, Dashboard, auth, Supabase, schema, persistence API, package, or design-token implementation changed.
+
+### Engine hardening
+
+- One trimmed canonical question value feeds the visible question, TTS, current-question reference, and persisted question/answer pair.
+- The duplicate legacy question rendering was removed.
+- A synchronous ref guard prevents overlapping question-generation requests.
+- Previous question texts are sent to Claude to reduce repeated competencies, topics, and near-duplicate wording.
+- Question rendering is decoupled from ElevenLabs latency; navigation/loading no longer stays locked while TTS completes.
+- Audio requests use request identity to ignore stale responses and prevent overlap.
+- Active audio is paused during replacement/cleanup, and object URLs are revoked after completion, failure, replacement, and exit.
+- Productive answer submission clears an obsolete completion warning.
+- Notes are controlled, transient, and survive Question/Notes tab changes.
+
+### Talentry visual migration and feedback
+
+- Live Interview now uses the Talentry visual system and approved tokens.
+- Desktop/tablet retain the approved interviewer/workspace layout.
+- The header, interviewer stage, workspace, and controls use focused presentational components.
+- The End Interview action has explicit localized visible text.
+- Speech state communicates preparing, speaking, ready, and unavailable states.
+- Structured feedback uses `strength`, `improvement`, and `suggestion` with localized TR/EN/DE labels.
+- The parser accepts valid JSON and fenced JSON and provides a readable fallback.
+- `InterviewFeedbackCard` shares presentation between desktop/tablet workspace feedback and the dedicated mobile feedback panel without duplicating state or requests.
+
+### Safe exit and completion
+
+- Ending with zero submitted answers performs no final Claude evaluation, `POST /api/interviews`, persistence, or Result navigation.
+- The localized warning offers Return to Interview and Leave Without Saving.
+- Return to Interview preserves the active question and interview state.
+- Leave Without Saving invalidates TTS, pauses audio, revokes the object URL, stops webcam/media tracks, routes to `/dashboard`, and creates no Result.
+- Runtime inspection confirmed no `POST /api/interviews` during zero-answer leave.
+- Generic completion/persistence failure exposes the same escape path.
+- Failure → Return to Interview → unblock persistence → retry → successful persisted Result passed runtime validation.
+- The user is not trapped inside Live Interview.
+
+### API casing correction
+
+Git history tracked:
+
+`app/api/Claude/route.ts`
+
+while the client called:
+
+`/api/claude`
+
+Next route matching is case-sensitive. The mismatch caused `POST /api/claude` to return an HTML 404 response, followed by a client JSON parse failure. History confirmed the defect existed from the route's initial commit and predated the new-computer migration.
+
+The fix is a pure case-only Git rename to `app/api/claude/route.ts`. File contents and blob identity are unchanged. Production build exposes `ƒ /api/claude`, and runtime written-question generation plus TTS are restored.
+
+### Mobile three-panel pager
+
+At `<=640px`, the approved structure is:
+
+1. Interviewer — stage, identity, self-view, speech status, and localized Go to Questions action.
+2. Question/Answer — canonical question, answer, Notes, Next/Skip, mic/camera/End controls, safe-exit UI, and a compact feedback-ready cue.
+3. Feedback — dedicated structured or fallback feedback presentation plus localized return guidance.
+
+Mobile opens silently on Panel 1. The first actual entry into Panel 2 through CTA, swipe, or pagination triggers Q1 and TTS. `initialQuestionTriggeredRef` sets before the asynchronous request, preventing replay from competing scroll/click events or repeated navigation.
+
+Mobile → desktop resize before Q1 triggers the initial question safely. Desktop → mobile resize after Q1 does not replay it. Desktop/tablet continue automatic Q1 generation.
+
+Exactly three pagination dots are visible on mobile. The third dot uses native disabled and `aria-disabled` semantics until feedback exists. The unavailable third panel contributes no swipe track and contains no focusable controls. Panel 3 is review-only; Next Question remains on Panel 2. Starting Q2 clears old feedback, removes/gates Panel 3 again, and preserves the existing question engine.
+
+### Mobile post-submit compaction
+
+At 390×844 after answer submission:
+
+- the submitted answer uses a compact disabled textarea footprint;
+- question and workspace spacing reduce only while `awaitingNext=true`;
+- Next Question and Skip share one row;
+- the feedback-ready cue and View Feedback action are visible without scrolling;
+- mic, camera, End Interview, and pagination remain visible;
+- pre-submit answer height, resizing, and usability remain unchanged.
+
+Runtime screenshot acceptance passed.
+
+### Runtime acceptance
+
+- Panel 1 rendered correctly and started silent → PASS
+- first Panel 2 entry generated written Q1 and TTS → PASS
+- three pagination dots, swipe, and dot navigation → PASS
+- returning to Panel 2 did not regenerate or replay Q1 → PASS
+- zero-answer safe-exit warning fitted and remained reachable → PASS
+- Return to Interview preserved the question → PASS
+- structured feedback request and parsing → PASS
+- View Feedback opened readable Panel 3 feedback → PASS
+- Panel 3 → Panel 2 through button, swipe, and pagination → PASS
+- Next Question generated Q2 → PASS
+- old feedback cleared and third dot became disabled for Q2 → PASS
+
+Visible, requested, and audible question text matched during acceptance. This does not establish that provider TTS can never introduce additional spoken words in other runs.
+
+### Static and production validation
+
+- `npx.cmd tsc --noEmit` → PASS
+- generated `tsconfig.tsbuildinfo` removed after validation
+- staged and unstaged `git diff --check` → PASS; only informational LF → CRLF warnings
+- production build with Next.js 14.2.5 → PASS
+- compilation and lint/type validity → PASS
+- page-data collection → PASS
+- static generation 18/18 → PASS
+- build tracing and final optimization → PASS
+- relevant output included `ƒ /api/claude`, `ƒ /api/interviews`, `ƒ /api/interviews/[id]`, `○ /interview`, `ƒ /interview/setup`, and `ƒ /result/[id]`
+
+### Remaining non-blocking items
+
+- ElevenLabs TTS commonly starts about 5–6 seconds after the written question; UI no longer waits on that latency.
+- Final feedback provider/network latency may also take several seconds.
+- Real HeyGen/live-avatar integration, direct `/interview` auth guarding, invalid interviewer-key hardening, answer-submit synchronous duplicate guarding, effective microphone audio-track behavior, and refresh restoration remain deferred.
+- Mid-interview refresh resets transient state, and autoplay may not resume.
+- `favicon.ico` 404 remains low-priority asset debt.
+- Result retains its legacy visual style.
+- Next.js 14.2.5 development/HMR route-state instability remains an environment risk despite the successful production build.
+
+### Stage result
+
+PASS
+
+Implementation, runtime acceptance, final audit, and Project Memory update are complete. The application changes and documentation remain uncommitted and unpushed pending explicit stage-level commit authorization. The existing staged API case rename was not altered during Project Memory work.

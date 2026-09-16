@@ -1377,3 +1377,81 @@ Visible, requested, and audible question text matched during acceptance. This do
 PASS
 
 Implementation, runtime acceptance, final audit, and Project Memory update are complete. The application changes and documentation remain uncommitted and unpushed pending explicit stage-level commit authorization. The existing staged API case rename was not altered during Project Memory work.
+
+---
+
+## Stage — Talentry Result Visual Migration Closure
+
+Date: 2026-09-16
+
+Status: COMPLETED — RUNTIME ACCEPTANCE AND PRODUCTION BUILD PASS
+
+Evidence source: verified runtime and build results supplied by the user for this closure. The memory-only update does not rerun those checks.
+
+### Scope and preserved architecture
+
+The completed stage includes the Talentry Result visual migration, mobile three-panel Result pager follow-up, and minimal Interview desktop CSS guard. It continues from the existing working tree on feature/auth-foundation, with safe starting commit ef18af9 feat(interview): complete Talentry live interview.
+
+- `/result/[id]` retains persisted owner-filtered fetching through the existing detail API.
+- Auth/login redirect, retry, refresh stability, and persisted score/summary contract remain intact.
+- Result now uses light Talentry presentation, with persisted score explicitly shown as score `/100`.
+- No pass/fail tier, percentile, gamification, chart, new scoring logic, or invented AI insight was added.
+- Persisted summary remains untranslated and is the assessment source.
+- Metadata includes role, company, level, interview type, interview language, persona/style, duration, and date/time, with localized labels/fallbacks. Interviewer identity is not invented.
+- The full persisted Q&A transcript remains accessible.
+- `Yeniden Başla` retains navigation through `/`, returning to Interview Setup.
+
+### Localization
+
+TR/EN/DE interface copy uses the existing `interviewai_uilang` application-language preference. Interview language remains independent. Persisted summary, questions, and answers are not translated.
+
+### Mobile Result pager
+
+At `<=640px`, the review has exactly three panels:
+
+1. Evaluation (initial panel): identity/completion heading, persisted score and summary.
+2. Interview Details: existing localized metadata and fallbacks.
+3. Questions & Answers: all persisted transcript items and accessible restart action.
+
+Exactly three pagination dots provide direct navigation; left/right swipe also changes panels. Switching panels does not refetch the API. Long content stays accessible through one vertical scroll region inside the active panel. Above 640px, desktop/tablet retains the existing non-pager Result layout.
+
+### Runtime acceptance
+
+- Desktop Result visual → PASS
+- Refresh persistence → PASS
+- 390×844 mobile Panel 1 → PASS
+- Swipe to Panel 2 → PASS
+- Swipe to Panel 3 → PASS
+- Swipe back → PASS
+- Dot navigation → PASS
+- Transcript/restart accessibility → PASS
+- Restart → Interview Setup → PASS
+- No visible horizontal overflow observed in the 390×844 test.
+
+### Interview desktop CSS guard
+
+A regression allowed mobile navigation buttons into the desktop grid: shared `.talentry-button { display:inline-flex }` could override local `display:none` rules. A minimal guard in `app/interview/interview.module.css` forces `.mobilePanelAction` and `.mobilePanelBack` hidden above 640px.
+
+Runtime verified that desktop Interview layout returned to normal. No Interview logic, state, TTS, or API behavior changed. The approved `<=640px` three-panel Interview pager remains unchanged.
+
+### Static and production build acceptance
+
+- `npx.cmd tsc --noEmit` → PASS
+- `git diff --check` → PASS
+- `npm.cmd run build` → PASS
+- Compiled successfully → PASS
+- Linting and checking validity of types → PASS
+- Collecting page data → PASS
+- Generating static pages 18/18 → PASS
+- Collecting build traces → PASS
+- Finalizing page optimization → PASS
+
+Important routes present: `/api/claude`, `/api/interviews`, `/api/interviews/[id]`, `/interview`, `/interview/setup`, `/result/[id]`.
+
+### Remaining scope and closure state
+
+Dashboard / History integration remains the next planned product stage. PDF/report download was not added. HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency debt remain unchanged. No API/schema/auth redesign was introduced.
+
+This entry supersedes the previous Live Interview entry's then-current statement that Result retained legacy styling; historical stage entries remain unchanged. Runtime/build acceptance also supersedes the pending-validation status recorded in the earlier implementation reports, which remain immutable.
+
+The application work remains uncommitted and unstaged. This step updates only the four relevant Project Memory files. No application code change, staging, commit, push, reset, restore, or stash was performed. Do not begin Dashboard / History or another stage automatically.

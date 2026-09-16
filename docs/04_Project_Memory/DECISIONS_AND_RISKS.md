@@ -1400,3 +1400,53 @@ Mitigation:
 Boundary:
 
 Do not claim that provider TTS can never introduce extra words or variation. Keep INTERVIEW-012 open until repeated diagnostics establish the provider behavior.
+
+---
+
+## DECISION-023 — Talentry Result Review Preserves Persisted Data and Independent UI Language
+
+Status: IMPLEMENTED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
+
+Date: 2026-09-16
+
+Decision:
+
+The light Talentry Result presentation at `/result/[id]` remains a view of the existing persisted, owner-filtered detail response. Existing auth/login redirect, retry, refresh stability, and score/summary persistence contract remain intact. Score is displayed explicitly as persisted score `/100`; the persisted summary remains the assessment. Do not derive pass/fail tiers, percentiles, gamification, charts, new scoring, or invented AI insights.
+
+Metadata displays role, company, level, interview type, interview language, persona/style, duration, and date/time using localized labels/fallbacks. Do not invent interviewer identity or expose owner data. Preserve all persisted Q&A and restart through `/` → Interview Setup.
+
+TR/EN/DE interface copy follows existing `interviewai_uilang`, independently of interview language. Persisted summary/questions/answers are never translated by the presentation.
+
+Evidence:
+
+The user supplied verified desktop visual, refresh persistence, restart, mobile acceptance and production-build PASS results for closure. The memory update records that evidence without rerunning it.
+
+Trust boundary:
+
+Owner-authorized persisted reading does not make scoring server-authoritative. The existing browser-submitted score/summary persistence trust boundary and Claude proxy auth/privacy debt are unchanged. PDF/report download, HeyGen/live avatar and TTS/provider latency remain deferred; no API/schema/auth redesign was introduced. Dashboard / History integration is the next planned product stage, requiring its own authorization.
+
+---
+
+## DECISION-024 — Mobile Result Uses Three Review Panels Without Refetching
+
+Status: IMPLEMENTED AND RUNTIME VALIDATED — PASS
+
+Date: 2026-09-16
+
+At `<=640px`, Result uses Evaluation, Interview Details, and Questions & Answers panels, with Evaluation initially active. Exactly three localized accessible dot buttons and left/right swipes provide navigation. Panel switches are presentation-only and do not issue API refetches or duplicate persisted state.
+
+Long content remains readable through one vertical scroll region inside the active panel. The transcript panel retains the restart action. Above 640px, the existing non-pager desktop/tablet Result layout remains unchanged.
+
+Runtime evidence supplied for closure: 390×844 initial panel, forward swipes to both remaining panels, backward swipe, dot navigation, transcript/restart accessibility, and restart → Setup all passed. No visible horizontal overflow was observed. Do not extrapolate this test to untested viewport sizes.
+
+---
+
+## DECISION-025 — Interview Mobile Controls Remain Hidden Above Their Breakpoint
+
+Status: IMPLEMENTED AND RUNTIME VALIDATED — PASS
+
+Date: 2026-09-16
+
+A desktop regression exposed `.mobilePanelAction` and `.mobilePanelBack` because shared `.talentry-button { display:inline-flex }` could override their local hiding rule. Keep the minimal guard in `app/interview/interview.module.css` that forces these controls hidden above 640px.
+
+Runtime verified restoration of the desktop Interview grid. This is a CSS-only containment fix; Interview logic/state/TTS/API behavior and the approved `<=640px` mobile three-panel pager remain unchanged. Future styling must preserve this breakpoint guard without changing shared Talentry button behavior.

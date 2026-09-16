@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-06
+Last updated: 2026-09-16
 
 ## 1. Canonical Repository State
 
@@ -14,15 +14,15 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-bbffe9b chore(recovery): checkpoint Talentry live interview work
+ef18af9 feat(interview): complete Talentry live interview
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-The recovery checkpoint before the current Live Interview stage is `bbffe9b`.
+The recovery checkpoint before the completed Live Interview stage was `bbffe9b`; the current Result stage starts from `ef18af9`.
 
-The completed and runtime-validated Talentry Live Interview stage is currently uncommitted. Its pure case-only API directory rename is staged; its Live Interview application and Project Memory changes remain unstaged pending review.
+The Result visual migration, mobile Result pager, and minimal Interview desktop CSS guard are complete, runtime-accepted, and production-build validated. These changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -56,15 +56,16 @@ Implemented:
 - Server-protected `/dashboard`
 - Authenticated canonical `/interview/setup` route with responsive Talentry UI
 - Talentry Live Interview UI with responsive desktop/tablet layout and mobile three-panel pager
+- Talentry light Result review with localized TR/EN/DE copy and a mobile three-panel pager
 - Temporary `/` redirect to `/interview/setup`
 
-### Legacy visual generation still active
+### Result migration and remaining navigation work
 
-`/result/[id]` now uses persisted owner-authorized data while retaining the existing Result visual language. Legacy `/result` redirects safely to `/` and no longer renders query-controlled score or summary values.
+`/result/[id]` now uses the Talentry light visual system over the existing persisted owner-filtered detail fetch. Auth/login redirect, retry, refresh stability, and persisted score/summary contract remain intact. Legacy `/result` still redirects safely to `/` and does not render query-controlled score or summary values.
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, and Live Interview have since been implemented. Welcome remains outstanding, and Result still retains its legacy visual language over the secured persisted-data flow.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, and Result have since been implemented. Welcome remains outstanding; Dashboard / History integration is the next planned product stage.
 
 The project is in an unfinished migration state.
 
@@ -672,6 +673,26 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
+Talentry Result Visual Migration + mobile three-panel pager + Interview desktop CSS guard:
+
+COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
+
+Closure evidence: the user supplied verified runtime and production-build results on 2026-09-16. This memory-only update records those results; it does not rerun acceptance or build.
+
+- Persisted score is displayed explicitly as score `/100`; the persisted summary remains the assessment. No pass/fail tier, percentile, gamification, chart, new scoring logic, or invented AI insight was added.
+- Metadata includes role, company, level, interview type, interview language, persona/style, duration, and date/time with localized labels/fallbacks. Interviewer identity is not invented.
+- The full persisted Q&A transcript remains accessible. `Yeniden Başla` retains navigation through `/`, returning to Interview Setup.
+- TR/EN/DE interface copy uses the existing `interviewai_uilang` preference. Interview language remains independent; persisted summary/questions/answers are not translated.
+- At `<=640px`, Result opens on Evaluation, followed by Interview Details and Questions & Answers. Exactly three pagination dots support direct navigation, alongside left/right swipe. Panel changes do not refetch the API.
+- Long content is accessible through one vertical scroll region inside the active panel. Restart remains accessible in the transcript panel. Above 640px, the existing non-pager desktop/tablet layout is preserved.
+- Desktop visual, refresh persistence, 390×844 Panel 1, forward/back swipes, dot navigation, transcript/restart accessibility, and restart → Setup all passed. No visible horizontal overflow was observed at 390×844.
+- The Interview desktop CSS guard forces `.mobilePanelAction` and `.mobilePanelBack` hidden above 640px, preventing shared `.talentry-button { display:inline-flex }` from exposing mobile controls in the desktop grid. Desktop runtime returned to normal. Interview logic/state/TTS/API behavior and the approved `<=640px` Interview pager are unchanged.
+- `npx.cmd tsc --noEmit`, `git diff --check`, and `npm.cmd run build` passed. Production compilation, lint/type validation, page-data collection, static generation 18/18, build tracing, and final optimization all passed. Routes include `/api/claude`, `/api/interviews`, `/api/interviews/[id]`, `/interview`, `/interview/setup`, and `/result/[id]`.
+
+Dashboard / History integration is the next planned product stage. PDF/report download, HeyGen/live avatar, scoring trust-boundary changes, Claude proxy auth/privacy debt, and TTS/provider latency remain deferred. No API/schema/auth redesign was introduced. No next stage, commit, or push is authorized by this closure.
+
+### Previously completed Live Interview foundation
+
 Talentry Live Interview:
 
 COMPLETED AND RUNTIME VALIDATED — PASS
@@ -692,7 +713,7 @@ Production validation passed compilation, lint/type validation, page-data collec
 
 Next planned sequence:
 
-1. Review and close this Live Interview stage through the authorized stage-level commit and push.
+1. Result stage implementation, runtime acceptance, production validation, and memory closure are complete; any Git checkpoint still requires separate authorization.
 2. Dashboard/history/sidebar integration.
 3. Welcome/root cutover.
 
@@ -704,7 +725,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Recovery checkpoint before this stage: `bbffe9b chore(recovery): checkpoint Talentry live interview work`
+- Safe committed checkpoint before the Result stage: `ef18af9 feat(interview): complete Talentry live interview`
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`

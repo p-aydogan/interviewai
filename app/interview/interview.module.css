@@ -593,6 +593,13 @@
   }
 }
 
+@media (min-width: 40.001rem) {
+  .page .mobilePanelAction,
+  .page .mobilePanelBack {
+    display: none;
+  }
+}
+
 @media (max-width: 40rem) {
   .page {
     height: 100dvh;

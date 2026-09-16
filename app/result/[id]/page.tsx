@@ -1,17 +1,20 @@
 'use client'
 
-import Link from 'next/link'
+import ResultContent from '@/components/result/ResultContent'
+import ResultShell, { ResultStatus } from '@/components/result/ResultShell'
+import { RESULT_COPY, RESULT_UI_LANGUAGE_KEY } from '@/components/result/result-copy'
+import type { AppLanguage } from '@/types/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-import { AUTH_ROUTES } from '@/lib/auth/auth-constants'
+import { AUTH_ROUTES, DEFAULT_APP_LANGUAGE, SUPPORTED_APP_LANGUAGES } from '@/lib/auth/auth-constants'
 
-type InterviewAnswer = {
+export type InterviewAnswer = {
   q: string
   a: string
 }
 
-type InterviewDetail = {
+export type InterviewDetail = {
   id: string
   interviewerKey: string
   role: string
@@ -81,31 +84,22 @@ function getInterview(value: unknown): InterviewDetail | null {
   return value.interview
 }
 
-function formatDuration(durationSeconds: number) {
-  const totalSeconds = Math.max(0, Math.floor(durationSeconds))
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-
-  return `${minutes}:${String(seconds).padStart(2, '0')}`
-}
-
-function formatCreatedAt(createdAt: string) {
-  const date = new Date(createdAt)
-
-  if (Number.isNaN(date.getTime())) {
-    return createdAt
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
-}
-
 export default function ResultDetailPage({ params }: ResultPageProps) {
   const router = useRouter()
   const [loadState, setLoadState] = useState<ResultLoadState>({ status: 'loading' })
   const [retryAttempt, setRetryAttempt] = useState(0)
+  const [uiLanguage, setUiLanguage] = useState<AppLanguage>(DEFAULT_APP_LANGUAGE)
+  const copy = RESULT_COPY[uiLanguage]
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(RESULT_UI_LANGUAGE_KEY)
+      const language = SUPPORTED_APP_LANGUAGES.find(value => value === saved)
+      if (language) setUiLanguage(language)
+    } catch {
+      // Keep the established default when browser storage is unavailable.
+    }
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -167,179 +161,18 @@ export default function ResultDetailPage({ params }: ResultPageProps) {
     return () => controller.abort()
   }, [params.id, retryAttempt, router])
 
-  const pageStyle = {
-    minHeight: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#07090d',
-    color: '#dde6ee',
-    padding: 20,
-    boxSizing: 'border-box' as const,
-  }
-
-  const cardStyle = {
-    maxWidth: 720,
-    width: '100%',
-    background: '#0e1318',
-    borderRadius: 20,
-    padding: 40,
-    textAlign: 'center' as const,
-    boxSizing: 'border-box' as const,
-  }
-
-  if (loadState.status === 'loading') {
-    return (
-      <main style={pageStyle}>
-        <div style={cardStyle} aria-live="polite">Loading result...</div>
-      </main>
-    )
-  }
-
-  if (loadState.status === 'unavailable') {
-    return (
-      <main style={pageStyle}>
-        <div style={cardStyle}>
-          <h1 style={{ fontSize: 24, marginBottom: 12 }}>Result unavailable</h1>
-          <p style={{ color: '#9aa8b6', lineHeight: 1.6, marginBottom: 24 }}>
-            This interview result is not available.
-          </p>
-          <Link href="/" style={{ color: '#00c8f0', fontWeight: 700 }}>
-            Start again
-          </Link>
-        </div>
-      </main>
-    )
-  }
-
-  if (loadState.status === 'loadError') {
-    return (
-      <main style={pageStyle}>
-        <div style={cardStyle}>
-          <h1 style={{ fontSize: 24, marginBottom: 12 }}>Result could not be loaded</h1>
-          <p style={{ color: '#9aa8b6', lineHeight: 1.6, marginBottom: 24 }}>
-            Please retry or start a new interview.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              onClick={() => setRetryAttempt(attempt => attempt + 1)}
-              style={{
-                padding: '12px 24px',
-                background: '#00c8f0',
-                color: '#07090d',
-                border: 0,
-                borderRadius: 10,
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              Retry
-            </button>
-            <Link
-              href="/"
-              style={{
-                display: 'inline-block',
-                padding: '12px 24px',
-                color: '#dde6ee',
-                border: '1px solid #33404d',
-                borderRadius: 10,
-                fontSize: 14,
-                fontWeight: 700,
-                textDecoration: 'none',
-              }}
-            >
-              Start again
-            </Link>
-          </div>
-        </div>
-      </main>
-    )
-  }
-
-  const { interview } = loadState
-  const scoreColor = interview.score >= 75
-    ? '#00e87a'
-    : interview.score >= 50
-      ? '#00c8f0'
-      : '#ff5f5f'
-
   return (
-    <main style={pageStyle}>
-      <article style={cardStyle}>
-        <div style={{ fontSize: 40, marginBottom: 12 }} aria-hidden="true">🎯</div>
-        <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8 }}>
-          Mülakat Tamamlandı
-        </h1>
-        <div style={{ fontSize: 80, fontWeight: 800, color: scoreColor, margin: '16px 0' }}>
-          {interview.score}
-        </div>
-        <div style={{ fontSize: 11, color: '#637384', marginBottom: 20 }}>PUAN</div>
-        <div style={{
-          background: '#0b1219',
-          borderRadius: 12,
-          padding: 20,
-          textAlign: 'left',
-          fontSize: 14,
-          lineHeight: 1.8,
-          marginBottom: 20,
-        }}>
-          {interview.summary}
-        </div>
-        <dl style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: 12,
-          textAlign: 'left',
-          margin: '0 0 24px',
-        }}>
-          {[
-            ['Pozisyon', interview.role],
-            ['Şirket', interview.company],
-            ['Seviye', interview.level],
-            ['Mülakat türü', interview.interviewType],
-            ['Dil', interview.language],
-            ['Süre', formatDuration(interview.durationSeconds)],
-            ['Tarih', formatCreatedAt(interview.createdAt)],
-          ].map(([label, value]) => (
-            <div key={label} style={{ background: '#0b1219', borderRadius: 10, padding: 12 }}>
-              <dt style={{ color: '#637384', fontSize: 11, marginBottom: 4 }}>{label}</dt>
-              <dd style={{ margin: 0, fontSize: 14 }}>{value}</dd>
-            </div>
-          ))}
-        </dl>
-        <section style={{ textAlign: 'left', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 18, marginBottom: 12 }}>Soru ve cevaplar</h2>
-          <div style={{ display: 'grid', gap: 12 }}>
-            {interview.answers.map((answer, index) => (
-              <div key={`${index}-${answer.q}`} style={{ background: '#0b1219', borderRadius: 12, padding: 16 }}>
-                <p style={{ margin: '0 0 8px', lineHeight: 1.6 }}>
-                  <strong>Soru {index + 1}:</strong> {answer.q}
-                </p>
-                <p style={{ margin: 0, color: '#aeb9c4', lineHeight: 1.6 }}>
-                  <strong>Cevap:</strong> {answer.a}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-        <Link
-          href="/"
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: '#00c8f0',
-            color: '#07090d',
-            borderRadius: 10,
-            fontSize: 14,
-            fontWeight: 700,
-            textDecoration: 'none',
-          }}
-        >
-          Yeniden Başla
-        </Link>
-      </article>
-    </main>
+    <ResultShell
+      mobileReview={loadState.status === 'ready'}
+      copy={copy}
+      uiLanguage={uiLanguage}
+      title={loadState.status === 'ready' ? copy.completed : copy.review}
+    >
+      {loadState.status === 'ready' ? (
+        <ResultContent interview={loadState.interview} copy={copy} uiLanguage={uiLanguage} />
+      ) : (
+        <ResultStatus status={loadState.status} copy={copy} onRetry={() => setRetryAttempt(attempt => attempt + 1)} />
+      )}
+    </ResultShell>
   )
 }

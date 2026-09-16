@@ -734,7 +734,7 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Talentry Live Interview — COMPLETED AND RUNTIME VALIDATED / PASS
+Talentry Result visual migration, mobile three-panel pager, and Interview desktop CSS guard — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-16).
 
 Next planned sequence:
 
@@ -891,12 +891,20 @@ Current state:
 
 ## RESULT-006 — Result Visual Migration
 
-Status: DEFERRED
+Status: RESOLVED — RUNTIME ACCEPTANCE AND PRODUCTION BUILD PASS
 
 Current state:
 
-`/result/[id]` securely renders persisted owner-authorized data but retains the legacy visual style.
+`/result/[id]` now renders persisted owner-filtered data in the light Talentry visual system. Score `/100`, untranslated assessment, localized session metadata, and full Q&A are available. TR/EN/DE copy uses `interviewai_uilang`; interview language remains independent.
 
-Planned stage:
+Closure evidence (2026-09-16, verified results supplied by the user):
 
-Talentry Result visual migration after the approved navigation and Dashboard/history sequence.
+- Desktop Result and refresh persistence passed.
+- At `<=640px`, Evaluation, Interview Details, and Questions & Answers use exactly three dots plus left/right swipe, without API refetch. Long content has one vertical scroll region per active panel.
+- 390×844 Panel 1, forward/back swipe, dots, transcript/restart accessibility, and restart through `/` → Setup passed; no visible horizontal overflow was observed.
+- TypeScript, whitespace validation, and production build passed, including static generation 18/18.
+- The companion Interview desktop CSS guard is runtime-validated: mobile controls stay hidden above 640px despite shared button display rules; no Interview logic or mobile pager change.
+
+Remaining scope:
+
+Dashboard / History integration is the next planned product stage. RESULT-004 remains open. PDF/report download, HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency remain unchanged/deferred. This visual closure does not resolve those separate issues or introduce an API/schema/auth redesign.

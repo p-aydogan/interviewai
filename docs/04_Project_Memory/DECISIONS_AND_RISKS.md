@@ -599,7 +599,7 @@ Current status:
 Write ownership is secure.
 The authenticated list GET now enforces server-derived ownership and passed real cross-user isolation testing.
 The owner-authorized detail GET combines interview ID with server-derived ownership and passed real cross-user isolation and not-found privacy testing.
-Result and history UI integrations remain unimplemented.
+Result and Dashboard recent-history UI integrations are implemented and runtime-accepted. The owner-filtered server APIs remain mandatory for every detail/list request; full-history UI remains deferred.
 
 ---
 
@@ -1423,7 +1423,7 @@ The user supplied verified desktop visual, refresh persistence, restart, mobile 
 
 Trust boundary:
 
-Owner-authorized persisted reading does not make scoring server-authoritative. The existing browser-submitted score/summary persistence trust boundary and Claude proxy auth/privacy debt are unchanged. PDF/report download, HeyGen/live avatar and TTS/provider latency remain deferred; no API/schema/auth redesign was introduced. Dashboard / History integration is the next planned product stage, requiring its own authorization.
+Owner-authorized persisted reading does not make scoring server-authoritative. The existing browser-submitted score/summary persistence trust boundary and Claude proxy auth/privacy debt are unchanged. PDF/report download, HeyGen/live avatar and TTS/provider latency remain deferred. Dashboard / Recent History integration has since passed runtime/build acceptance without schema/RLS/auth redesign; Interview Setup mobile redesign is next and requires separate authorization.
 
 ---
 
@@ -1450,3 +1450,37 @@ Date: 2026-09-16
 A desktop regression exposed `.mobilePanelAction` and `.mobilePanelBack` because shared `.talentry-button { display:inline-flex }` could override their local hiding rule. Keep the minimal guard in `app/interview/interview.module.css` that forces these controls hidden above 640px.
 
 Runtime verified restoration of the desktop Interview grid. This is a CSS-only containment fix; Interview logic/state/TTS/API behavior and the approved `<=640px` mobile three-panel pager remain unchanged. Future styling must preserve this breakpoint guard without changing shared Talentry button behavior.
+
+---
+
+## DECISION-026 — Dashboard Reuses Owner-Scoped Listing with an Optional Limit
+
+Status: IMPLEMENTED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
+
+Date: 2026-09-16
+
+Dashboard stays server-auth-protected and requests `/api/interviews?limit=5` from the existing list endpoint. The optional limit is validated as a positive integer up to 100; invalid values return 400. No limit preserves existing default listing behavior. Newest-first ordering is retained, with `created_at DESC` and `id DESC`. GET responses use `Cache-Control: private, no-store`.
+
+Owner identity is derived from the authenticated server user. No client-supplied owner/user identifier is trusted. The privileged server query must retain its explicit owner predicate for both limited and default reads; no schema/RLS/auth redesign or direct browser data access was introduced.
+
+Recent rows display persisted role/company, score `/100`, date/time, interview type, language and duration. History → persisted `/result/<id>`, Result → `/dashboard`, Start New Interview → `/interview/setup`, and freshness after a new completed interview passed. Restart through `/` remains unchanged. Loading, empty, error/retry, 401 redirect, cancellation and freshness behavior are implemented.
+
+TR/EN/DE Dashboard and Result return copy use `interviewai_uilang`; persisted role/company are not translated and interview language stays independent.
+
+Evidence: user-supplied verified runtime/static/build PASS results for closure; this memory-only update does not rerun them. Full My Interviews and full-history pagination/search/filter remain deferred. Default listing behavior is preserved, not a promise of unlimited provider result volume. Scoring trust, Claude proxy security/privacy, persistence idempotency and TTS/provider latency debt remain unchanged.
+
+---
+
+## DECISION-027 — Final Mobile Dashboard Uses Home/Menu, Recent Interviews and Actions
+
+Status: IMPLEMENTED AND RUNTIME ACCEPTED — PASS
+
+Date: 2026-09-16
+
+At `<=640px`, the approved initial page is Home/Menu (index 0): read-only search, compact Welcome and the mobile equivalent of the desktop Sidebar. Existing unavailable menu destinations remain disabled, without invented routes. Page 2 contains Recent Interviews and its existing loading/empty/error/retry states and Result links. Page 3 contains Quick Actions/Start New Interview, Recommended Jobs and existing placeholder modules. This final grouping supersedes intermediate Menu-first or Dashboard-at-index-1 proposals.
+
+Exactly three accessible localized dots and left/right swipes navigate the pages. Pager position is stable in a separate footer, outside the active content's single vertical scroll region. The old decorative mobile bottom navigation is hidden. Page navigation does not refetch history. Above 640px, existing desktop/tablet Dashboard layout is preserved.
+
+User-verified 390×844 acceptance passed all three pages, swipe back, dot navigation, mobile Start Interview → Setup, mobile History → Result and desktop regression. No fabricated recommendation/AI data or delete/edit/favorites/tags/analytics were added. Dashboard modules remain placeholders until separately authorized.
+
+Next planned work is Interview Setup mobile redesign, not automatically started by this closure. Full history, PDF/download and HeyGen/avatar remain deferred. Git checkpoint creation requires separate authorization; current Dashboard work is unstaged and uncommitted.

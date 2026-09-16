@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import type { DashboardCopy } from './dashboard-copy'
 
 interface NavigationItem {
   label: string
@@ -21,24 +22,25 @@ const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Premium', icon: '♢', available: false },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ copy, mobile = false }: { copy: DashboardCopy; mobile?: boolean }) {
   const pathname = usePathname()
 
   return (
-    <aside className="talentry-dashboard-sidebar">
+    <aside className={mobile ? 'talentry-dashboard-menu-page' : 'talentry-dashboard-sidebar'}>
       <div className="talentry-dashboard-brand">
         <span className="talentry-dashboard-brand-mark">T</span>
         <span className="talentry-dashboard-brand-name">Talentry</span>
       </div>
 
-      <nav className="talentry-dashboard-nav" aria-label="Dashboard navigation">
-        {NAVIGATION_ITEMS.map((item) => {
+      <nav className="talentry-dashboard-nav" aria-label={copy.navigation}>
+        {NAVIGATION_ITEMS.map((item, index) => {
+          const label = copy.nav[index]
           const content = (
             <>
               <span className="talentry-dashboard-nav-icon" aria-hidden="true">
                 {item.icon}
               </span>
-              <span className="talentry-dashboard-nav-label">{item.label}</span>
+              <span className="talentry-dashboard-nav-label">{label}</span>
             </>
           )
 
@@ -47,6 +49,7 @@ export default function Sidebar() {
 
             return (
               <Link
+                aria-label={label}
                 aria-current={isActive ? 'page' : undefined}
                 className={`talentry-dashboard-nav-item talentry-dashboard-nav-item--available${
                   isActive ? ' talentry-dashboard-nav-item--active' : ''
@@ -61,6 +64,7 @@ export default function Sidebar() {
 
           return (
             <div
+              aria-label={label}
               aria-disabled="true"
               className="talentry-dashboard-nav-item talentry-dashboard-nav-item--unavailable"
               key={item.label}

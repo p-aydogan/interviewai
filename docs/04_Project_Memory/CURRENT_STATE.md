@@ -14,15 +14,15 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-ef18af9 feat(interview): complete Talentry live interview
+c36c15a feat(result): complete Talentry review and mobile pager
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-The recovery checkpoint before the completed Live Interview stage was `bbffe9b`; the current Result stage starts from `ef18af9`.
+The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History work starts from `c36c15a`.
 
-The Result visual migration, mobile Result pager, and minimal Interview desktop CSS guard are complete, runtime-accepted, and production-build validated. These changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push.
+Dashboard / Recent Interview History Integration, including the final mobile three-page architecture, is complete, runtime-accepted, and production-build validated. Dashboard/history changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push. Remote checkpoint freshness was not checked in this step.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -47,6 +47,7 @@ Implemented:
 - Password visibility component
 - Responsive Dashboard shell
 - Dashboard sidebar / topbar foundation
+- Dashboard latest-five persisted interview history, Setup action, localized Result return navigation, and final mobile Home/Menu, Recent Interviews, Actions pager
 - Server-side authentication helper
 - Authenticated interview persistence API
 - Authenticated owner-scoped interview list API
@@ -65,7 +66,7 @@ Implemented:
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, and Result have since been implemented. Welcome remains outstanding; Dashboard / History integration is the next planned product stage.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, Result, and Dashboard / Recent History have since been implemented. Welcome remains outstanding; Interview Setup mobile redesign is next.
 
 The project is in an unfinished migration state.
 
@@ -331,11 +332,11 @@ This section summarizes resolved auth migration items and remaining deferred wor
 
 ### Dashboard
 
-7. Dashboard cards are title-only placeholders.
+7. Recent Interviews now displays persisted data and Quick Actions is functional. Welcome remains compact; Recommended Jobs, AI Insights, Daily Tip and Premium remain placeholders.
 
-8. Quick Actions is not connected to Interview Setup.
+8. Quick Actions links to `/interview/setup`. RESOLVED.
 
-9. Recent Interviews / My Interviews have an authenticated list data source but no Dashboard/history UI integration.
+9. Latest-five Dashboard history integration is complete. Full My Interviews and full-history pagination/search/filter remain deferred.
 
 10. Jobs, AI Coach, Reports, Saved Roles, Settings, Premium remain unavailable placeholders.
 
@@ -386,7 +387,7 @@ Do not allow these issues to derail unrelated stages; they belong to the Talentr
 
 27. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
 
-28. No Interview History implementation exists yet.
+28. Dashboard Recent Interviews and persisted Result navigation are complete. Full-history UI remains deferred.
 
 29. Live Interview provides an explicit localized End Interview action. RESOLVED.
 
@@ -394,7 +395,7 @@ Do not allow these issues to derail unrelated stages; they belong to the Talentr
 
 31. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
 
-The ID-based Result flow is complete. Dashboard/history integration remains deferred.
+The ID-based Result flow and Dashboard Recent History integration are complete and runtime-accepted.
 
 ---
 
@@ -673,6 +674,26 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
+Dashboard / Recent Interview History Integration, including final mobile three-page Dashboard:
+
+COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
+
+Closure evidence: user-supplied verified runtime/static/build results recorded on 2026-09-16; acceptance and build were not rerun in this memory-only step.
+
+- Dashboard remains server-auth-protected. The existing owner-scoped `GET /api/interviews` is reused with optional validated `limit` (1–100); `/api/interviews?limit=5` returns the latest five owner-scoped interviews. No-limit behavior remains preserved. GET responses use `Cache-Control: private, no-store`.
+- Owner identity remains derived server-side; no client-supplied owner/user identifier is trusted. No schema/RLS/auth redesign was introduced.
+- Recent rows retain newest-first ordering and show persisted role/company, score `/100`, date/time, interview type, language and duration. Loading, empty, error/retry, 401 redirect, cancellation and freshness behavior are implemented. A newly completed interview appears first when returning to Dashboard.
+- Start New Interview → `/interview/setup`; history row → persisted `/result/<id>`; localized Result Back to Dashboard → `/dashboard`. Existing Restart through `/` is unchanged.
+- Dashboard supports TR/EN/DE through `interviewai_uilang`; persisted role/company remain untranslated and interview language stays independent. Result return copy is localized.
+- At `<=640px`, initial Page 1 is Home/Menu: search, Welcome, mobile equivalent of desktop Sidebar; unavailable destinations stay disabled. Page 2 is Recent Interviews with existing states and Result links. Page 3 is Actions: Quick Actions/Start New Interview, Recommended Jobs and existing placeholders.
+- Exactly three dots, left/right swipe and direct dot navigation use a stable pager footer. Active content has one vertical scroll region when needed. Old decorative bottom navigation is hidden; page navigation does not refetch history. Above 640px, desktop/tablet Dashboard layout is preserved.
+- Runtime PASS: desktop Dashboard; latest five/newest-first; History → Result; Result → Dashboard; fresh history after completion; all three 390×844 pages; swipe back; dot navigation; mobile Start Interview → Setup; mobile History → Result; desktop regression.
+- Validation PASS: `npx.cmd tsc --noEmit`, `git diff --check`, `npm.cmd run build`; successful compilation, lint/type checking, page-data collection, static generation 18/18, build traces and final optimization. Routes present: `/dashboard`, `/api/interviews`, `/api/interviews/[id]`, `/interview/setup`, `/result/[id]`.
+
+Next: Interview Setup mobile redesign, requiring separate authorization. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar remain deferred. Dashboard placeholders, scoring trust boundary, Claude proxy security/privacy debt and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics were added.
+
+### Previously completed Result foundation
+
 Talentry Result Visual Migration + mobile three-panel pager + Interview desktop CSS guard:
 
 COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
@@ -689,7 +710,7 @@ Closure evidence: the user supplied verified runtime and production-build result
 - The Interview desktop CSS guard forces `.mobilePanelAction` and `.mobilePanelBack` hidden above 640px, preventing shared `.talentry-button { display:inline-flex }` from exposing mobile controls in the desktop grid. Desktop runtime returned to normal. Interview logic/state/TTS/API behavior and the approved `<=640px` Interview pager are unchanged.
 - `npx.cmd tsc --noEmit`, `git diff --check`, and `npm.cmd run build` passed. Production compilation, lint/type validation, page-data collection, static generation 18/18, build tracing, and final optimization all passed. Routes include `/api/claude`, `/api/interviews`, `/api/interviews/[id]`, `/interview`, `/interview/setup`, and `/result/[id]`.
 
-Dashboard / History integration is the next planned product stage. PDF/report download, HeyGen/live avatar, scoring trust-boundary changes, Claude proxy auth/privacy debt, and TTS/provider latency remain deferred. No API/schema/auth redesign was introduced. No next stage, commit, or push is authorized by this closure.
+Dashboard / History integration has now closed as recorded above. PDF/report download, HeyGen/live avatar, scoring trust-boundary changes, Claude proxy auth/privacy debt, and TTS/provider latency remain deferred. No next stage, commit, or push is authorized by this closure.
 
 ### Previously completed Live Interview foundation
 
@@ -713,9 +734,9 @@ Production validation passed compilation, lint/type validation, page-data collec
 
 Next planned sequence:
 
-1. Result stage implementation, runtime acceptance, production validation, and memory closure are complete; any Git checkpoint still requires separate authorization.
-2. Dashboard/history/sidebar integration.
-3. Welcome/root cutover.
+1. Dashboard / Recent History implementation, runtime acceptance and production validation are complete; its Git checkpoint still requires separate authorization.
+2. Interview Setup mobile redesign is next and is not started automatically.
+3. Welcome/root cutover and full-history work remain deferred.
 
 Do not begin the next stage automatically.
 
@@ -725,7 +746,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Safe committed checkpoint before the Result stage: `ef18af9 feat(interview): complete Talentry live interview`
+- Current safe committed checkpoint: `c36c15a feat(result): complete Talentry review and mobile pager`; Dashboard/history closure remains uncommitted.
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`

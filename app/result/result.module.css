@@ -22,12 +22,31 @@
 
 .brand {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--talentry-space-2);
   min-height: var(--talentry-button-height-lg);
   color: var(--talentry-color-navy);
   font-size: var(--talentry-font-size-lg);
   font-weight: var(--talentry-font-weight-bold);
+}
+
+.dashboardLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--talentry-button-height-md);
+  margin-left: auto;
+  padding-inline: var(--talentry-space-2);
+  color: var(--talentry-color-primary);
+  font-size: var(--talentry-font-size-sm);
+  font-weight: var(--talentry-font-weight-medium);
+  text-underline-offset: var(--talentry-space-1);
+}
+
+.dashboardLink:focus-visible {
+  outline: 2px solid var(--talentry-color-border-focus);
+  outline-offset: var(--talentry-space-1);
+  border-radius: var(--talentry-radius-sm);
 }
 
 .brandMark {

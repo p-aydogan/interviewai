@@ -20,6 +20,7 @@ export default function ResultShell({ children, title, copy, uiLanguage, mobileR
         <header className={styles.brand} aria-label="Talentry">
           <span className={styles.brandMark} aria-hidden="true">T</span>
           <span>Talentry</span>
+          <Link className={styles.dashboardLink} href="/dashboard">{copy.backToDashboard}</Link>
         </header>
         <SectionHeader className={styles.heading} headingAs="h1" eyebrow={copy.review} title={title} />
         <div className={styles.content}>{children}</div>

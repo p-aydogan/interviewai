@@ -1,6 +1,7 @@
 import type { AppLanguage } from '@/types/auth'
 
 export type ResultCopy = {
+  backToDashboard: string
   review: string; completed: string; score: string; summary: string; details: string
   role: string; company: string; level: string; interviewType: string
   language: string; duration: string; date: string; persona: string
@@ -26,6 +27,7 @@ export function displayValue(labels: Readonly<Record<string, string>>, value: st
 
 export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
   tr: {
+    backToDashboard: 'Panele Dön',
     pager: 'Sonuç bölümleri', panels: ['Değerlendirme', 'Görüşme bilgileri', 'Sorular ve cevaplar'],
     review: 'Mülakat değerlendirmesi', completed: 'Mülakat tamamlandı', score: 'Puan',
     summary: 'Performans değerlendirmesi', details: 'Görüşme bilgileri',
@@ -42,6 +44,7 @@ export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
     personas: { friendly: 'Arkadaşça', formal: 'Profesyonel', tough: 'Zorlu', curious: 'Analitik' },
   },
   en: {
+    backToDashboard: 'Back to Dashboard',
     pager: 'Result sections', panels: ['Evaluation', 'Interview details', 'Questions and answers'],
     review: 'Interview result review', completed: 'Interview complete', score: 'Score',
     summary: 'Performance review', details: 'Session details',
@@ -58,6 +61,7 @@ export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
     personas: { friendly: 'Friendly', formal: 'Professional', tough: 'Tough', curious: 'Analytical' },
   },
   de: {
+    backToDashboard: 'Zurück zum Dashboard',
     pager: 'Ergebnisbereiche', panels: ['Auswertung', 'Gesprächsdetails', 'Fragen und Antworten'],
     review: 'Interviewauswertung', completed: 'Interview abgeschlossen', score: 'Punktzahl',
     summary: 'Leistungsbeurteilung', details: 'Gesprächsdetails',

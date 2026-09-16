@@ -1455,3 +1455,77 @@ Dashboard / History integration remains the next planned product stage. PDF/repo
 This entry supersedes the previous Live Interview entry's then-current statement that Result retained legacy styling; historical stage entries remain unchanged. Runtime/build acceptance also supersedes the pending-validation status recorded in the earlier implementation reports, which remain immutable.
 
 The application work remains uncommitted and unstaged. This step updates only the four relevant Project Memory files. No application code change, staging, commit, push, reset, restore, or stash was performed. Do not begin Dashboard / History or another stage automatically.
+
+---
+
+## Stage — Dashboard / Recent Interview History Integration Closure
+
+Date: 2026-09-16
+
+Status: COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
+
+Evidence source: the user supplied the verified runtime and static/production-build results below. This Project Memory-only closure records those facts without rerunning acceptance or build.
+
+Repository: `C:\Users\p-ayd\interviewai`; branch `feature/auth-foundation`; safe committed checkpoint `c36c15a feat(result): complete Talentry review and mobile pager`. Dashboard/history work remains unstaged and uncommitted. Earlier entries retain their historical state; this closure supersedes statements that Dashboard/history was the next stage or not implemented.
+
+### Dashboard, data and ownership
+
+- Dashboard remains server-auth-protected.
+- Existing `GET /api/interviews` owner-scoped listing is reused; optional validated `limit` accepts 1–100. `/api/interviews?limit=5` returns the latest five owner-scoped interviews; default GET without a limit is preserved.
+- GET responses use `Cache-Control: private, no-store`. Owner identity remains server-derived, and no client-supplied owner/user identifier is trusted. No schema/RLS/auth redesign was introduced.
+- Recent Interviews preserves newest-first ordering and displays persisted role/company, score `/100`, date/time, interview type, language and duration. Each row links to `/result/<id>`.
+- Loading, empty, error, retry, 401 redirect, cancellation and freshness behavior are implemented. A new completed interview appears at the top after returning to Dashboard.
+
+### Navigation and localization
+
+- Start New Interview → `/interview/setup`.
+- History row → persisted `/result/<id>`.
+- Localized Result Back to Dashboard → `/dashboard`.
+- Existing Restart through `/` remains unchanged.
+- Dashboard supports TR/EN/DE via `interviewai_uilang`. Persisted user-entered role/company are not translated; interview language remains independent. Result return copy is localized.
+
+### Final approved mobile architecture
+
+At `<=640px`:
+
+1. Home/Menu — initial page: search, Welcome, mobile equivalent of desktop Sidebar; unavailable destinations remain disabled.
+2. Recent Interviews — latest five owner-scoped records, loading/empty/error/retry states and persisted Result navigation.
+3. Actions — Quick Actions, Start New Interview, Recommended Jobs and existing placeholder modules.
+
+Exactly three pager dots, left/right swipe and direct dot navigation use a stable footer position. Active content has one vertical scroll region when needed; the old duplicate decorative bottom navigation is hidden. Panel navigation does not refetch history. Desktop/tablet above 640px preserve the existing Dashboard layout.
+
+### Runtime acceptance — user-verified PASS
+
+- Desktop Dashboard → PASS
+- Recent five visible/newest-first → PASS
+- History → Result → PASS
+- Result → Dashboard → PASS
+- Fresh history after new completed interview → PASS
+- 390×844 Home/Menu page → PASS
+- 390×844 Recent Interviews page → PASS
+- 390×844 Actions page → PASS
+- Swipe back → PASS
+- Dot navigation → PASS
+- Mobile Start Interview → Setup → PASS
+- Mobile History → Result → PASS
+- Desktop regression → PASS
+
+### Static and production build — user-verified PASS
+
+- `npx.cmd tsc --noEmit` → PASS
+- `git diff --check` → PASS
+- `npm.cmd run build` → PASS
+- Compiled successfully → PASS
+- Linting and checking validity of types → PASS
+- Collecting page data → PASS
+- Generating static pages 18/18 → PASS
+- Collecting build traces → PASS
+- Finalizing page optimization → PASS
+
+Important routes present: `/dashboard`, `/api/interviews`, `/api/interviews/[id]`, `/interview/setup`, `/result/[id]`.
+
+### Deferred / next and closure boundary
+
+Interview Setup mobile redesign is next, requiring separate authorization. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar work remain deferred. Dashboard placeholder modules remain placeholders. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
+
+This closure supersedes the pending runtime/build status in implementation reports without editing those reports. Only CURRENT_STATE.md, STAGE_LOG.md, DECISIONS_AND_RISKS.md and DEFERRED_FIXES.md are updated in this step. No application code, extra documentation or Git mutations. Do not begin the next stage or commit/push automatically.

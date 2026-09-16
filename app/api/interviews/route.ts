@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { getAuthenticatedUser } from '@/lib/auth/get-authenticated-user'
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { InterviewListItem } from '@/types/interviews'
 
 type InterviewPayload = {
     interviewerKey: string
@@ -15,18 +16,6 @@ type InterviewPayload = {
     score: number
     summary: string
     durationSeconds: number
-}
-
-type InterviewListItem = {
-    id: string
-    role: string
-    company: string
-    level: string
-    interviewType: string
-    language: string
-    score: number
-    durationSeconds: number
-    createdAt: string
 }
 
 type InterviewListRow = {
@@ -76,18 +65,26 @@ function isInterviewPayload(value: unknown): value is InterviewPayload {
     )
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    const headers = { 'Cache-Control': 'private, no-store' }
     const auth = await getAuthenticatedUser()
 
     if (auth.status === 'unauthorized') {
         return NextResponse.json(
             { error: 'Unauthorized' },
-            { status: 401 },
+            { status: 401, headers },
         )
     }
 
+    const limits = request.nextUrl.searchParams.getAll('limit')
+    const rawLimit = limits[0]
+    if (limits.length > 1 || (rawLimit !== undefined &&
+        (!/^[1-9]\d*$/.test(rawLimit) || Number(rawLimit) > 100))) {
+        return NextResponse.json({ error: 'Invalid limit' }, { status: 400, headers })
+    }
+
     const admin = createAdminClient()
-    const { data, error } = await admin
+    let query = admin
         .from('interviews')
         .select(
             'id, role, company, level, interview_type, language, score, duration_seconds, created_at',
@@ -96,12 +93,15 @@ export async function GET() {
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })
 
+    if (rawLimit !== undefined) query = query.limit(Number(rawLimit))
+    const { data, error } = await query
+
     if (error) {
         console.error('Interview read error:', error)
 
         return NextResponse.json(
             { error: 'Failed to load interviews' },
-            { status: 500 },
+            { status: 500, headers },
         )
     }
 
@@ -119,7 +119,7 @@ export async function GET() {
 
     return NextResponse.json(
         { interviews },
-        { status: 200 },
+        { status: 200, headers },
     )
 }
 

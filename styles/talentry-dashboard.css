@@ -1,0 +1,240 @@
+@import './talentry-ui.css';
+
+.talentry-dashboard-container > .talentry-dashboard-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.talentry-dashboard-card .talentry-history-action {
+  display: inline-flex;
+  min-height: var(--talentry-button-height-md);
+  max-width: 100%;
+  height: auto;
+  padding-block: var(--talentry-space-3);
+  white-space: normal;
+  text-align: center;
+  text-decoration: none;
+}
+
+.talentry-dashboard-card-quick > .talentry-history-action {
+  margin-top: var(--talentry-space-5);
+}
+
+.talentry-history-caption,
+.talentry-history-status {
+  color: var(--talentry-color-text-secondary);
+  font-size: var(--talentry-font-size-sm);
+  line-height: var(--talentry-line-height-normal);
+}
+
+.talentry-history-caption {
+  margin: var(--talentry-space-2) 0 var(--talentry-space-4);
+}
+
+.talentry-history-list {
+  display: grid;
+  gap: var(--talentry-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.talentry-history-list > li,
+.talentry-history-role {
+  min-width: 0;
+}
+
+.talentry-history-row {
+  display: block;
+  min-width: 0;
+  min-height: var(--talentry-button-height-md);
+  padding: var(--talentry-space-3);
+  border: var(--talentry-card-border);
+  border-radius: var(--talentry-radius-md);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  line-height: var(--talentry-line-height-normal);
+}
+
+.talentry-history-row:hover {
+  background: var(--talentry-color-surface-lavender);
+}
+
+.talentry-history-row:focus-visible,
+.talentry-history-action:focus-visible {
+  outline: 2px solid var(--talentry-color-border-focus);
+  outline-offset: var(--talentry-space-1);
+}
+
+.talentry-history-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--talentry-space-2);
+}
+
+.talentry-history-role {
+  display: grid;
+  flex: 1 1 60%;
+  font-size: var(--talentry-font-size-sm);
+}
+
+.talentry-history-role > span,
+.talentry-history-meta {
+  color: var(--talentry-color-text-secondary);
+  font-size: var(--talentry-font-size-xs);
+}
+
+.talentry-history-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--talentry-space-1) var(--talentry-space-3);
+  margin-top: var(--talentry-space-2);
+}
+
+.talentry-history-meta > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.talentry-dashboard-mobile-viewport { display: contents; }
+.talentry-dashboard-mobile-track { display: contents; }
+.talentry-dashboard-mobile-panel { display: contents; }
+.talentry-dashboard-pager { display: none; }
+.talentry-dashboard-mobile { display: none; }
+
+@media (max-width: 640px) {
+  .talentry-dashboard-layout.talentry-dashboard-layout {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .talentry-dashboard-layout .talentry-dashboard-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .talentry-dashboard-layout .talentry-dashboard-topbar { flex: none; }
+
+  .talentry-dashboard-layout .talentry-dashboard-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--talentry-space-4) var(--talentry-space-4)
+      calc(var(--talentry-space-3) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .talentry-dashboard-layout .talentry-dashboard-bottom-nav,
+  .talentry-dashboard-layout .talentry-dashboard-topbar .talentry-dashboard-search,
+  .talentry-dashboard-main .talentry-dashboard-desktop {
+    display: none;
+  }
+
+  .talentry-dashboard-main .talentry-dashboard-mobile {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    gap: var(--talentry-space-3);
+  }
+
+  /* Only this viewport scrolls; the sibling pager never participates. */
+  .talentry-dashboard-mobile-viewport {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding: var(--talentry-space-1);
+  }
+
+  .talentry-dashboard-mobile-page { min-width: 0; }
+  .talentry-dashboard-mobile-page[hidden] { display: none; }
+  .talentry-dashboard-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--talentry-space-3);
+    min-width: 0;
+  }
+
+  .talentry-dashboard-mobile-cards > .talentry-dashboard-card {
+    flex: none;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--talentry-space-4);
+    overflow-wrap: anywhere;
+  }
+
+  .talentry-dashboard-mobile-cards .talentry-history-action {
+    min-height: var(--talentry-button-height-md);
+    padding-block: var(--talentry-space-2);
+  }
+
+  .talentry-dashboard-mobile-cards .talentry-dashboard-card-quick > .talentry-history-action {
+    margin-top: var(--talentry-space-3);
+  }
+
+  .talentry-dashboard-pager {
+    display: flex;
+    flex: none;
+    justify-content: center;
+    gap: var(--talentry-space-3);
+    padding: 0;
+  }
+
+  .talentry-dashboard-page-search {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--talentry-button-height-md);
+    padding: var(--talentry-space-3) var(--talentry-space-4);
+    border: var(--talentry-card-border);
+    border-radius: var(--talentry-radius-md);
+    background: var(--talentry-color-surface-lavender);
+    color: var(--talentry-color-text);
+    font: inherit;
+  }
+
+  .talentry-dashboard-menu-page {
+    padding: var(--talentry-space-4);
+    border-radius: var(--talentry-radius-xl);
+    background: var(--talentry-color-navy);
+    color: var(--talentry-color-text-on-dark);
+  }
+
+  .talentry-dashboard-menu-page .talentry-dashboard-brand {
+    padding: var(--talentry-space-2) var(--talentry-space-2) var(--talentry-space-4);
+  }
+
+  .talentry-dashboard-menu-page .talentry-dashboard-nav-item {
+    min-width: 0;
+    min-height: var(--talentry-button-height-md);
+    padding: var(--talentry-space-2) var(--talentry-space-3);
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .talentry-dashboard-menu-page .talentry-dashboard-nav-label { min-width: 0; }
+
+  .talentry-dashboard-page-search:focus-visible,
+  .talentry-dashboard-mobile-page:focus-visible {
+    outline: 2px solid var(--talentry-color-border-focus);
+    outline-offset: var(--talentry-space-1);
+  }
+  .talentry-dashboard-pager button { display: grid; width: 44px; height: 44px; place-items: center; border: 0; border-radius: var(--talentry-radius-pill); background: transparent; }
+  .talentry-dashboard-pager button span { width: 10px; height: 10px; border-radius: 50%; background: var(--talentry-color-border-strong); }
+  .talentry-dashboard-pager button[aria-current="step"] span { background: var(--talentry-color-primary); }
+  .talentry-dashboard-pager button:focus-visible { outline: 2px solid var(--talentry-color-border-focus); outline-offset: -2px; }
+}

@@ -1,4 +1,11 @@
+'use client'
+
+import { createContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import type { AppLanguage } from '@/types/auth'
+import { DEFAULT_APP_LANGUAGE, SUPPORTED_APP_LANGUAGES } from '@/lib/auth/auth-constants'
+import { DASHBOARD_COPY, DASHBOARD_LANGUAGE_KEY } from './dashboard-copy'
+import '@/styles/talentry-dashboard.css'
 
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
@@ -7,17 +14,37 @@ interface DashboardLayoutProps {
   children: ReactNode
 }
 
+export const DashboardLanguageContext = createContext<AppLanguage>(DEFAULT_APP_LANGUAGE)
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const [language, setLanguage] = useState<AppLanguage>(DEFAULT_APP_LANGUAGE)
+  useEffect(() => {
+    const readLanguage = () => {
+      try {
+        const saved = window.localStorage.getItem(DASHBOARD_LANGUAGE_KEY)
+        setLanguage(SUPPORTED_APP_LANGUAGES.find(value => value === saved) ?? DEFAULT_APP_LANGUAGE)
+      } catch { /* Keep the default when browser storage is unavailable. */ }
+    }
+    readLanguage()
+    window.addEventListener('focus', readLanguage)
+    window.addEventListener('storage', readLanguage)
+    return () => {
+      window.removeEventListener('focus', readLanguage)
+      window.removeEventListener('storage', readLanguage)
+    }
+  }, [])
+  const copy = DASHBOARD_COPY[language]
   return (
-    <div className="talentry-dashboard-layout">
-      <Sidebar />
+    <DashboardLanguageContext.Provider value={language}>
+    <div className="talentry-dashboard-layout" lang={language}>
+      <Sidebar copy={copy} />
 
       <div className="talentry-dashboard-shell">
-        <Topbar />
+        <Topbar copy={copy} />
         <main className="talentry-dashboard-main">{children}</main>
       </div>
 
-      <nav className="talentry-dashboard-bottom-nav" aria-label="Mobile navigation placeholder">
+      <nav className="talentry-dashboard-bottom-nav" aria-label={copy.mobileNavigation}>
         {['⌂', '◇', '▣', '✦', '●'].map((icon, index) => (
           <span key={`${icon}-${index}`} className="talentry-dashboard-bottom-item" aria-hidden="true">
             {icon}
@@ -397,5 +424,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }
       `}</style>
     </div>
+    </DashboardLanguageContext.Provider>
   )
 }

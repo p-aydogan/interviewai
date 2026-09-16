@@ -161,39 +161,37 @@ Create Account and Forgot Password must use their dedicated Talentry routes.
 
 ## DASH-001 — Dashboard Cards Are Placeholders
 
-Status: DEFERRED
+Status: PARTIALLY RESOLVED — RECENT HISTORY / QUICK ACTIONS PASS; OTHER MODULES DEFERRED
 
 Current state:
 
-Dashboard contains title-only cards:
+Remaining compact/title-only placeholders:
 
 - Welcome
-- Quick Actions
-- Recent Interviews
 - Recommended Jobs
 - AI Insights
 - Daily Tip
 - Premium
 
-No real data/actions are connected.
+Quick Actions now links to `/interview/setup`; Recent Interviews shows the latest five persisted owner-scoped records and links to Result. Runtime and production build passed. No business data was invented for remaining placeholders.
 
 Planned stage:
 
-Dashboard functional integration
+Future approved module integrations; do not activate unavailable menu destinations.
 
 ---
 
 ## DASH-002 — Quick Actions Not Connected to Interview Setup
 
-Status: DEFERRED
+Status: RESOLVED — DESKTOP AND MOBILE NAVIGATION PASS
 
 Current state:
 
-The canonical authenticated Setup route now exists at `/interview/setup`, but no Dashboard Quick Action currently links to it.
+Dashboard Start New Interview now links to the canonical authenticated `/interview/setup`. Mobile navigation passed at 390×844.
 
 Planned stage:
 
-Dashboard / History / Sidebar integration
+Completed during Dashboard / Recent History closure (2026-09-16).
 
 Important:
 
@@ -203,7 +201,7 @@ Do not connect Quick Actions to a temporary legacy route if that connection will
 
 ## DASH-003 — Interview History Not Implemented
 
-Status: DEFERRED
+Status: RECENT HISTORY RESOLVED — FULL HISTORY DEFERRED
 
 Current state:
 
@@ -211,12 +209,14 @@ Authenticated owner-scoped list and detail APIs now exist and passed cross-user 
 
 Remaining:
 
-- dashboard history data
-- history UI
+- Full My Interviews page.
+- Full-history pagination, search and filtering.
+
+Dashboard now consumes `/api/interviews?limit=5` with newest-first persisted rows, loading/empty/error/retry, cancellation, 401 redirect and freshness. Result links and a newly completed interview appearing first on return passed runtime acceptance. Optional validated limit preserves default no-limit listing behavior and server-derived ownership.
 
 Planned stage:
 
-Interview read boundary + history
+Dashboard recent-history integration completed and build-validated; full-history functionality requires its own stage.
 
 Security requirement:
 
@@ -605,15 +605,15 @@ The ID-Based Result Migration is complete and runtime-validated.
 
 ## RESULT-004 — No Interview History UI
 
-Status: DEFERRED
+Status: RESOLVED — DASHBOARD RECENT HISTORY PASS
 
 Current state:
 
-Owner-authorized list and detail data boundaries exist, but no interview history UI consumes them.
+Dashboard shows the latest five owner-scoped persisted interviews and links to `/result/<id>`. Localized Result Back to Dashboard returns to `/dashboard`; Restart through `/` is unchanged. Desktop/mobile round trips and freshness passed. Full My Interviews remains deferred under DASH-003.
 
 Planned stage:
 
-Dashboard history integration
+Completed during Dashboard / Recent History closure (2026-09-16).
 
 ---
 
@@ -734,11 +734,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Talentry Result visual migration, mobile three-panel pager, and Interview desktop CSS guard — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-16).
+Dashboard / Recent Interview History Integration and final mobile Home/Menu → Recent Interviews → Actions architecture — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-16), based on user-supplied verified results.
 
 Next planned sequence:
 
-Dashboard/history/sidebar integration, then Welcome/root cutover.
+Interview Setup mobile redesign is next; do not begin automatically. Full My Interviews, full-history pagination/search/filter, Welcome/root cutover, PDF/download and HeyGen/avatar work remain deferred. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
@@ -907,4 +907,4 @@ Closure evidence (2026-09-16, verified results supplied by the user):
 
 Remaining scope:
 
-Dashboard / History integration is the next planned product stage. RESULT-004 remains open. PDF/report download, HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency remain unchanged/deferred. This visual closure does not resolve those separate issues or introduce an API/schema/auth redesign.
+Dashboard / Recent History integration is now complete and RESULT-004 is resolved. Interview Setup mobile redesign is next. PDF/report download, HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency remain unchanged/deferred. Neither closure resolves those separate issues or introduces a schema/RLS/auth redesign.

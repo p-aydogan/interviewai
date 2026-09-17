@@ -765,7 +765,7 @@ Mitigation:
 
 Latest safe commit:
 
-`79d8b02 feat(api): add owner-scoped interview reads`
+`3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation`
 
 Remote:
 
@@ -773,7 +773,7 @@ Remote:
 
 Current uncommitted completed stage:
 
-Owner-Authorized Interview Detail Read Boundary — PASS
+Interview Setup Mobile Redesign — runtime acceptance and production build PASS; unstaged and uncommitted
 
 ---
 
@@ -1423,7 +1423,7 @@ The user supplied verified desktop visual, refresh persistence, restart, mobile 
 
 Trust boundary:
 
-Owner-authorized persisted reading does not make scoring server-authoritative. The existing browser-submitted score/summary persistence trust boundary and Claude proxy auth/privacy debt are unchanged. PDF/report download, HeyGen/live avatar and TTS/provider latency remain deferred. Dashboard / Recent History integration has since passed runtime/build acceptance without schema/RLS/auth redesign; Interview Setup mobile redesign is next and requires separate authorization.
+Owner-authorized persisted reading does not make scoring server-authoritative. The existing browser-submitted score/summary persistence trust boundary and Claude proxy auth/privacy debt are unchanged. PDF/report download, HeyGen/live avatar and TTS/provider latency remain deferred. Dashboard / Recent History integration has since passed runtime/build acceptance without schema/RLS/auth redesign; Interview Setup mobile redesign has since passed runtime/build acceptance; see DECISION-028.
 
 ---
 
@@ -1483,4 +1483,26 @@ Exactly three accessible localized dots and left/right swipes navigate the pages
 
 User-verified 390×844 acceptance passed all three pages, swipe back, dot navigation, mobile Start Interview → Setup, mobile History → Result and desktop regression. No fabricated recommendation/AI data or delete/edit/favorites/tags/analytics were added. Dashboard modules remain placeholders until separately authorized.
 
-Next planned work is Interview Setup mobile redesign, not automatically started by this closure. Full history, PDF/download and HeyGen/avatar remain deferred. Git checkpoint creation requires separate authorization; current Dashboard work is unstaged and uncommitted.
+Interview Setup mobile redesign has since passed runtime/build acceptance under DECISION-028. Full history, PDF/download and HeyGen/avatar remain deferred. Dashboard is committed at 3dbaca7; Setup mobile work remains unstaged and uncommitted. A new Git checkpoint requires separate authorization.
+
+---
+
+## DECISION-028 — Mobile Setup Uses Two Controlled Panels
+
+Date: 2026-09-18
+Status: IMPLEMENTED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS.
+
+At <=640px, Panel 1 groups introduction, interviewer selection, persona and interview language; Panel 2 groups optional role/company, level, interview type and one Start Interview action. Exactly two dots and left/right swipes navigate freely. The stable pager is outside the active panel's single vertical scroll region. Above 640px, original desktop/tablet composition and document scrolling remain preserved.
+
+InterviewSetupForm remains the sole owner of setup state. Preserve defaults f / mid / behavioral / formal / tr and empty role/company; do not add required validation. Application language uses interviewai_uilang independently of interview language. Keep iv, role, company, level, itype, persona, language, cv; trim role/company on submit, preserve empty cv and empty query keys, and retain router.push. No duplicate business state, API/schema/auth or Interview logic change.
+
+User-verified acceptance confirms panel/dot/swipe behavior, all selected values, role/company preservation, 390 -> 641 state preservation, optional empty submission and query contract, language independence, refresh defaults, desktop/tablet regression and production build. Existing Live Interview feedback-panel gating was observed working, not modified.
+
+Refresh persists only UI language, not a Setup draft. Receiver validation and unrelated hardcoded copy remain deferred. No next stage or Git mutation is authorized.
+
+## RISK-015 — Setup Mobile Keyboard and Browser Viewport Edge Cases
+
+Status: KNOWN / BROWSER-SPECIFIC
+Date: 2026-09-18
+
+The supplied 390x844 acceptance passed. This does not establish every virtual-keyboard, browser chrome, safe-area, zoom or viewport combination. Retain browser-specific keyboard/reachability checks as a risk without claiming a reproduced defect or changing code during memory closure.

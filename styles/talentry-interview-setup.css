@@ -371,3 +371,134 @@
     transition: none;
   }
 }
+
+/* Setup-only mobile presentation; desktop and tablet rules above stay intact. */
+@media (max-width: 640px) {
+  .talentry-setup-shell {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--talentry-space-3);
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding: max(var(--talentry-space-3), env(safe-area-inset-top, 0px))
+      max(var(--talentry-space-4), env(safe-area-inset-right, 0px))
+      max(var(--talentry-space-2), env(safe-area-inset-bottom, 0px))
+      max(var(--talentry-space-4), env(safe-area-inset-left, 0px));
+  }
+
+  .talentry-setup-header {
+    flex: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--talentry-space-2);
+    min-width: 0;
+  }
+
+  .talentry-setup-header__actions { display: contents; }
+  .talentry-setup-language { grid-column: 2; grid-row: 1; }
+  .talentry-setup-dashboard-link { grid-column: 1 / -1; width: 100%; white-space: normal; }
+  .talentry-setup-brand { min-width: 0; }
+
+  .talentry-setup-mobile-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    gap: var(--talentry-space-2);
+  }
+
+  .talentry-setup-mobile-viewport {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: contain;
+    touch-action: pan-y pinch-zoom;
+    padding: var(--talentry-space-1);
+    scroll-padding-block: var(--talentry-space-2);
+  }
+
+  .talentry-setup-mobile-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--talentry-space-4);
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .talentry-setup-mobile-panel[hidden] { display: none; }
+  .talentry-setup-mobile-panel > * { flex: none; min-width: 0; }
+  .talentry-setup-mobile-panel h1 {
+    margin: 0;
+    color: var(--talentry-color-navy);
+    font-size: var(--talentry-font-size-xl);
+    line-height: var(--talentry-line-height-snug);
+  }
+  .talentry-setup-mobile-panel .talentry-section-header__title { font-size: var(--talentry-font-size-xl); }
+  .talentry-setup-mobile-panel .talentry-section-header__description { font-size: var(--talentry-font-size-sm); }
+  .talentry-setup-mobile-panel .talentry-card { padding: var(--talentry-space-3); }
+  .talentry-setup-mobile-panel .talentry-setup-interviewer-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: var(--talentry-space-3);
+    gap: var(--talentry-space-2);
+  }
+  .talentry-setup-mobile-panel .talentry-setup-interviewer-option label {
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: start;
+    text-align: center;
+    gap: var(--talentry-space-2);
+    padding: var(--talentry-space-2);
+  }
+  .talentry-setup-mobile-panel .talentry-setup-interviewer-option img {
+    width: var(--talentry-space-12);
+    height: var(--talentry-space-12);
+  }
+  .talentry-setup-mobile-panel .talentry-setup-interviewer-option__identity strong { font-size: var(--talentry-font-size-sm); }
+  .talentry-setup-mobile-panel .talentry-setup-interviewer-option__identity span { font-size: var(--talentry-font-size-xs); }
+  .talentry-setup-mobile-panel .talentry-setup-field input,
+  .talentry-setup-mobile-panel .talentry-setup-field select { font-size: var(--talentry-font-size-md); min-width: 0; }
+  .talentry-setup-mobile-panel .talentry-setup-submit { margin-top: var(--talentry-space-2); white-space: normal; }
+
+  .talentry-setup-mobile-pager {
+    display: flex;
+    flex: none;
+    justify-content: center;
+    gap: var(--talentry-space-2);
+  }
+  .talentry-setup-mobile-pager button {
+    display: grid;
+    place-items: center;
+    width: var(--talentry-button-height-md);
+    height: var(--talentry-button-height-md);
+    border: 0;
+    border-radius: var(--talentry-radius-pill);
+    background: transparent;
+    cursor: pointer;
+  }
+  .talentry-setup-mobile-pager button span {
+    width: var(--talentry-space-2);
+    height: var(--talentry-space-2);
+    border-radius: var(--talentry-radius-pill);
+    background: var(--talentry-color-text-secondary);
+  }
+  .talentry-setup-mobile-pager button[aria-current='step'] span {
+    width: var(--talentry-space-6);
+    background: var(--talentry-color-primary);
+  }
+  .talentry-setup-mobile-pager button:focus-visible,
+  .talentry-setup-mobile-panel:focus-visible {
+    outline: 2px solid var(--talentry-color-border-focus);
+    outline-offset: -2px;
+  }
+}

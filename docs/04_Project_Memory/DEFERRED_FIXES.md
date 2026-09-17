@@ -734,11 +734,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Dashboard / Recent Interview History Integration and final mobile Home/Menu → Recent Interviews → Actions architecture — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-16), based on user-supplied verified results.
+Interview Setup Mobile Redesign — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-18), based on user-supplied verified results. Dashboard / Recent History is already complete and committed at 3dbaca7.
 
 Next planned sequence:
 
-Interview Setup mobile redesign is next; do not begin automatically. Full My Interviews, full-history pagination/search/filter, Welcome/root cutover, PDF/download and HeyGen/avatar work remain deferred. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
+Interview Setup mobile redesign is complete; no next stage is authorized. Full My Interviews, full-history pagination/search/filter, Welcome/root cutover, PDF/download and HeyGen/avatar work remain deferred. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
@@ -907,4 +907,20 @@ Closure evidence (2026-09-16, verified results supplied by the user):
 
 Remaining scope:
 
-Dashboard / Recent History integration is now complete and RESULT-004 is resolved. Interview Setup mobile redesign is next. PDF/report download, HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency remain unchanged/deferred. Neither closure resolves those separate issues or introduces a schema/RLS/auth redesign.
+Dashboard / Recent History integration is now complete and RESULT-004 is resolved. Interview Setup mobile redesign is also complete and runtime/build accepted. PDF/report download, HeyGen/live avatar, scoring trust boundary, Claude proxy auth/privacy debt, and existing TTS/provider latency remain unchanged/deferred. Neither closure resolves those separate issues or introduces a schema/RLS/auth redesign.
+
+---
+
+## SETUP-001 — Mobile Redesign Closure and Remaining Boundaries
+
+Date: 2026-09-18
+Status: MOBILE REDESIGN RESOLVED — RUNTIME ACCEPTANCE AND PRODUCTION BUILD PASS; ITEMS BELOW REMAIN DEFERRED.
+
+Exactly two mobile panels, stable two-dot pager, swipe navigation, optional role/company, defaults, parent state, language independence and unchanged query contract passed acceptance, including 390 -> 641 state preservation and desktop/tablet regression. This resolves the mobile long-document presentation, not the following separate items:
+
+- Existing Interview receiver validation gaps, including malformed interviewer/enum query handling (see INTERVIEW-014), remain deferred.
+- Hardcoded copy outside mobile-specific additions remains deferred.
+- Setup refresh intentionally retains app UI language but resets the form draft to defaults. Draft persistence was not added and requires a separately approved scope.
+- Browser-specific mobile keyboard/viewport edge cases remain a risk (RISK-015), not a demonstrated failure of the accepted 390x844 flow.
+
+No Dashboard, Result, Interview logic, API, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history or root-routing changes were made by the Setup mobile stage. Do not start deferred work automatically.

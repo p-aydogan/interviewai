@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-16
+Last updated: 2026-09-18
 
 ## 1. Canonical Repository State
 
@@ -14,15 +14,15 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-c36c15a feat(result): complete Talentry review and mobile pager
+3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation
 
 Remote recovery branch:
 
 origin/feature/auth-foundation
 
-The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History work starts from `c36c15a`.
+The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History was subsequently committed at 3dbaca7 after starting from `c36c15a`.
 
-Dashboard / Recent Interview History Integration, including the final mobile three-page architecture, is complete, runtime-accepted, and production-build validated. Dashboard/history changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push. Remote checkpoint freshness was not checked in this step.
+Dashboard / Recent Interview History Integration, including the final mobile three-page architecture, is complete, runtime-accepted, and production-build validated. Interview Setup mobile redesign is also complete, runtime-accepted and production-build validated; Setup mobile changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push. Remote checkpoint freshness was not checked in this step.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -66,7 +66,7 @@ Implemented:
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, Result, and Dashboard / Recent History have since been implemented. Welcome remains outstanding; Interview Setup mobile redesign is next.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, Result, and Dashboard / Recent History have since been implemented. Welcome remains outstanding; Interview Setup mobile redesign is complete and runtime/build accepted.
 
 The project is in an unfinished migration state.
 
@@ -674,6 +674,27 @@ No SMTP, domain, sender, or provider configuration change was attempted during t
 
 ## 17. Current Stage Position
 
+### Interview Setup Mobile Redesign — Closure (2026-09-18)
+
+Status: COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS.
+
+Evidence source: verified acceptance and build results supplied by the user. This memory-only update does not rerun runtime acceptance or production build.
+
+- At <=640px, exactly two panels: Panel 1 contains introduction, interviewer selection, persona and interview language. Panel 2 contains optional role, optional company/sector, level, interview type and one Start Interview action.
+- InterviewSetupForm retains all setup state; no duplicate business state. Defaults remain interviewer=f, role='', company='', level=mid, interviewType=behavioral, persona=formal, interviewLanguage=tr.
+- Application UI language remains independent through interviewai_uilang. Query keys remain iv, role, company, level, itype, persona, language, cv. Role/company trim-on-submit, empty cv and existing URLSearchParams/router.push flow remain unchanged.
+- Exactly two dots, left/right swipe and direct dot navigation work. Pager stays outside the active content's single vertical scroll region when needed. State survives panel switching and 390 -> 641 viewport transitions, including interviewer/persona/interview-language selections.
+- Refresh retains application UI language but resets the form draft to defaults. Blank role/company submit successfully with empty query keys.
+- Runtime PASS: 390x844 Panel 1; Panel 2; swipe back; dot navigation; role/company preservation; 390 -> 641 state preservation; query contract; interviewer/persona/language preservation; optional empty submission; UI/interview-language independence; refresh; desktop regression; tablet regression.
+- Existing Live Interview mobile feedback-panel gating was also observed working during acceptance; no Interview logic changes were introduced.
+- Validation PASS: npx.cmd tsc --noEmit; git diff --check; npm.cmd run build. Compilation, lint/type checking, page-data collection, static generation 18/18, build traces and final page optimization all passed.
+- Existing desktop/tablet composition is preserved. Above 640px, normal document scrolling remains acceptable and no mobile pager is shown.
+- Deferred: receiver validation gaps, hardcoded copy outside mobile additions, Setup draft persistence, and browser-specific mobile keyboard edge cases.
+- Dashboard, Result, Interview logic, APIs, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history and root routing were not changed by this stage.
+- Setup work remains unstaged and uncommitted at recovery HEAD 3dbaca7 on feature/auth-foundation. No next stage, commit or push is authorized. This closure supersedes earlier pending runtime/build statements without rewriting implementation reports.
+
+### Previously completed Dashboard foundation
+
 Dashboard / Recent Interview History Integration, including final mobile three-page Dashboard:
 
 COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
@@ -690,7 +711,7 @@ Closure evidence: user-supplied verified runtime/static/build results recorded o
 - Runtime PASS: desktop Dashboard; latest five/newest-first; History → Result; Result → Dashboard; fresh history after completion; all three 390×844 pages; swipe back; dot navigation; mobile Start Interview → Setup; mobile History → Result; desktop regression.
 - Validation PASS: `npx.cmd tsc --noEmit`, `git diff --check`, `npm.cmd run build`; successful compilation, lint/type checking, page-data collection, static generation 18/18, build traces and final optimization. Routes present: `/dashboard`, `/api/interviews`, `/api/interviews/[id]`, `/interview/setup`, `/result/[id]`.
 
-Next: Interview Setup mobile redesign, requiring separate authorization. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar remain deferred. Dashboard placeholders, scoring trust boundary, Claude proxy security/privacy debt and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics were added.
+Interview Setup mobile redesign is complete; no next stage is authorized. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar remain deferred. Dashboard placeholders, scoring trust boundary, Claude proxy security/privacy debt and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics were added.
 
 ### Previously completed Result foundation
 
@@ -734,8 +755,8 @@ Production validation passed compilation, lint/type validation, page-data collec
 
 Next planned sequence:
 
-1. Dashboard / Recent History implementation, runtime acceptance and production validation are complete; its Git checkpoint still requires separate authorization.
-2. Interview Setup mobile redesign is next and is not started automatically.
+1. Dashboard / Recent History is complete and committed at 3dbaca7.
+2. Interview Setup mobile redesign is complete, runtime/build accepted and uncommitted; commit requires separate authorization.
 3. Welcome/root cutover and full-history work remain deferred.
 
 Do not begin the next stage automatically.
@@ -746,7 +767,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Current safe committed checkpoint: `c36c15a feat(result): complete Talentry review and mobile pager`; Dashboard/history closure remains uncommitted.
+- Current safe committed checkpoint: `3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation`; Setup mobile closure remains uncommitted.
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`

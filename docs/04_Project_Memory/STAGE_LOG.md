@@ -1529,3 +1529,24 @@ Important routes present: `/dashboard`, `/api/interviews`, `/api/interviews/[id]
 Interview Setup mobile redesign is next, requiring separate authorization. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar work remain deferred. Dashboard placeholder modules remain placeholders. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
 
 This closure supersedes the pending runtime/build status in implementation reports without editing those reports. Only CURRENT_STATE.md, STAGE_LOG.md, DECISIONS_AND_RISKS.md and DEFERRED_FIXES.md are updated in this step. No application code, extra documentation or Git mutations. Do not begin the next stage or commit/push automatically.
+
+---
+
+## Stage — Interview Setup Mobile Redesign — Closure (2026-09-18)
+
+Status: COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS.
+
+Evidence source: verified acceptance and build results supplied by the user. This memory-only update does not rerun runtime acceptance or production build.
+
+- At <=640px, exactly two panels: Panel 1 contains introduction, interviewer selection, persona and interview language. Panel 2 contains optional role, optional company/sector, level, interview type and one Start Interview action.
+- InterviewSetupForm retains all setup state; no duplicate business state. Defaults remain interviewer=f, role='', company='', level=mid, interviewType=behavioral, persona=formal, interviewLanguage=tr.
+- Application UI language remains independent through interviewai_uilang. Query keys remain iv, role, company, level, itype, persona, language, cv. Role/company trim-on-submit, empty cv and existing URLSearchParams/router.push flow remain unchanged.
+- Exactly two dots, left/right swipe and direct dot navigation work. Pager stays outside the active content's single vertical scroll region when needed. State survives panel switching and 390 -> 641 viewport transitions, including interviewer/persona/interview-language selections.
+- Refresh retains application UI language but resets the form draft to defaults. Blank role/company submit successfully with empty query keys.
+- Runtime PASS: 390x844 Panel 1; Panel 2; swipe back; dot navigation; role/company preservation; 390 -> 641 state preservation; query contract; interviewer/persona/language preservation; optional empty submission; UI/interview-language independence; refresh; desktop regression; tablet regression.
+- Existing Live Interview mobile feedback-panel gating was also observed working during acceptance; no Interview logic changes were introduced.
+- Validation PASS: npx.cmd tsc --noEmit; git diff --check; npm.cmd run build. Compilation, lint/type checking, page-data collection, static generation 18/18, build traces and final page optimization all passed.
+- Existing desktop/tablet composition is preserved. Above 640px, normal document scrolling remains acceptable and no mobile pager is shown.
+- Deferred: receiver validation gaps, hardcoded copy outside mobile additions, Setup draft persistence, and browser-specific mobile keyboard edge cases.
+- Dashboard, Result, Interview logic, APIs, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history and root routing were not changed by this stage.
+- Setup work remains unstaged and uncommitted at recovery HEAD 3dbaca7 on feature/auth-foundation. No next stage, commit or push is authorized. This closure supersedes earlier pending runtime/build statements without rewriting implementation reports.

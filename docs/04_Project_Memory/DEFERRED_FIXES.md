@@ -211,7 +211,7 @@ Remaining deferred work:
 - Persistent pagination/scroll restoration and virtualization.
 - Query-performance/index optimization only after measurement.
 
-Cursor behavior is statically reviewed and build-validated, not runtime-accepted beyond the first page. No schema/RLS/auth redesign. Source changes remain uncommitted at recovery HEAD bde1612; no new commit is claimed.
+Cursor behavior is statically reviewed and build-validated, not runtime-accepted beyond the first page. No schema/RLS/auth redesign. Full History source is now committed at 6569572; extended runtime pagination acceptance remains pending.
 
 ---
 ## DASH-004 — Dashboard Styling Has Separate Embedded Palette
@@ -598,7 +598,7 @@ The ID-Based Result Migration is complete and runtime-validated.
 Status: RESOLVED — FULL MY INTERVIEWS AVAILABLE-DATA RUNTIME AND BUILD PASS (2026-09-20).
 
 Canonical /interviews compact rows link to persisted /result/<id>. History -> Result, Result -> Dashboard and History -> Dashboard passed. Dashboard's duplicate latest-five presentation is removed. Result's existing Back to Dashboard remains unchanged, without a Back to My Interviews action.
-Available real data: 13 records, newest-first; Load more correctly absent. More-than-20-record runtime acceptance remains deferred under DASH-003 / RISK-016. Commit pending.
+Available real data: 13 records, newest-first; Load more correctly absent. More-than-20-record runtime acceptance remains deferred under DASH-003 / RISK-016. Full History is committed at 6569572.
 
 ---
 ## RESULT-005 — Completion Persistence Is Not Idempotent
@@ -718,11 +718,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Full My Interviews / History and Dashboard cleanup — COMPLETE, runtime accepted for 13 real records and production build PASS (2026-09-20), based on user-supplied verified results. Changes remain uncommitted.
+User Menu / Profile app-shell — COMPLETE, main-flow runtime acceptance and production build PASS (2026-09-20), based on user-supplied verified results. Account changes remain uncommitted at safe base 6569572; Full History is committed there. Its >20-record acceptance limitation remains.
 
 Next planned sequence:
 
-User Menu / Profile app-shell is planned next; Splash / Onboarding pre-auth follows app-shell/account work. No next stage is authorized. Runtime pagination boundaries, search/filter/sort, PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred.
+Splash + Onboarding pre-auth is planned next; it is not implemented. Preserve existing Sign In / Create Account flows. No next stage is authorized. Runtime pagination boundaries, search/filter/sort, PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
@@ -908,3 +908,24 @@ Exactly two mobile panels, stable two-dot pager, swipe navigation, optional role
 - Browser-specific mobile keyboard/viewport edge cases remain a risk (RISK-015), not a demonstrated failure of the accepted 390x844 flow.
 
 No Dashboard, Result, Interview logic, API, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history or root-routing changes were made by the Setup mobile stage. Do not start deferred work automatically.
+---
+
+## ACCOUNT-001 — Profile Editing and Persistence
+
+Date: 2026-09-20. Status: INTENTIONALLY DEFERRED.
+
+User Menu, read-only /profile, /account/settings (application language and password recovery), and /help are implemented and main-flow runtime/build accepted. No fake account controls, avatar upload, support channels, raw metadata exposure, profile table or migration. Editing/persistence needs a real product requirement/schema. Email change, deletion, MFA, device/session management and notification preferences remain unsupported and were not added.
+
+## ACCOUNT-002 — Unexercised Account Runtime Edge Cases
+
+Date: 2026-09-20. Status: DEFERRED ACCEPTANCE — NOT CURRENT BLOCKERS based on source/static/build review.
+
+Cross-tab logout is implemented/source-reviewed but not manually tested. Forced network failure during sign-out, missing-email/malformed-name metadata, storage-unavailable behavior and all intermediate breakpoint combinations were not manually reproduced. Do not claim these passed runtime acceptance.
+
+Accepted checks include Sign Out -> /login, Browser Back privacy, TR immediate update/refresh/logout-login persistence, Escape/focus return/outside click/underlying target, desktop and tested 390x844/641–767/768px layouts. Existing History >20-record boundary acceptance remains separately pending.
+
+## ACCOUNT-003 — Preserved Auth, Privacy and Localization Debt
+
+Status: DEFERRED — separate future scope.
+
+/interview still lacks a page-level auth guard; cost-bearing provider endpoints require separate security hardening; Claude/private-content logging debt remains; Result relies on its protected API rather than a server page guard. Localization remains fragmented, root html lang is inconsistent and AuthShell's separate language selector remains decorative. Account-menu acceptance does not resolve these items. Existing deferred entries, including PDF/avatar/scoring and history boundaries, remain intact.

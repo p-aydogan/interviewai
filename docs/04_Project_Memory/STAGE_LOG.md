@@ -1600,3 +1600,64 @@ Real-data pagination with >20 records was NOT tested: the account had only 13 re
 Search/filter/sort, delete/edit/favorites/tags, persistent pagination/scroll restoration, virtualization and measured query-performance/index optimization remain deferred. Dashboard placeholders remain placeholders.
 User Menu / Profile app-shell is planned next; Splash / Onboarding pre-auth follows app-shell/account work. PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred. No next stage, commit or push is authorized.
 Recovery: feature/auth-foundation at bde1612. Full History and Dashboard cleanup remain uncommitted; nothing staged. Earlier entries retain their historical context; this closure supersedes prior Full History deferral and Dashboard latest-five/three-page decisions. Only the four relevant Project Memory files were updated in this step.
+
+---
+
+## User Menu / Profile App-Shell Closure — 2026-09-20
+
+Status: COMPLETED — main-flow runtime acceptance and production build PASS. Evidence: verified results supplied by the user for closure; this memory-only update did not rerun runtime tests, TypeScript or production build. Implementation sprint: USER_MENU_01.
+
+### Architecture and supported functionality
+
+Sidebar remains product navigation; Topbar remains global controls; avatar is a real account menu trigger. Dashboard remains the main post-login home, My Interviews the canonical history surface, and Result individual interview detail. No broad shell rewrite.
+
+The shared desktop/mobile/history-header menu exposes Profile, Account Settings, Application Language, Help & Support and Sign Out. It shows real authenticated email, a display name only when supported real metadata exists, and safe projected initials. No inferred/fabricated name or raw Supabase User/metadata reaches client components. Server authentication remains authoritative; no admin/server secret-bearing client import, profile table, migration or unsupported persistence was introduced.
+
+- /profile: server-authenticated; unauthorized -> /login; read-only real identity and honest not-provided display-name fallback. No edit controls or avatar upload.
+- /account/settings: server-authenticated; unauthorized -> /login; only TR/EN/DE application language and existing password recovery/reset navigation. No email change, deletion, MFA, device/session management or notification preferences.
+- /help: server-authenticated; unauthorized -> /login; concise guidance for Dashboard, Setup, Live Interview, My Interviews/Results and password recovery. No invented email/phone support, ticketing, SLA, live chat or documentation URLs.
+
+Shared implementation: lib/auth/user-identity.ts; components/account/UserMenu.tsx, LanguageSelector.tsx, useAccountSession.ts, account-copy.ts, AccountPageContent.tsx; styles/talentry-account.css. Existing DashboardLayout/Topbar and history-header integrations reuse this functionality.
+
+### Language and sign-out acceptance
+
+interviewai_uilang is preserved with tr | en | de. Shell selection updates immediately, persists across refresh and sign-out/later sign-in, and never changes interview language. Runtime: TR immediate update PASS; refresh persistence PASS; logout/login persistence PASS.
+
+Real current-session Sign Out -> /login PASS. Browser Back does not restore authenticated Dashboard/private content PASS. Centralized source implements duplicate-click guarding, stale-session handling, local-session absence navigation and cross-tab auth subscription. Fixed internal destination; no open redirect or raw auth identity logging added. Source implementation is not proof of manually tested cross-tab or network-failure behavior; no global/all-device revocation claim.
+
+### Accessibility acceptance
+
+Escape closes PASS; focus returns to avatar PASS; outside click closes PASS; underlying clicked target remains functional PASS. Avatar visible focus and language selected state verified.
+
+### Responsive and regression acceptance
+
+- Desktop Dashboard menu, Profile, Account Settings and Help: PASS.
+- 390x844 Dashboard menu, Profile and Account Settings: PASS.
+- Mobile account pages use normal vertical scrolling, not Dashboard pager.
+- 390x844 My Interviews history-header menu: PASS; list/pagination layout preserved.
+- 641–767 narrow Dashboard/menu: PASS.
+- 768px rail/sidebar transition and User Menu: PASS.
+- No obvious horizontal overflow or clipping in tested layouts.
+- Dashboard layout and approved two-page mobile pager intact; My Interviews accessible; history header retains Back to Dashboard plus shared account trigger; history document/list scrolling intact; Result navigation unchanged.
+
+This does not expand the prior History acceptance beyond 13 real records: >20-record pagination runtime boundaries remain pending.
+
+### Static and build acceptance
+
+Implementation TypeScript PASS; git diff --check PASS; LF-to-CRLF warnings only, non-blocking.
+
+User-supplied production evidence: npm.cmd run build PASS on Next.js 14.2.5; Compiled successfully; linting/checking validity of types PASS; collecting page data PASS; generating static pages 22/22 PASS; collecting build traces PASS; finalizing page optimization PASS.
+
+Relevant dynamic build routes: /profile, /account/settings, /help, /dashboard, /interviews, /interview/setup and /result/[id]. Dynamic build classification does not imply a server page guard on Result.
+
+### Untested edge cases and preserved debt
+
+Not manually runtime-tested: cross-tab logout; forced sign-out network failure; missing-email/malformed-name metadata; storage unavailable; every intermediate breakpoint. These are not current blockers based on source/static/build review, but remain untested.
+
+Existing debt remains: /interview page-level auth guard; cost-bearing provider endpoint security; Claude/private-content logging; Result protected API rather than server page guard; fragmented localization; root html lang inconsistency; separate/decorative AuthShell language selector. Profile editing/persistence stays deferred until a real requirement/schema exists. Other existing deferred work remains intact.
+
+### Recovery and next-stage boundary
+
+Branch feature/auth-foundation. Safe base before this stage and current HEAD: 6569572205a501ce25ad1b18b05a4fefd12f8e37 (6569572 feat(interviews): add paginated history and simplify dashboard). Full History is committed at that checkpoint. User Menu implementation and closure documentation remain unstaged/uncommitted. No commit, push or remote freshness verification performed here.
+
+Next planned stage: pre-auth Splash + Onboarding, preserving existing Sign In / Create Account flows. It is not implemented or authorized to begin by this memory update. Existing sprint reports remain immutable historical implementation-time records; this closure supplies subsequent acceptance evidence.

@@ -765,7 +765,7 @@ Mitigation:
 
 Latest safe commit:
 
-`3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation`
+`6569572 feat(interviews): add paginated history and simplify dashboard`
 
 Remote:
 
@@ -773,7 +773,7 @@ Remote:
 
 Current uncommitted completed stage:
 
-Interview Setup Mobile Redesign — runtime acceptance and production build PASS; unstaged and uncommitted
+User Menu / Profile app-shell — main-flow runtime acceptance and production build PASS; unstaged and uncommitted
 
 ---
 
@@ -1535,4 +1535,27 @@ Status: DEFERRED ACCEPTANCE — NOT A REPORTED FAILURE.
 The accepted account had 13 real records. All loaded newest-first and Load more was correctly absent. More-than-20-record runtime pagination was NOT tested. Static review and build validation do not prove multi-page behavior.
 Defer 20/21/>20-record boundaries, tie ordering, append/end behavior, retries, deduplication and continuation under new inserts until suitable authorized data is available. Never describe Load more runtime acceptance as passed on the current evidence.
 Search/filter/sort, persistent pagination/scroll restoration, virtualization and measured query/index optimization remain deferred. Existing PDF/avatar, scoring trust, Claude proxy hardening and other debt remain unchanged.
-Next planned sequence is User Menu / Profile app-shell, then Splash / Onboarding pre-auth after app-shell/account work; neither is authorized by this closure.
+User Menu / Profile app-shell has since closed under DECISION-031. Splash / Onboarding pre-auth is planned next, not implemented or authorized by this closure.
+---
+
+## DECISION-031 — Shared Account Menu and Real Auth Identity
+
+Date: 2026-09-20. Status: IMPLEMENTED; main-flow runtime and production build PASS, based on user-supplied verified closure evidence.
+
+Preserve Sidebar/product navigation, Topbar/global controls and avatar/account menu. Dashboard remains post-login home, /interviews canonical history and Result individual detail. Shared menu works on desktop/mobile/history/narrow/tablet rail without broad shell rewrite. /profile, /account/settings and /help use server auth guards and fixed /login redirects.
+
+Only projected email/displayName/initials reach clients; no raw User/metadata, inferred name, secret-bearing imports or profile schema. Profile is read-only. Settings expose application language and existing password recovery only. Help describes real flows, without fabricated support channels. Profile editing/persistence requires a later real requirement/schema.
+
+interviewai_uilang (tr/en/de) updates shell immediately; TR update, refresh and logout/login persistence passed runtime. Interview language stays separate. Local-scope Sign Out and browser Back privacy passed. Centralized duplicate/stale-session and cross-tab handling exist in source; fixed internal navigation and no identity logging. No all-device revocation claim.
+
+Menu Escape/focus return/outside-click/underlying-target behavior passed. Desktop, 390x844 account/history surfaces, 641–767 menu and 768px rail/menu passed with no obvious overflow/clipping. Mobile account pages scroll normally; Dashboard two-panel pager, history layout and Result navigation remain intact. Build PASS: Next.js 14.2.5, static generation 22/22, compilation/types/page data/traces/optimization. Full evidence is in STAGE_LOG and CURRENT_STATE closure.
+
+Current recovery HEAD is 6569572; account work remains uncommitted. Next planned stage is pre-auth Splash + Onboarding preserving Sign In / Create Account, not yet implemented or authorized.
+
+## RISK-017 — Account Edge Cases Not Manually Exercised
+
+Date: 2026-09-20. Status: UNTESTED EDGE CASES — not current blockers based on source/static/build review.
+
+Cross-tab logout, forced sign-out network failure, missing-email/malformed-name metadata and unavailable storage were not manually reproduced. Every intermediate breakpoint was not exhaustively tested. Source handling is not runtime acceptance. Existing >20-record history acceptance limitation remains.
+
+Keep separate existing debt: /interview lacks page guard; provider endpoints need security hardening; Claude/private-content logging; Result uses protected API rather than server page guard; fragmented localization/root html lang; decorative AuthShell language selector. This account closure resolves none of those concerns.

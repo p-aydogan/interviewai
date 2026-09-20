@@ -1,0 +1,94 @@
+.talentry-account-menu { position: relative; flex: none; }
+.talentry-account-trigger {
+  display: grid;
+  place-items: center;
+  width: var(--talentry-button-height-md);
+  height: var(--talentry-button-height-md);
+  border: 0;
+  border-radius: var(--talentry-radius-md);
+  background: var(--talentry-color-primary-soft);
+  color: var(--talentry-color-primary);
+  font: inherit;
+  font-weight: var(--talentry-font-weight-bold);
+  cursor: pointer;
+}
+.talentry-account-popover {
+  position: absolute;
+  top: calc(100% + var(--talentry-space-2));
+  right: 0;
+  width: 18rem;
+  max-width: calc(100vw - 2 * var(--talentry-space-4));
+  max-height: calc(100dvh - 7rem - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--talentry-space-3);
+  border: var(--talentry-card-border);
+  border-radius: var(--talentry-radius-lg);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  box-shadow: var(--talentry-shadow-elevated);
+  font-weight: var(--talentry-font-weight-regular);
+  overflow-wrap: anywhere;
+}
+.talentry-account-identity { display: grid; gap: var(--talentry-space-1); padding: var(--talentry-space-3); }
+.talentry-account-identity span { font-size: var(--talentry-font-size-sm); color: var(--talentry-color-text-secondary); }
+.talentry-account-popover > a,
+.talentry-account-popover > button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--talentry-button-height-md);
+  padding: var(--talentry-space-2) var(--talentry-space-3);
+  border: 0;
+  border-radius: var(--talentry-radius-sm);
+  background: transparent;
+  color: var(--talentry-color-text);
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+.talentry-account-popover > a:hover,
+.talentry-account-popover > button:hover { background: var(--talentry-color-surface-lavender); }
+.talentry-account-popover button[aria-disabled='true'] { cursor: wait; }
+.talentry-account-popover hr { border: 0; border-top: var(--talentry-card-border); }
+.talentry-account-popover p { padding-inline: var(--talentry-space-3); }
+.talentry-account-language { min-width: 0; margin: 0; padding: var(--talentry-space-3); border: 0; }
+.talentry-account-language legend { padding: 0; font-weight: var(--talentry-font-weight-semibold); }
+.talentry-account-language > div { display: flex; flex-wrap: wrap; gap: var(--talentry-space-2); }
+.talentry-account-language button {
+  min-width: var(--talentry-button-height-md);
+  min-height: var(--talentry-button-height-md);
+  padding: var(--talentry-space-2);
+  border: var(--talentry-card-border);
+  border-radius: var(--talentry-radius-sm);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  font: inherit;
+  cursor: pointer;
+}
+.talentry-account-language button[aria-pressed='true'] {
+  background: var(--talentry-color-primary-soft);
+  font-weight: var(--talentry-font-weight-bold);
+}
+.talentry-account-menu :is(a, button):focus-visible,
+.talentry-account-content :is(a, button):focus-visible {
+  outline: 2px solid var(--talentry-color-border-focus);
+  outline-offset: var(--talentry-space-1);
+}
+.talentry-account-content {
+  display: grid;
+  gap: var(--talentry-space-4);
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  line-height: var(--talentry-line-height-normal);
+  overflow-wrap: anywhere;
+}
+.talentry-account-content > *, .talentry-account-card > * { min-width: 0; margin: 0; }
+.talentry-account-content h1 { font-size: var(--talentry-font-size-2xl); }
+.talentry-account-content h2 { font-size: var(--talentry-font-size-lg); }
+.talentry-account-content a { display: inline-flex; align-items: center; min-height: var(--talentry-button-height-md); color: var(--talentry-color-primary); }
+.talentry-account-card { display: grid; gap: var(--talentry-space-3); padding: var(--talentry-space-5); border: var(--talentry-card-border); border-radius: var(--talentry-radius-lg); background: var(--talentry-color-surface); }
+.talentry-account-card dt { font-weight: var(--talentry-font-weight-semibold); }
+.talentry-account-card dd, .talentry-account-content p { color: var(--talentry-color-text-secondary); }

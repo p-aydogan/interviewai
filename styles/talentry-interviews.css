@@ -19,6 +19,7 @@
 }
 
 .talentry-interviews-header {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -29,6 +30,10 @@
   border-bottom: var(--talentry-card-border);
   font-weight: var(--talentry-font-weight-semibold);
 }
+
+.talentry-interviews-header:has(.talentry-account-trigger[aria-expanded='true']) { z-index: 21; }
+.talentry-interviews-header-actions { display: flex; align-items: center; gap: var(--talentry-space-3); min-width: 0; }
+.talentry-interviews-header-actions > a { min-width: 0; }
 
 .talentry-interviews-header a {
   display: inline-flex;

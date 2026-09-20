@@ -12,15 +12,24 @@ import { INTERVIEWS_COPY } from '@/components/interviews/interviews-copy'
 
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+import type { UserIdentity } from '@/lib/auth/user-identity'
+import UserMenu from '@/components/account/UserMenu'
+import { useAccountSession } from '@/components/account/useAccountSession'
+import '@/styles/talentry-account.css'
 
 interface DashboardLayoutProps {
   children: ReactNode
   history?: boolean
+  accountPage?: boolean
+  identity: UserIdentity
 }
 
 export const DashboardLanguageContext = createContext<AppLanguage>(DEFAULT_APP_LANGUAGE)
 
-export default function DashboardLayout({ children, history = false }: DashboardLayoutProps) {
+export const AccountLanguageContext = createContext<(language: AppLanguage) => void>(() => {})
+
+export default function DashboardLayout({ children, history = false, accountPage = false, identity }: DashboardLayoutProps) {
+  const session = useAccountSession()
   const [language, setLanguage] = useState<AppLanguage>(DEFAULT_APP_LANGUAGE)
   useEffect(() => {
     const readLanguage = () => {
@@ -37,21 +46,30 @@ export default function DashboardLayout({ children, history = false }: Dashboard
       window.removeEventListener('storage', readLanguage)
     }
   }, [])
+  function changeLanguage(next: AppLanguage) {
+    if (!SUPPORTED_APP_LANGUAGES.some(value => value === next)) return
+    setLanguage(next)
+    try { window.localStorage.setItem(DASHBOARD_LANGUAGE_KEY, next) } catch { /* In-memory selection remains usable. */ }
+  }
   const copy = DASHBOARD_COPY[language]
+  const accountControl = <UserMenu identity={identity} language={language}
+    onLanguageChange={changeLanguage} session={session} />
+  if (session.sessionGone) return null
   return (
     <DashboardLanguageContext.Provider value={language}>
-    <div className={`talentry-dashboard-layout${history ? ' talentry-interviews-layout' : ''}`} lang={language}>
+    <AccountLanguageContext.Provider value={changeLanguage}>
+    <div className={`talentry-dashboard-layout${history ? ' talentry-interviews-layout' : ''}${accountPage ? ' talentry-account-layout' : ''}`} lang={language}>
       <Sidebar copy={copy} />
 
       <div className="talentry-dashboard-shell">
         {history ? <header className="talentry-interviews-header">
           <span>Talentry</span>
-          <Link href="/dashboard">{INTERVIEWS_COPY[language].back}</Link>
-        </header> : <Topbar copy={copy} />}
+          <div className="talentry-interviews-header-actions"><Link href="/dashboard">{INTERVIEWS_COPY[language].back}</Link>{accountControl}</div>
+        </header> : <Topbar copy={copy} accountControl={accountControl} />}
         <main className="talentry-dashboard-main">{children}</main>
       </div>
 
-      {!history && <nav className="talentry-dashboard-bottom-nav" aria-label={copy.mobileNavigation}>
+      {!history && !accountPage && <nav className="talentry-dashboard-bottom-nav" aria-label={copy.mobileNavigation}>
         {['⌂', '◇', '▣', '✦', '●'].map((icon, index) => (
           index === 2 ? <Link key={`${icon}-${index}`} href="/interviews" aria-label={copy.nav[2]}
             className="talentry-dashboard-bottom-item talentry-interviews-narrow-link"><span aria-hidden="true">{icon}</span></Link> :
@@ -432,6 +450,7 @@ export default function DashboardLayout({ children, history = false }: Dashboard
         }
       `}</style>
     </div>
+    </AccountLanguageContext.Provider>
     </DashboardLanguageContext.Provider>
   )
 }

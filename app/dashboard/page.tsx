@@ -1,3 +1,4 @@
+import { projectUserIdentity } from '@/lib/auth/user-identity'
 import { redirect } from 'next/navigation'
 
 import DashboardContainer from '@/components/dashboard/DashboardContainer'
@@ -13,7 +14,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout identity={projectUserIdentity(auth.user)}>
       <DashboardContainer />
     </DashboardLayout>
   )

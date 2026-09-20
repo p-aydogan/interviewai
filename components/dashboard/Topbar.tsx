@@ -1,6 +1,7 @@
+import type { ReactNode } from 'react'
 import type { DashboardCopy } from './dashboard-copy'
 
-export default function Topbar({ copy }: { copy: DashboardCopy }) {
+export default function Topbar({ copy, accountControl }: { copy: DashboardCopy; accountControl: ReactNode }) {
   return (
     <header className="talentry-dashboard-topbar">
       <div className="talentry-dashboard-mobile-brand">Talentry</div>
@@ -15,9 +16,7 @@ export default function Topbar({ copy }: { copy: DashboardCopy }) {
         <span className="talentry-dashboard-icon-button" aria-label={copy.notifications}>
           ♢
         </span>
-        <span className="talentry-dashboard-avatar" aria-label={copy.profile}>
-          T
-        </span>
+        {accountControl}
       </div>
     </header>
   )

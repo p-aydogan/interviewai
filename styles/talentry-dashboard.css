@@ -1,5 +1,20 @@
 @import './talentry-ui.css';
 
+/* Raise only the header with an open account disclosure above narrow bottom navigation. */
+.talentry-dashboard-layout .talentry-dashboard-topbar:has(.talentry-account-trigger[aria-expanded='true']) { z-index: 21; }
+
+.talentry-account-layout.talentry-dashboard-layout.talentry-dashboard-layout {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+}
+.talentry-account-layout.talentry-dashboard-layout .talentry-dashboard-shell { height: auto; display: block; }
+.talentry-account-layout.talentry-dashboard-layout .talentry-dashboard-main {
+  display: block;
+  overflow: visible;
+  padding: var(--talentry-space-6) var(--talentry-space-4);
+}
+
 .talentry-dashboard-container > .talentry-dashboard-card {
   min-width: 0;
   overflow-wrap: anywhere;

@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-18
+Last updated: 2026-09-20
 
 ## 1. Canonical Repository State
 
@@ -14,7 +14,7 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation
+bde1612 feat(interview): add two-panel mobile setup and record stage closure
 
 Remote recovery branch:
 
@@ -22,7 +22,7 @@ origin/feature/auth-foundation
 
 The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History was subsequently committed at 3dbaca7 after starting from `c36c15a`.
 
-Dashboard / Recent Interview History Integration, including the final mobile three-page architecture, is complete, runtime-accepted, and production-build validated. Interview Setup mobile redesign is also complete, runtime-accepted and production-build validated; Setup mobile changes remain uncommitted; nothing is staged. This closure updates Project Memory only and does not authorize commit or push. Remote checkpoint freshness was not checked in this step.
+Full My Interviews / History and Dashboard history removal are complete, runtime-accepted for the available 13 real records, and production-build validated. Full History implementation and Dashboard cleanup remain unstaged and uncommitted. More-than-20-record runtime pagination acceptance remains pending. Setup mobile closure is included in bde1612. This step updates only Project Memory; no commit, push or next stage is authorized. Remote checkpoint freshness was not checked.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -47,7 +47,7 @@ Implemented:
 - Password visibility component
 - Responsive Dashboard shell
 - Dashboard sidebar / topbar foundation
-- Dashboard latest-five persisted interview history, Setup action, localized Result return navigation, and final mobile Home/Menu, Recent Interviews, Actions pager
+- Full My Interviews at /interviews with cursor pagination; Dashboard has no history fetch or recent-history presentation and uses two mobile pages: Home/Menu and Actions.
 - Server-side authentication helper
 - Authenticated interview persistence API
 - Authenticated owner-scoped interview list API
@@ -235,7 +235,7 @@ Status after push:
 
 local and remote synchronized
 
-This is the latest safe recovery checkpoint.
+This is the historical Dashboard-auth checkpoint; the current recovery checkpoint is recorded in sections 1 and 18.
 
 ---
 
@@ -332,11 +332,11 @@ This section summarizes resolved auth migration items and remaining deferred wor
 
 ### Dashboard
 
-7. Recent Interviews now displays persisted data and Quick Actions is functional. Welcome remains compact; Recommended Jobs, AI Insights, Daily Tip and Premium remain placeholders.
+7. Dashboard Recent Interviews and its fetch wiring are removed. Quick Actions remains functional. Welcome remains compact; Recommended Jobs, AI Insights, Daily Tip and Premium remain placeholders.
 
 8. Quick Actions links to `/interview/setup`. RESOLVED.
 
-9. Latest-five Dashboard history integration is complete. Full My Interviews and full-history pagination/search/filter remain deferred.
+9. Full My Interviews and cursor pagination are implemented. Runtime acceptance passed with 13 records; >20-record pagination boundaries remain pending. Search/filter/sort remain deferred.
 
 10. Jobs, AI Coach, Reports, Saved Roles, Settings, Premium remain unavailable placeholders.
 
@@ -387,7 +387,7 @@ Do not allow these issues to derail unrelated stages; they belong to the Talentr
 
 27. Authenticated owner-scoped list and owner-authorized detail-by-ID GET boundaries exist and are runtime-validated.
 
-28. Dashboard Recent Interviews and persisted Result navigation are complete. Full-history UI remains deferred.
+28. Full-history UI at /interviews and persisted Result navigation are complete; duplicate Dashboard history is removed.
 
 29. Live Interview provides an explicit localized End Interview action. RESOLVED.
 
@@ -395,7 +395,7 @@ Do not allow these issues to derail unrelated stages; they belong to the Talentr
 
 31. An ambiguous committed-but-response-lost persistence retry can still create a duplicate record. Idempotency remains DEFERRED.
 
-The ID-based Result flow and Dashboard Recent History integration are complete and runtime-accepted.
+The ID-based Result flow and Full My Interviews are runtime-accepted for available real data; >20-record pagination remains untested.
 
 ---
 
@@ -693,7 +693,7 @@ Evidence source: verified acceptance and build results supplied by the user. Thi
 - Dashboard, Result, Interview logic, APIs, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history and root routing were not changed by this stage.
 - Setup work remains unstaged and uncommitted at recovery HEAD 3dbaca7 on feature/auth-foundation. No next stage, commit or push is authorized. This closure supersedes earlier pending runtime/build statements without rewriting implementation reports.
 
-### Previously completed Dashboard foundation
+### Historical Dashboard foundation — superseded by Full History closure below
 
 Dashboard / Recent Interview History Integration, including final mobile three-page Dashboard:
 
@@ -711,7 +711,7 @@ Closure evidence: user-supplied verified runtime/static/build results recorded o
 - Runtime PASS: desktop Dashboard; latest five/newest-first; History → Result; Result → Dashboard; fresh history after completion; all three 390×844 pages; swipe back; dot navigation; mobile Start Interview → Setup; mobile History → Result; desktop regression.
 - Validation PASS: `npx.cmd tsc --noEmit`, `git diff --check`, `npm.cmd run build`; successful compilation, lint/type checking, page-data collection, static generation 18/18, build traces and final optimization. Routes present: `/dashboard`, `/api/interviews`, `/api/interviews/[id]`, `/interview/setup`, `/result/[id]`.
 
-Interview Setup mobile redesign is complete; no next stage is authorized. Full My Interviews, full-history pagination/search/filter, PDF/download and HeyGen/avatar remain deferred. Dashboard placeholders, scoring trust boundary, Claude proxy security/privacy debt and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics were added.
+Full My Interviews is now complete; the historical Dashboard latest-five and three-page architecture above is superseded by the 2026-09-20 closure below. Search/filter/sort, pagination runtime boundaries and existing technical debt remain deferred.
 
 ### Previously completed Result foundation
 
@@ -755,9 +755,9 @@ Production validation passed compilation, lint/type validation, page-data collec
 
 Next planned sequence:
 
-1. Dashboard / Recent History is complete and committed at 3dbaca7.
-2. Interview Setup mobile redesign is complete, runtime/build accepted and uncommitted; commit requires separate authorization.
-3. Welcome/root cutover and full-history work remain deferred.
+1. Full My Interviews and Dashboard cleanup are complete; commit requires separate authorization.
+2. User Menu / Profile app-shell work is planned next, not authorized by this closure.
+3. Splash / Onboarding pre-auth work is planned after app-shell/account work.
 
 Do not begin the next stage automatically.
 
@@ -767,7 +767,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Current safe committed checkpoint: `3dbaca7 feat(dashboard): integrate recent interview history and mobile navigation`; Setup mobile closure remains uncommitted.
+- Current safe committed checkpoint: `bde1612 feat(interview): add two-panel mobile setup and record stage closure`; Full History and Dashboard cleanup remain uncommitted.
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`
@@ -776,3 +776,52 @@ Do not begin the next stage automatically.
 - `.env.local`: restored locally and Git-ignored; contents must never be recorded in Project Memory
 
 The separate USB recovery bundle remains outside the repository and contains no information that should be copied into Project Memory.
+
+## 19. Full My Interviews / History Closure — 2026-09-20
+
+Status: COMPLETED — runtime acceptance PASS for available real data; production build PASS. Evidence is the user's supplied verified results; this memory-only step did not rerun runtime tests, TypeScript or build.
+
+### Canonical routes and ownership
+
+- /interviews is the canonical full-history route, server-authenticated; unauthorized access redirects to /login.
+- Desktop/tablet Sidebar and mobile menu My Interviews link to /interviews.
+- Rows link to persisted /result/<id>; Start New Interview -> /interview/setup; Back to Dashboard -> /dashboard.
+- Result keeps Back to Dashboard -> /dashboard. No duplicate Back to My Interviews action.
+- Owner-scoped GET /api/interviews remains the data boundary. Owner identity is server-derived and the explicit owner_id = authenticated user id predicate is mandatory.
+- Existing no-limit GET behavior is preserved. Dashboard no longer calls recent-history GET. Full History explicitly requests limit=20.
+- Response includes interviews and nextCursor. Versioned opaque base64url cursor carries exact createdAt and UUID; order remains created_at DESC, id DESC with matching continuation tie-break.
+- Invalid, malformed or duplicate cursor values return 400. Cursor is position only, never authorization; owner isolation applies independently.
+- No schema/RLS/auth redesign and no direct browser Supabase interview-data queries were introduced.
+
+### UX, localization and Dashboard decision
+
+Compact rows show role, optional company, score /100, date/time, interview type, interview language and duration. No duplicate Result summary/answers, fake total, or search/filter/sort. Newest-first is fixed; Load more is shown only when nextCursor exists.
+TR/EN/DE uses interviewai_uilang and localized dates. Persisted role/company stay untranslated; interview language remains independent.
+
+Dashboard no longer displays or fetches recent history. It retains Welcome, Quick Actions / Start New Interview, Recommended Jobs placeholder, AI Insights placeholder, Daily Tip placeholder and Premium placeholder. My Interviews is the sole history browsing surface.
+Dashboard mobile now has exactly two pages: initial Home/Menu, then Actions. My Interviews is active in the menu; the duplicate recent-history page is removed.
+
+At 390x844, History uses normal vertical document scrolling, no pager/swipe, visible Back to Dashboard, full-width Start New Interview, one-column compact rows, wrapping metadata and explicit /100. No obvious horizontal overflow was observed.
+
+### Runtime acceptance supplied by the user — PASS
+
+- Desktop /interviews visual and Sidebar My Interviews navigation.
+- History -> Result; Result -> Dashboard; History -> Dashboard.
+- Desktop Dashboard duplicate-history removal.
+- Mobile Dashboard two-page pager and mobile My Interviews navigation.
+- 390x844 /interviews visual.
+- 13 real persisted interviews loaded newest-first.
+- Load more correctly absent with 13 records.
+
+### Static / production validation supplied by the user — PASS
+
+- npx.cmd tsc --noEmit; git diff --check; npm.cmd run build.
+- Compiled successfully; linting and checking validity of types.
+- Collecting page data; generating static pages 19/19.
+- Collecting build traces; finalizing page optimization.
+
+### Acceptance limitation and remaining sequence
+
+Real-data pagination with >20 records was NOT tested: the account had only 13 records. Cursor/Load more is statically reviewed and build-validated, not runtime-accepted across page boundaries. Keep 20/21/>20 boundary acceptance pending.
+Search/filter/sort, delete/edit/favorites/tags, persistent pagination/scroll restoration, virtualization and measured query-performance/index optimization remain deferred. Dashboard placeholders remain placeholders.
+User Menu / Profile app-shell is planned next; Splash / Onboarding pre-auth follows app-shell/account work. PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred. No next stage, commit or push is authorized.

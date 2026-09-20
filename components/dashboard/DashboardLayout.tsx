@@ -1,22 +1,26 @@
 'use client'
 
 import { createContext, useEffect, useState } from 'react'
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { AppLanguage } from '@/types/auth'
 import { DEFAULT_APP_LANGUAGE, SUPPORTED_APP_LANGUAGES } from '@/lib/auth/auth-constants'
 import { DASHBOARD_COPY, DASHBOARD_LANGUAGE_KEY } from './dashboard-copy'
 import '@/styles/talentry-dashboard.css'
+import '@/styles/talentry-interviews.css'
+import { INTERVIEWS_COPY } from '@/components/interviews/interviews-copy'
 
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 
 interface DashboardLayoutProps {
   children: ReactNode
+  history?: boolean
 }
 
 export const DashboardLanguageContext = createContext<AppLanguage>(DEFAULT_APP_LANGUAGE)
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, history = false }: DashboardLayoutProps) {
   const [language, setLanguage] = useState<AppLanguage>(DEFAULT_APP_LANGUAGE)
   useEffect(() => {
     const readLanguage = () => {
@@ -36,21 +40,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const copy = DASHBOARD_COPY[language]
   return (
     <DashboardLanguageContext.Provider value={language}>
-    <div className="talentry-dashboard-layout" lang={language}>
+    <div className={`talentry-dashboard-layout${history ? ' talentry-interviews-layout' : ''}`} lang={language}>
       <Sidebar copy={copy} />
 
       <div className="talentry-dashboard-shell">
-        <Topbar copy={copy} />
+        {history ? <header className="talentry-interviews-header">
+          <span>Talentry</span>
+          <Link href="/dashboard">{INTERVIEWS_COPY[language].back}</Link>
+        </header> : <Topbar copy={copy} />}
         <main className="talentry-dashboard-main">{children}</main>
       </div>
 
-      <nav className="talentry-dashboard-bottom-nav" aria-label={copy.mobileNavigation}>
+      {!history && <nav className="talentry-dashboard-bottom-nav" aria-label={copy.mobileNavigation}>
         {['⌂', '◇', '▣', '✦', '●'].map((icon, index) => (
+          index === 2 ? <Link key={`${icon}-${index}`} href="/interviews" aria-label={copy.nav[2]}
+            className="talentry-dashboard-bottom-item talentry-interviews-narrow-link"><span aria-hidden="true">{icon}</span></Link> :
           <span key={`${icon}-${index}`} className="talentry-dashboard-bottom-item" aria-hidden="true">
             {icon}
           </span>
         ))}
-      </nav>
+      </nav>}
 
       <style>{`
         :root {
@@ -313,7 +322,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           }
 
           .talentry-dashboard-card-welcome,
-          .talentry-dashboard-card-recent,
+          .talentry-dashboard-card-quick,
           .talentry-dashboard-card-jobs {
             grid-column: 1 / -1;
           }
@@ -409,10 +418,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             min-height: 190px;
           }
 
-          .talentry-dashboard-card-recent,
           .talentry-dashboard-card-jobs {
-            grid-column: span 6;
-            min-height: 260px;
+            grid-column: 1 / -1;
+            min-height: 180px;
           }
 
           .talentry-dashboard-card-insights,

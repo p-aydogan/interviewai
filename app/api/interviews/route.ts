@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { getAuthenticatedUser } from '@/lib/auth/get-authenticated-user'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { decodeHistoryCursor, encodeHistoryCursor } from '@/lib/interviews/history-cursor'
 import type { InterviewListItem } from '@/types/interviews'
 
 type InterviewPayload = {
@@ -83,6 +84,12 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid limit' }, { status: 400, headers })
     }
 
+    const cursors = request.nextUrl.searchParams.getAll('cursor')
+    const cursor = cursors.length === 1 ? decodeHistoryCursor(cursors[0]) : null
+    if (cursors.length > 1 || (cursors.length === 1 && !cursor)) {
+        return NextResponse.json({ error: 'Invalid cursor' }, { status: 400, headers })
+    }
+
     const admin = createAdminClient()
     let query = admin
         .from('interviews')
@@ -93,7 +100,13 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })
 
-    if (rawLimit !== undefined) query = query.limit(Number(rawLimit))
+    if (cursor) {
+        query = query.or(
+            `created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.lt.${cursor.id})`,
+        )
+    }
+    const limit = rawLimit === undefined ? undefined : Number(rawLimit)
+    if (limit !== undefined) query = query.limit(limit + 1)
     const { data, error } = await query
 
     if (error) {
@@ -105,7 +118,12 @@ export async function GET(request: NextRequest) {
         )
     }
 
-    const interviews: InterviewListItem[] = (data ?? []).map((row: InterviewListRow) => ({
+    const rows: InterviewListRow[] = data ?? []
+    const hasMore = limit !== undefined && rows.length > limit
+    const page = limit === undefined ? rows : rows.slice(0, limit)
+    const last = page[page.length - 1]
+    const nextCursor = hasMore ? encodeHistoryCursor(last.created_at, last.id) : null
+    const interviews: InterviewListItem[] = page.map((row: InterviewListRow) => ({
         id: row.id,
         role: row.role,
         company: row.company,
@@ -118,7 +136,7 @@ export async function GET(request: NextRequest) {
     }))
 
     return NextResponse.json(
-        { interviews },
+        { interviews, nextCursor },
         { status: 200, headers },
     )
 }

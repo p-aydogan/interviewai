@@ -14,7 +14,7 @@ interface NavigationItem {
 const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { label: 'Dashboard', icon: '⌂', href: '/dashboard', available: true },
   { label: 'Jobs & Opportunities', icon: '◇', available: false },
-  { label: 'My Interviews', icon: '▣', available: false },
+  { label: 'My Interviews', icon: '▣', href: '/interviews', available: true },
   { label: 'AI Coach', icon: '✦', available: false },
   { label: 'Reports', icon: '▤', available: false },
   { label: 'Saved Roles', icon: '♡', available: false },

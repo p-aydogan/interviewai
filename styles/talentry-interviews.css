@@ -1,0 +1,95 @@
+.talentry-interviews-layout.talentry-dashboard-layout {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+  background: var(--talentry-color-canvas);
+  color: var(--talentry-color-text);
+}
+
+.talentry-interviews-layout .talentry-dashboard-shell {
+  display: block;
+  height: auto;
+  min-width: 0;
+}
+
+.talentry-interviews-layout .talentry-dashboard-main {
+  display: block;
+  overflow: visible;
+  padding: var(--talentry-space-6) var(--talentry-space-4);
+}
+
+.talentry-interviews-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--talentry-space-3);
+  padding: var(--talentry-space-3) var(--talentry-space-4);
+  background: var(--talentry-color-surface);
+  border-bottom: var(--talentry-card-border);
+  font-weight: var(--talentry-font-weight-semibold);
+}
+
+.talentry-interviews-header a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--talentry-button-height-md);
+  color: var(--talentry-color-primary);
+}
+
+.talentry-interviews-content {
+  display: grid;
+  gap: var(--talentry-space-6);
+  width: 100%;
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+.talentry-interviews-content,
+.talentry-interviews-content > *,
+.talentry-interviews-header > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.talentry-interviews-content .talentry-history-row {
+  padding: var(--talentry-space-4);
+}
+
+.talentry-interviews-content .talentry-interviews-action {
+  min-height: var(--talentry-button-height-md);
+  height: auto;
+  max-width: 100%;
+  padding-block: var(--talentry-space-3);
+  white-space: normal;
+  text-align: center;
+  text-decoration: none;
+}
+
+.talentry-interviews-pagination { text-align: center; }
+.talentry-interviews-pagination p:empty { margin: 0; }
+.talentry-interviews-pagination [aria-disabled='true'] { cursor: wait; }
+
+.talentry-interviews-header a:focus-visible,
+.talentry-interviews-action:focus-visible,
+.talentry-dashboard-bottom-nav .talentry-interviews-narrow-link:focus-visible {
+  outline: 2px solid var(--talentry-color-border-focus);
+  outline-offset: var(--talentry-space-1);
+}
+
+@media (min-width: 641px) and (max-width: 767px) {
+  .talentry-dashboard-bottom-nav .talentry-interviews-narrow-link {
+    width: var(--talentry-button-height-md);
+    height: var(--talentry-button-height-md);
+    color: var(--talentry-color-primary);
+    text-decoration: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .talentry-interviews-content .talentry-section-header { flex-direction: column; align-items: stretch; }
+  .talentry-interviews-content .talentry-section-header__action,
+  .talentry-interviews-content .talentry-interviews-action { width: 100%; }
+}
+
+/* History introduces no animation or swipe transitions, including under reduced motion. */

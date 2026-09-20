@@ -20,17 +20,6 @@
   margin-top: var(--talentry-space-5);
 }
 
-.talentry-history-caption,
-.talentry-history-status {
-  color: var(--talentry-color-text-secondary);
-  font-size: var(--talentry-font-size-sm);
-  line-height: var(--talentry-line-height-normal);
-}
-
-.talentry-history-caption {
-  margin: var(--talentry-space-2) 0 var(--talentry-space-4);
-}
-
 .talentry-history-list {
   display: grid;
   gap: var(--talentry-space-2);

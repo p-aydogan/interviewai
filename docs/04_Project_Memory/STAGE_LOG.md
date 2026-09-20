@@ -1550,3 +1550,53 @@ Evidence source: verified acceptance and build results supplied by the user. Thi
 - Deferred: receiver validation gaps, hardcoded copy outside mobile additions, Setup draft persistence, and browser-specific mobile keyboard edge cases.
 - Dashboard, Result, Interview logic, APIs, schema, auth, scoring, prompts, HeyGen/avatar, PDF, history and root routing were not changed by this stage.
 - Setup work remains unstaged and uncommitted at recovery HEAD 3dbaca7 on feature/auth-foundation. No next stage, commit or push is authorized. This closure supersedes earlier pending runtime/build statements without rewriting implementation reports.
+
+## Full My Interviews / History + Dashboard Cleanup — Stage Closure — 2026-09-20
+
+Status: COMPLETED — runtime acceptance PASS for available real data; production build PASS. Evidence is the user's supplied verified results; this memory-only step did not rerun runtime tests, TypeScript or build.
+
+### Canonical routes and ownership
+
+- /interviews is the canonical full-history route, server-authenticated; unauthorized access redirects to /login.
+- Desktop/tablet Sidebar and mobile menu My Interviews link to /interviews.
+- Rows link to persisted /result/<id>; Start New Interview -> /interview/setup; Back to Dashboard -> /dashboard.
+- Result keeps Back to Dashboard -> /dashboard. No duplicate Back to My Interviews action.
+- Owner-scoped GET /api/interviews remains the data boundary. Owner identity is server-derived and the explicit owner_id = authenticated user id predicate is mandatory.
+- Existing no-limit GET behavior is preserved. Dashboard no longer calls recent-history GET. Full History explicitly requests limit=20.
+- Response includes interviews and nextCursor. Versioned opaque base64url cursor carries exact createdAt and UUID; order remains created_at DESC, id DESC with matching continuation tie-break.
+- Invalid, malformed or duplicate cursor values return 400. Cursor is position only, never authorization; owner isolation applies independently.
+- No schema/RLS/auth redesign and no direct browser Supabase interview-data queries were introduced.
+
+### UX, localization and Dashboard decision
+
+Compact rows show role, optional company, score /100, date/time, interview type, interview language and duration. No duplicate Result summary/answers, fake total, or search/filter/sort. Newest-first is fixed; Load more is shown only when nextCursor exists.
+TR/EN/DE uses interviewai_uilang and localized dates. Persisted role/company stay untranslated; interview language remains independent.
+
+Dashboard no longer displays or fetches recent history. It retains Welcome, Quick Actions / Start New Interview, Recommended Jobs placeholder, AI Insights placeholder, Daily Tip placeholder and Premium placeholder. My Interviews is the sole history browsing surface.
+Dashboard mobile now has exactly two pages: initial Home/Menu, then Actions. My Interviews is active in the menu; the duplicate recent-history page is removed.
+
+At 390x844, History uses normal vertical document scrolling, no pager/swipe, visible Back to Dashboard, full-width Start New Interview, one-column compact rows, wrapping metadata and explicit /100. No obvious horizontal overflow was observed.
+
+### Runtime acceptance supplied by the user — PASS
+
+- Desktop /interviews visual and Sidebar My Interviews navigation.
+- History -> Result; Result -> Dashboard; History -> Dashboard.
+- Desktop Dashboard duplicate-history removal.
+- Mobile Dashboard two-page pager and mobile My Interviews navigation.
+- 390x844 /interviews visual.
+- 13 real persisted interviews loaded newest-first.
+- Load more correctly absent with 13 records.
+
+### Static / production validation supplied by the user — PASS
+
+- npx.cmd tsc --noEmit; git diff --check; npm.cmd run build.
+- Compiled successfully; linting and checking validity of types.
+- Collecting page data; generating static pages 19/19.
+- Collecting build traces; finalizing page optimization.
+
+### Acceptance limitation and remaining sequence
+
+Real-data pagination with >20 records was NOT tested: the account had only 13 records. Cursor/Load more is statically reviewed and build-validated, not runtime-accepted across page boundaries. Keep 20/21/>20 boundary acceptance pending.
+Search/filter/sort, delete/edit/favorites/tags, persistent pagination/scroll restoration, virtualization and measured query-performance/index optimization remain deferred. Dashboard placeholders remain placeholders.
+User Menu / Profile app-shell is planned next; Splash / Onboarding pre-auth follows app-shell/account work. PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred. No next stage, commit or push is authorized.
+Recovery: feature/auth-foundation at bde1612. Full History and Dashboard cleanup remain uncommitted; nothing staged. Earlier entries retain their historical context; this closure supersedes prior Full History deferral and Dashboard latest-five/three-page decisions. Only the four relevant Project Memory files were updated in this step.

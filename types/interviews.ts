@@ -9,3 +9,8 @@ export type InterviewListItem = {
   durationSeconds: number
   createdAt: string
 }
+
+export type InterviewHistoryPage = {
+  interviews: InterviewListItem[]
+  nextCursor: string | null
+}

@@ -161,7 +161,7 @@ Create Account and Forgot Password must use their dedicated Talentry routes.
 
 ## DASH-001 — Dashboard Cards Are Placeholders
 
-Status: PARTIALLY RESOLVED — RECENT HISTORY / QUICK ACTIONS PASS; OTHER MODULES DEFERRED
+Status: PARTIALLY RESOLVED — QUICK ACTIONS PASS; OTHER MODULES DEFERRED; RECENT HISTORY REMOVED
 
 Current state:
 
@@ -173,7 +173,7 @@ Remaining compact/title-only placeholders:
 - Daily Tip
 - Premium
 
-Quick Actions now links to `/interview/setup`; Recent Interviews shows the latest five persisted owner-scoped records and links to Result. Runtime and production build passed. No business data was invented for remaining placeholders.
+Quick Actions links to /interview/setup. Dashboard Recent Interviews and its fetch wiring are removed; /interviews is the canonical history surface. No business data was invented for remaining placeholders.
 
 Planned stage:
 
@@ -199,31 +199,21 @@ Do not connect Quick Actions to a temporary legacy route if that connection will
 
 ---
 
-## DASH-003 — Interview History Not Implemented
+## DASH-003 — Full Interview History Implemented; Extended Acceptance Deferred
 
-Status: RECENT HISTORY RESOLVED — FULL HISTORY DEFERRED
+Status: IMPLEMENTED — AVAILABLE-DATA RUNTIME AND PRODUCTION BUILD PASS (2026-09-20); COMMIT PENDING.
 
-Current state:
+Full My Interviews at /interviews is server-protected and uses owner-scoped cursor pagination with explicit limit=20. Dashboard no longer displays or fetches recent history. Desktop/mobile navigation and 13 real newest-first records passed; Load more was correctly absent.
 
-Authenticated owner-scoped list and detail APIs now exist and passed cross-user isolation testing.
+Remaining deferred work:
+- Real-data 20/21/>20-record pagination boundaries and Load more acceptance; see RISK-016.
+- Search/filter/sort; delete/edit/favorites/tags.
+- Persistent pagination/scroll restoration and virtualization.
+- Query-performance/index optimization only after measurement.
 
-Remaining:
-
-- Full My Interviews page.
-- Full-history pagination, search and filtering.
-
-Dashboard now consumes `/api/interviews?limit=5` with newest-first persisted rows, loading/empty/error/retry, cancellation, 401 redirect and freshness. Result links and a newly completed interview appearing first on return passed runtime acceptance. Optional validated limit preserves default no-limit listing behavior and server-derived ownership.
-
-Planned stage:
-
-Dashboard recent-history integration completed and build-validated; full-history functionality requires its own stage.
-
-Security requirement:
-
-Cross-user reads must be denied before exposing history UI.
+Cursor behavior is statically reviewed and build-validated, not runtime-accepted beyond the first page. No schema/RLS/auth redesign. Source changes remain uncommitted at recovery HEAD bde1612; no new commit is claimed.
 
 ---
-
 ## DASH-004 — Dashboard Styling Has Separate Embedded Palette
 
 Status: DEFERRED
@@ -603,20 +593,14 @@ The ID-Based Result Migration is complete and runtime-validated.
 
 ---
 
-## RESULT-004 — No Interview History UI
+## RESULT-004 — Interview History UI
 
-Status: RESOLVED — DASHBOARD RECENT HISTORY PASS
+Status: RESOLVED — FULL MY INTERVIEWS AVAILABLE-DATA RUNTIME AND BUILD PASS (2026-09-20).
 
-Current state:
-
-Dashboard shows the latest five owner-scoped persisted interviews and links to `/result/<id>`. Localized Result Back to Dashboard returns to `/dashboard`; Restart through `/` is unchanged. Desktop/mobile round trips and freshness passed. Full My Interviews remains deferred under DASH-003.
-
-Planned stage:
-
-Completed during Dashboard / Recent History closure (2026-09-16).
+Canonical /interviews compact rows link to persisted /result/<id>. History -> Result, Result -> Dashboard and History -> Dashboard passed. Dashboard's duplicate latest-five presentation is removed. Result's existing Back to Dashboard remains unchanged, without a Back to My Interviews action.
+Available real data: 13 records, newest-first; Load more correctly absent. More-than-20-record runtime acceptance remains deferred under DASH-003 / RISK-016. Commit pending.
 
 ---
-
 ## RESULT-005 — Completion Persistence Is Not Idempotent
 
 Status: DEFERRED PERSISTENCE HARDENING
@@ -734,11 +718,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-Interview Setup Mobile Redesign — COMPLETED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED / PASS (2026-09-18), based on user-supplied verified results. Dashboard / Recent History is already complete and committed at 3dbaca7.
+Full My Interviews / History and Dashboard cleanup — COMPLETE, runtime accepted for 13 real records and production build PASS (2026-09-20), based on user-supplied verified results. Changes remain uncommitted.
 
 Next planned sequence:
 
-Interview Setup mobile redesign is complete; no next stage is authorized. Full My Interviews, full-history pagination/search/filter, Welcome/root cutover, PDF/download and HeyGen/avatar work remain deferred. Scoring trust boundary, Claude proxy security/privacy and TTS/provider latency debt remain unchanged. No delete/edit/favorites/tags/analytics added.
+User Menu / Profile app-shell is planned next; Splash / Onboarding pre-auth follows app-shell/account work. No next stage is authorized. Runtime pagination boundaries, search/filter/sort, PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---

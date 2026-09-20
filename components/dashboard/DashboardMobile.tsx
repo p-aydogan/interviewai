@@ -4,9 +4,9 @@ import { useRef, useState } from 'react'
 import type { ReactNode, TouchEvent } from 'react'
 
 interface DashboardMobileProps {
-  labels: readonly [string, string, string]
+  labels: readonly [string, string]
   navigationLabel: string
-  pages: readonly [ReactNode, ReactNode, ReactNode]
+  pages: readonly [ReactNode, ReactNode]
 }
 
 export default function DashboardMobile({ labels, navigationLabel, pages }: DashboardMobileProps) {
@@ -16,7 +16,7 @@ export default function DashboardMobile({ labels, navigationLabel, pages }: Dash
   const touchStart = useRef<{ x: number; y: number } | null>(null)
 
   function navigate(index: number) {
-    const next = Math.max(0, Math.min(2, index))
+    const next = Math.max(0, Math.min(pages.length - 1, index))
     if (next === activePanel) return
     const moveFocus = panels.current[activePanel]?.contains(document.activeElement)
     setActivePanel(next)

@@ -599,7 +599,7 @@ Current status:
 Write ownership is secure.
 The authenticated list GET now enforces server-derived ownership and passed real cross-user isolation testing.
 The owner-authorized detail GET combines interview ID with server-derived ownership and passed real cross-user isolation and not-found privacy testing.
-Result and Dashboard recent-history UI integrations are implemented and runtime-accepted. The owner-filtered server APIs remain mandatory for every detail/list request; full-history UI remains deferred.
+Result and Full My Interviews are implemented; the owner-filtered server APIs remain mandatory for every detail/list request, including cursor continuation. Runtime acceptance covers 13 records, not >20-record pagination. Dashboard recent-history presentation has been removed.
 
 ---
 
@@ -1453,7 +1453,7 @@ Runtime verified restoration of the desktop Interview grid. This is a CSS-only c
 
 ---
 
-## DECISION-026 — Dashboard Reuses Owner-Scoped Listing with an Optional Limit
+## DECISION-026 — Dashboard Reuses Owner-Scoped Listing with an Optional Limit (historical; Dashboard usage superseded by DECISION-029)
 
 Status: IMPLEMENTED, RUNTIME ACCEPTED AND PRODUCTION BUILD VALIDATED — PASS
 
@@ -1471,7 +1471,7 @@ Evidence: user-supplied verified runtime/static/build PASS results for closure; 
 
 ---
 
-## DECISION-027 — Final Mobile Dashboard Uses Home/Menu, Recent Interviews and Actions
+## DECISION-027 — Final Mobile Dashboard Uses Home/Menu, Recent Interviews and Actions (historical; superseded by DECISION-029)
 
 Status: IMPLEMENTED AND RUNTIME ACCEPTED — PASS
 
@@ -1506,3 +1506,33 @@ Status: KNOWN / BROWSER-SPECIFIC
 Date: 2026-09-18
 
 The supplied 390x844 acceptance passed. This does not establish every virtual-keyboard, browser chrome, safe-area, zoom or viewport combination. Retain browser-specific keyboard/reachability checks as a risk without claiming a reproduced defect or changing code during memory closure.
+
+## DECISION-029 — Full My Interviews Is the Sole History Surface
+
+Date: 2026-09-20
+Status: IMPLEMENTED; available-data runtime acceptance and production build PASS, based on user-supplied verified results.
+
+Canonical server-authenticated /interviews redirects unauthorized users to /login. Sidebar/mobile menu links to My Interviews. Rows -> persisted /result/<id>; Start -> /interview/setup; Back -> /dashboard. Result keeps its existing Dashboard return; no second return action is added.
+Dashboard recent-history section, fetch hook and duplicate mobile page are removed. Dashboard retains Welcome, Quick Actions/Start and existing placeholder modules; its mobile pager is now Home/Menu and Actions, exactly two pages. This supersedes DECISION-026's Dashboard fetch and DECISION-027's three-page design, not the API ownership boundary.
+History uses compact persisted-data rows and normal document scrolling at 390x844, not a pager. No fake total or duplicate Result summary/answers. Fixed newest-first; search/filter/sort deferred. TR/EN/DE uses interviewai_uilang; user text is untranslated and interview language stays separate.
+Runtime PASS covers desktop/mobile navigation and visuals, Dashboard cleanup/two-page pager, and 13 real newest-first records with Load more correctly absent. Build PASS includes static generation 19/19. No >20-record runtime acceptance claim.
+
+## DECISION-030 — Compatible Owner-Scoped Cursor Pagination
+
+Date: 2026-09-20
+Status: IMPLEMENTED; statically reviewed and production-build validated.
+
+Full History explicitly requests limit=20. Omitted-limit GET behavior remains unchanged; no global default limit is imposed. GET returns interviews and nextCursor. Explicit limits use one extra row to establish continuation; no-limit response may have null nextCursor.
+Versioned opaque base64url cursor contains exact createdAt plus UUID. Preserve database timestamp precision and created_at DESC / id DESC ordering: older timestamp OR equal timestamp with lower UUID. Invalid/malformed/duplicate cursor inputs return 400.
+The explicit owner_id = authenticated user id predicate remains mandatory AND applies to the entire continuation condition. Identity remains server-derived; a cursor is never authorization. No schema/RLS/auth redesign or direct browser Supabase interview query.
+Existing RISK-012 is partially mitigated for explicit-limit Full History reads, not resolved for no-limit reads, database typing or unmeasured query performance.
+
+## RISK-016 — Full History Pagination Runtime Boundary Not Yet Exercised
+
+Date: 2026-09-20
+Status: DEFERRED ACCEPTANCE — NOT A REPORTED FAILURE.
+
+The accepted account had 13 real records. All loaded newest-first and Load more was correctly absent. More-than-20-record runtime pagination was NOT tested. Static review and build validation do not prove multi-page behavior.
+Defer 20/21/>20-record boundaries, tie ordering, append/end behavior, retries, deduplication and continuation under new inserts until suitable authorized data is available. Never describe Load more runtime acceptance as passed on the current evidence.
+Search/filter/sort, persistent pagination/scroll restoration, virtualization and measured query/index optimization remain deferred. Existing PDF/avatar, scoring trust, Claude proxy hardening and other debt remain unchanged.
+Next planned sequence is User Menu / Profile app-shell, then Splash / Onboarding pre-auth after app-shell/account work; neither is authorized by this closure.

@@ -136,7 +136,7 @@ export default function ResultContent({ interview, copy, uiLanguage }: ResultCon
         <div {...panelProps(2)}>
       <ResultAnswers answers={interview.answers} copy={copy} />
       <div className={styles.actions}>
-        <Link className={`talentry-button talentry-button--primary talentry-button--large ${styles.action}`} href="/">
+        <Link className={`talentry-button talentry-button--primary talentry-button--large ${styles.action}`} href="/interview/setup">
           {copy.startAgain}
         </Link>
       </div>

@@ -49,7 +49,7 @@ export function ResultStatus({ status, copy, onRetry }: ResultStatusProps) {
       action={(
         <div className={styles.actions}>
           {status === 'loadError' && <TalentryButton className={styles.action} onClick={onRetry}>{copy.retry}</TalentryButton>}
-          <Link className={`talentry-button talentry-button--secondary talentry-button--medium ${styles.action}`} href="/">
+          <Link className={`talentry-button talentry-button--secondary talentry-button--medium ${styles.action}`} href="/interview/setup">
             {copy.startAgain}
           </Link>
         </div>

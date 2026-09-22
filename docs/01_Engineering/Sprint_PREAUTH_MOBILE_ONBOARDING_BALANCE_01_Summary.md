@@ -1,0 +1,13 @@
+# Sprint PREAUTH_MOBILE_ONBOARDING_BALANCE_01 Summary
+- Title: Mobile onboarding vertical balance
+- Parent stage: PREAUTH_ONBOARDING_01
+- Branch: feature/auth-foundation
+- HEAD: 1ca99820f49eb8dbf5c59dcb841f66d87561fbbb
+- Status: Complete; ready for 390x844 runtime review.
+- Goal: Lower mobile onboarding without changing approved card geometry.
+- Modified: styles/talentry-pre-auth.css; onboarding mobile gap only.
+- Created: this Summary and Sprint_PREAUTH_MOBILE_ONBOARDING_BALANCE_01_Engineering_Report.md.
+- Change: fixed 32px gap -> clamp(32px, 9dvh, 80px), with vh fallback; 75.96px at 844px viewport height.
+- Validation: npx.cmd tsc --noEmit --incremental false PASS (0); git diff --check PASS (0). npm update and Git LF-to-CRLF notices only.
+- Risks: Visual runtime acceptance pending. Short/zoomed screens retain document scrolling.
+- Approval: Pending. No build, staging, commit, push or Project Memory update.

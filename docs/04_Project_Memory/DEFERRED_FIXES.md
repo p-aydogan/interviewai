@@ -631,7 +631,7 @@ Do not claim idempotency is solved or add ad hoc client-only retry identity duri
 
 ## ROOT-001 — Legacy Root Still Acts as Interview Setup
 
-Status: PARTIALLY RESOLVED — WELCOME CUTOVER DEFERRED
+Status: RESOLVED — PREAUTH_ONBOARDING_01 runtime/build accepted 2026-09-22; UNCOMMITTED. The original description below is historical; current root behavior is recorded in the closure below.
 
 Current route:
 
@@ -718,11 +718,11 @@ Do not perform global line-ending normalization during unrelated stages because 
 
 Current stage closure:
 
-User Menu / Profile app-shell — COMPLETE, main-flow runtime acceptance and production build PASS (2026-09-20), based on user-supplied verified results. Account changes remain uncommitted at safe base 6569572; Full History is committed there. Its >20-record acceptance limitation remains.
+PREAUTH_ONBOARDING_01 — implementation/runtime/production build ACCEPTED (2026-09-22), based on user-supplied verified results; remains UNCOMMITTED. Account work is committed at current recovery checkpoint 1ca9982. Update recovery separately after the pre-auth commit. History >20-record acceptance remains pending.
 
 Next planned sequence:
 
-Splash + Onboarding pre-auth is planned next; it is not implemented. Preserve existing Sign In / Create Account flows. No next stage is authorized. Runtime pagination boundaries, search/filter/sort, PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred.
+Splash + Onboarding pre-auth is implemented and accepted. Next stage is not yet started or authorized. Preserve existing Sign In / Create Account flows. Runtime pagination boundaries, search/filter/sort, PDF, HeyGen/avatar, scoring trust boundary, Claude proxy hardening and existing technical debt remain deferred.
 
 Do not work on deferred items above unless a future stage explicitly requires one of them.
 ---
@@ -929,3 +929,32 @@ Accepted checks include Sign Out -> /login, Browser Back privacy, TR immediate u
 Status: DEFERRED — separate future scope.
 
 /interview still lacks a page-level auth guard; cost-bearing provider endpoints require separate security hardening; Claude/private-content logging debt remains; Result relies on its protected API rather than a server page guard. Localization remains fragmented, root html lang is inconsistent and AuthShell's separate language selector remains decorative. Account-menu acceptance does not resolve these items. Existing deferred entries, including PDF/avatar/scoring and history boundaries, remain intact.
+
+---
+
+## PREAUTH-001 — Closure and Untested Runtime Boundaries
+
+Date: 2026-09-22. Status: ACCEPTED MAIN FLOW; UNTESTED BOUNDARIES DEFERRED.
+
+ROOT-001 Welcome cutover is resolved: `/` checks auth server-side, redirects
+signed-in users to `/dashboard`, and renders public pre-auth otherwise. This also
+supersedes ROOT-002's historical root-to-Setup description. Legacy `/result` and
+persisted Result restart explicitly target `/interview/setup`. Language hydration
+flash, shared mobile centering, Pointer Events swipe and Skip keyboard focus are
+resolved with user-supplied runtime PASS evidence. See canonical stage closure.
+
+The following are untested boundaries, not confirmed bugs:
+
+- localStorage unavailable/denied runtime handling;
+- malformed stored preferences runtime handling;
+- manual reduced-motion runtime behavior;
+- exhaustive screen-reader announcements;
+- exhaustive browser/device matrix;
+- very short landscape, browser zoom and unusually long text.
+
+Full auth recovery email delivery remains outside this stage. Existing >20-record
+My Interviews pagination acceptance, all security/technical debt, account edge
+cases, provider/auth/privacy hardening, scoring trust, PDF and avatar deferrals
+remain unchanged. This stage closes no unrelated debt.
+
+Implementation remains UNCOMMITTED; recovery HEAD is 1ca9982. No next stage started.

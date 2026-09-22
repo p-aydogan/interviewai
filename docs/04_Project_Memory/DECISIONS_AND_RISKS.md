@@ -1559,3 +1559,40 @@ Date: 2026-09-20. Status: UNTESTED EDGE CASES — not current blockers based on 
 Cross-tab logout, forced sign-out network failure, missing-email/malformed-name metadata and unavailable storage were not manually reproduced. Every intermediate breakpoint was not exhaustively tested. Source handling is not runtime acceptance. Existing >20-record history acceptance limitation remains.
 
 Keep separate existing debt: /interview lacks page guard; provider endpoints need security hardening; Claude/private-content logging; Result uses protected API rather than server page guard; fragmented localization/root html lang; decorative AuthShell language selector. This account closure resolves none of those concerns.
+
+---
+
+## DECISION-032 — Canonical Pre-auth Entry and Stage Closure
+
+Date: 2026-09-22. PREAUTH_ONBOARDING_01 implementation/runtime/build ACCEPTED,
+based on user-supplied verified evidence recorded in the canonical stage reports
+and STAGE_LOG. Earlier next-stage and recovery statements are historical snapshots.
+
+- `/` is the canonical public pre-auth entry. Server-authenticated users redirect
+  to `/dashboard`; unauthenticated users receive Splash/onboarding or repeat entry.
+- Browser completion is a UX preference, not authentication or security state.
+  Skip/final auth actions complete onboarding; replay does not clear completion.
+- Application language TR/EN/DE uses `interviewai_uilang` independently of interview
+  language. Neutral unresolved-language rendering prevents persisted EN/DE flashes.
+- Result restart routes explicitly target `/interview/setup`, never public `/`.
+- Ocean-swell motion has a reduced-motion static fallback in source. Manual
+  reduced-motion runtime verification remains pending.
+- Shared mobile centering, Pointer Events swipe and Skip keyboard focus are accepted
+  runtime fixes; no broader auth, interview or localization architecture change.
+
+Current committed recovery checkpoint: 1ca9982 (account stage committed).
+Pre-auth remains UNCOMMITTED. Update recovery separately after an authorized commit.
+Next stage is not started. No runtime tests/build were rerun during this closure.
+
+## RISK-018 — Pre-auth Untested Acceptance Boundaries
+
+Status: UNTESTED / DEFERRED ACCEPTANCE, not reported defects.
+
+Storage unavailable/denied and malformed preferences have not been runtime-exercised.
+Exhaustive screen-reader announcements, reduced-motion runtime behavior, the full
+browser/device matrix, very short landscape, browser zoom and unusually long text
+remain unverified. Source safeguards are not runtime acceptance.
+Full auth recovery email delivery remains outside this stage. More-than-20-record
+History pagination remains pending (RISK-016). Existing security/technical debt,
+including account edge cases in RISK-017, remains unchanged. Supplied route PASS
+results do not establish full recovery-email delivery or resolve provider security.

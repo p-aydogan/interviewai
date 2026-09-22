@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-20
+Last updated: 2026-09-22
 
 ## 1. Canonical Repository State
 
@@ -14,7 +14,7 @@ feature/auth-foundation
 
 Latest safe committed checkpoint:
 
-6569572 feat(interviews): add paginated history and simplify dashboard
+1ca9982 feat(account): add user menu and authenticated account pages
 
 Remote recovery branch:
 
@@ -22,7 +22,7 @@ origin/feature/auth-foundation
 
 The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History was subsequently committed at 3dbaca7 after starting from `c36c15a`.
 
-Full My Interviews / History and Dashboard history removal are complete, runtime-accepted for the available 13 real records, and production-build validated. Full History implementation and Dashboard cleanup are committed at 6569572. User Menu / Profile app-shell is now runtime-accepted and production-build validated; its implementation remains unstaged and uncommitted. More-than-20-record runtime pagination acceptance remains pending. Setup mobile closure is included in bde1612. This step updates only Project Memory; no commit, push or next stage is authorized. Remote checkpoint freshness was not checked.
+Full My Interviews / History and Dashboard history removal are complete, runtime-accepted for the available 13 real records, and production-build validated. Full History implementation and Dashboard cleanup are committed at 6569572. User Menu / Profile app-shell is runtime-accepted, production-build validated and committed at 1ca9982. PREAUTH_ONBOARDING_01 implementation/runtime/build is accepted but remains UNCOMMITTED. Update the recovery point separately after its authorized stage commit; no next stage has started. More-than-20-record runtime pagination acceptance remains pending. Setup mobile closure is included in bde1612. This step updates only Project Memory; no commit, push or next stage is authorized. Remote checkpoint freshness was not checked.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -58,15 +58,15 @@ Implemented:
 - Authenticated canonical `/interview/setup` route with responsive Talentry UI
 - Talentry Live Interview UI with responsive desktop/tablet layout and mobile three-panel pager
 - Talentry light Result review with localized TR/EN/DE copy and a mobile three-panel pager
-- Temporary `/` redirect to `/interview/setup`
+- Canonical public pre-auth `/`: server-authenticated users redirect to `/dashboard`; unauthenticated users see Splash/onboarding or compact repeat entry.
 
 ### Result migration and remaining navigation work
 
-`/result/[id]` now uses the Talentry light visual system over the existing persisted owner-filtered detail fetch. Auth/login redirect, retry, refresh stability, and persisted score/summary contract remain intact. Legacy `/result` still redirects safely to `/` and does not render query-controlled score or summary values.
+`/result/[id]` now uses the Talentry light visual system over the existing persisted owner-filtered detail fetch. Auth/login redirect, retry, refresh stability, and persisted score/summary contract remain intact. Legacy `/result` now redirects safely to `/interview/setup` and does not render query-controlled score or summary values.
 
 These legacy routes are not evidence of lost Talentry work.
 
-A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, Result, and Dashboard / Recent History have since been implemented. Welcome remains outstanding; Interview Setup mobile redesign is complete and runtime/build accepted.
+A forensic Git audit confirmed that the previously missing Talentry screens were not implemented and later lost. Sign In, Interview Setup, Live Interview, Result, and Dashboard / Recent History have since been implemented. Pre-auth Splash/onboarding is implemented and runtime/build accepted; Interview Setup mobile redesign is complete and runtime/build accepted.
 
 The project is in an unfinished migration state.
 
@@ -158,7 +158,7 @@ Latest related safe commit:
 
 ## 5. Historical Home Session-State Fix
 
-The behavior below is preserved as implementation history but is no longer active because `/` now redirects to the authenticated `/interview/setup` route.
+The behavior below is preserved as implementation history but is no longer active because `/` now provides server-gated pre-auth entry, redirecting authenticated users to `/dashboard`.
 
 Legacy `/` header now reflects Supabase session state.
 
@@ -767,7 +767,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Current safe committed checkpoint: `6569572 feat(interviews): add paginated history and simplify dashboard`; User Menu / Profile app-shell implementation remains uncommitted.
+- Current safe committed checkpoint: `1ca9982 feat(account): add user menu and authenticated account pages`; PREAUTH_ONBOARDING_01 is accepted and remains uncommitted.
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`
@@ -885,3 +885,53 @@ Existing debt remains: /interview page-level auth guard; cost-bearing provider e
 Branch feature/auth-foundation. Safe base before this stage and current HEAD: 6569572205a501ce25ad1b18b05a4fefd12f8e37 (6569572 feat(interviews): add paginated history and simplify dashboard). Full History is committed at that checkpoint. User Menu implementation and closure documentation remain unstaged/uncommitted. No commit, push or remote freshness verification performed here.
 
 Next planned stage: pre-auth Splash + Onboarding, preserving existing Sign In / Create Account flows. It is not implemented or authorized to begin by this memory update. Existing sprint reports remain immutable historical implementation-time records; this closure supplies subsequent acceptance evidence.
+
+---
+
+## FINAL CLOSURE / RUNTIME ACCEPTANCE — PREAUTH_ONBOARDING_01 — 2026-09-22
+
+This section records later acceptance and supersedes the earlier pending status and implementation-time limitations only where explicitly resolved below. Original implementation notes and micro-refinement reports remain historical snapshots. Evidence is supplied by the user; this documentation-only closure did not rerun runtime tests, TypeScript or production build.
+
+Status: IMPLEMENTATION / RUNTIME / PRODUCTION BUILD ACCEPTED. Implementation remains UNCOMMITTED on feature/auth-foundation. Current committed recovery checkpoint remains 1ca9982 (feat(account): add user menu and authenticated account pages). Update the recovery point separately after an authorized stage commit. No next stage has started; no staging, commit or push is authorized here.
+
+### Final implemented scope
+
+- Root `/` performs a server-side auth check: authenticated users go to `/dashboard`; unauthenticated users see the canonical public pre-auth flow.
+- First visit: Splash, three onboarding panels, Sign In / Create Account. Repeat visit: compact entry with direct auth actions and Replay introduction.
+- Completion is a browser UX preference only, never authentication/security state. Skip and final-panel auth actions complete onboarding; replay does not clear completion. Storage failures are handled safely in source.
+- Application language supports TR / EN / DE through existing `interviewai_uilang`, independently of interview language. A neutral branded unresolved-language render prevents incorrect Turkish copy before persisted EN/DE resolves.
+- Talentry dark navy/indigo auth-family styling, animated full-screen ocean-swell color field, static reduced-motion fallback and softened dark card material. Icons: microphone, assessment clipboard, progress/history clock for Panels 1, 2, 3 respectively.
+- Visible page-count labels are removed; accessible progress remains. Skip is absent on Panel 3. Splash and all three panels share mobile centering in the available region below the header.
+- Dots, Back / Next, Pointer Events swipe and keyboard navigation are implemented. Swipe uses 48px horizontal travel and horizontal displacement greater than 1.5 times vertical displacement; scoped vertical pan/pinch zoom remains allowed.
+- Skip focus fix: the native button was already focusable, but heading focus bypassed it. Panels 1–2 now begin programmatic focus on the heading-labelled Skip row so the next Tab reaches Skip; Panel 3 retains heading focus.
+- Legacy `/result` and persisted Result Start Again explicitly target `/interview/setup`, including unavailable/error restart links; no restart path accidentally traverses `/`.
+
+### User-supplied verified runtime results — PASS
+
+- Auth/routes: authenticated `/` -> `/dashboard`; Register route; Login route; Forgot Password route; legacy `/result` -> `/interview/setup`; Result Start Again -> `/interview/setup`.
+- First/repeat visit: unauthenticated first-visit Splash; final-panel Sign In -> `/login`; completion persists to compact repeat entry; replay starts at Panel 1; replay does not clear completion; Skip persists to compact repeat entry.
+- Language: EN immediate switch; EN refresh without flash; DE immediate switch; DE refresh without flash; persisted app language carried into Setup. Interview language remains conceptually separate.
+- Interaction/accessibility: dot navigation; swipe navigation; Skip first Tab focus; Skip Enter activation; dot Enter navigation.
+- Desktop: Splash; Panels 1–3; final-panel Skip removal.
+- Mobile 390x844: Splash; Panel 1; Panel 2; Panel 3; shared mobile card centering.
+- Breakpoints: 767px compact entry; 767px Panel 1; 768px compact entry; 768px Panel 1.
+
+### User-supplied production build — PASS
+
+Command: `npm.cmd run build`.
+Compiled successfully; linting and checking validity of types; collecting page data;
+generating static pages (22/22); collecting build traces; finalizing page optimization: PASS.
+Root `/` is Dynamic (ƒ), expected because of its server-side auth check.
+This is supplied build evidence, not a build rerun by the assistant.
+
+### Untested boundaries and preserved debt
+
+Not runtime-verified: localStorage unavailable/denied; malformed stored preferences;
+manual reduced-motion behavior; exhaustive screen-reader announcements; exhaustive
+browser/device matrix; very short landscape viewports, browser zoom and unusually
+long text. These are untested boundaries, not asserted bugs or runtime PASS claims.
+Full auth recovery email delivery is outside this stage. More-than-20-record My
+Interviews pagination acceptance remains pending. All existing security/technical
+debt remains unless specifically resolved above, including provider endpoint/auth
+hardening, private-content logging, scoring trust, fragmented localization, PDF and
+avatar work. No unrelated debt is closed by this acceptance.

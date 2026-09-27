@@ -1711,3 +1711,38 @@ Interviews pagination acceptance remains pending. All existing security/technica
 debt remains unless specifically resolved above, including provider endpoint/auth
 hardening, private-content logging, scoring trust, fragmented localization, PDF and
 avatar work. No unrelated debt is closed by this acceptance.
+
+---
+
+## AUTH_RECOVERY_01 — Verified Browser Runtime Acceptance
+
+Recorded: 2026-09-27. Status: COMPLETE — PASS. Evidence: verified runtime results supplied by the user; no browser tests, TypeScript, regression tests or production build rerun during this documentation update. Successful acceptance browser: Chrome normal profile.
+
+| Check | Verified result | Status |
+| --- | --- | --- |
+| Fresh recovery | Request in Chrome normal profile; email received; link opened promptly in the same profile; Create a new password form opened. Confirms the deployed live recovery session satisfies the hardened recovery-AMR validation. | PASS |
+| Refresh continuity | Ctrl+R before submission briefly showed Check your email for 1–2 seconds, then restored the usable recovery form. | PASS |
+| Reset happy path | New password submitted; reset success / password updated / Continue to dashboard screen appeared; Dashboard opened. | PASS |
+| Same-profile cross-tab logout | Fresh recovery form open; Dashboard opened in a second Chrome tab; Logout made the recovery tab non-actionable and returned it to Forgot Password state. Stale recovery form issue resolved. | PASS |
+| Signed-out direct access | Direct /reset-password showed Reset link unavailable. | PASS |
+| Ordinary authenticated direct access | Normal login with new password followed by direct /reset-password showed Reset link unavailable. | PASS |
+| Old password | Rejected after reset. | PASS |
+| New password | Accepted after reset; Dashboard opened. | PASS |
+| Consumed recovery link replay | Reusing the successful recovery email link showed Reset link unavailable. | PASS |
+| Different browser/profile boundary | Recovery initiated in Edge; email link opened in Chrome; Reset link unavailable. | PASS — expected fail-closed behavior |
+
+Earlier unavailable results arose because Outlook opened the email link in default-browser Chrome after recovery was initiated in Edge. These are expected different-browser/profile PKCE failures, not implementation failures.
+
+Minor deferred UX note: Ctrl+R on a valid recovery form can briefly show Check your email for 1–2 seconds before restoring the form. This is not a security issue or functional blocker. Do not fix during AUTH_RECOVERY_01 closure without separate approval.
+
+### Final recovery architecture
+
+- Preserve Supabase automatic PKCE flow; no manual exchangeCodeForSession().
+- Recovery eligibility requires a verified Supabase session, verified user, verified JWT session_id, verified AMR entry with method exactly "recovery", and bounded tab-scoped sessionStorage workflow continuity. The verified PASSWORD_RECOVERY establishment path creates the marker; refresh restoration requires that valid marker.
+- Marker alone is never authorization. It stores only userId, sessionId, expiresAt; no credentials, raw JWT or AMR payload.
+- The 15-minute local continuity window is fixed and not renewed by refresh or token rotation.
+- TOKEN_REFRESHED uses verified user/session identity and recovery AMR, not access-token string equality as an identity requirement.
+- SIGNED_OUT/session loss revokes eligibility. No periodic 15-second polling; retain auth events, focus/pageshow/visibility, pre-submit validation and bounded timers.
+- Direct reset access and different-browser/profile PKCE recovery remain fail-closed by design.
+
+Checkpoint at documentation closure: feature/auth-foundation, HEAD ff67db4; AUTH_RECOVERY_01 remains uncommitted. This append records later evidence without rewriting stage history. Prior automated validation: TypeScript PASS, 34 regression tests PASS, production build PASS (22/22 pages). None rerun. Only two existing AUTH_RECOVERY_01 reports and four project-memory files updated. No application/test edits or Git mutations.

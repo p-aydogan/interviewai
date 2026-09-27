@@ -920,7 +920,7 @@ User Menu, read-only /profile, /account/settings (application language and passw
 
 Date: 2026-09-20. Status: DEFERRED ACCEPTANCE — NOT CURRENT BLOCKERS based on source/static/build review.
 
-Cross-tab logout is implemented/source-reviewed but not manually tested. Forced network failure during sign-out, missing-email/malformed-name metadata, storage-unavailable behavior and all intermediate breakpoint combinations were not manually reproduced. Do not claim these passed runtime acceptance.
+At account-stage closure, cross-tab logout was implemented/source-reviewed but not manually tested. AUTH_RECOVERY_01 subsequently passed same-Chrome-profile Dashboard logout revoking the open recovery form (user-supplied evidence recorded 2026-09-27); this resolves that recovery scenario only. Forced network failure during sign-out, missing-email/malformed-name metadata, storage-unavailable behavior and all intermediate breakpoint combinations were not manually reproduced. Do not claim these passed runtime acceptance.
 
 Accepted checks include Sign Out -> /login, Browser Back privacy, TR immediate update/refresh/logout-login persistence, Escape/focus return/outside click/underlying target, desktop and tested 390x844/641–767/768px layouts. Existing History >20-record boundary acceptance remains separately pending.
 
@@ -958,3 +958,13 @@ cases, provider/auth/privacy hardening, scoring trust, PDF and avatar deferrals
 remain unchanged. This stage closes no unrelated debt.
 
 Implementation remains UNCOMMITTED; recovery HEAD is 1ca9982. No next stage started.
+
+---
+
+## AUTH_RECOVERY_01 — Refresh UI Flicker
+
+Recorded: 2026-09-27. Status: MINOR UX FLICKER / DEFERRED POLISH.
+
+On Ctrl+R while a valid recovery form is open, a brief 1–2 second Check your email screen can appear before the usable recovery form is restored. User-verified refresh continuity PASS. Not a security issue, not a functional blocker; do not fix during AUTH_RECOVERY_01 closure without separate approval.
+
+All ten supplied recovery runtime checks passed in the specified scenarios. Edge-initiated recovery opened by Outlook in default-browser Chrome correctly fails closed; this is expected PKCE browser/profile separation, not a defect to fix. Existing unrelated debt remains deferred. The earlier pre-auth uncommitted/checkpoint note is historical: at documentation closure, HEAD was ff67db4 and AUTH_RECOVERY_01 was uncommitted.

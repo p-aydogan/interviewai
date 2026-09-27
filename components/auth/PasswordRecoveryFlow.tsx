@@ -10,8 +10,8 @@ import { AUTH_ROUTES } from '@/lib/auth/auth-constants'
 import { createClient } from '@/lib/supabase'
 
 import ResetPasswordForm from './ResetPasswordForm'
-
-type RecoveryStatus = 'checking' | 'ready' | 'unavailable'
+import { createRecoverySession } from './recovery-session'
+import type { RecoveryStatus } from './recovery-session'
 
 interface RecoveryStateCardProps {
   action?: ReactNode
@@ -36,65 +36,39 @@ export default function PasswordRecoveryFlow() {
   const router = useRouter()
   const [supabase] = useState(createClient)
   const [status, setStatus] = useState<RecoveryStatus>('checking')
-  const [recoveryObserved, setRecoveryObserved] = useState(false)
   const [providerPending, setProviderPending] = useState(false)
   const [providerError, setProviderError] = useState('')
-  const recoveryObservedRef = useRef(false)
+  const recovery = useRef<ReturnType<typeof createRecoverySession> | null>(null)
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        recoveryObservedRef.current = true
-        setRecoveryObserved(true)
-        setStatus('checking')
-        return
-      }
-
-      if (
-        !recoveryObservedRef.current &&
-        (event === 'INITIAL_SESSION' || event === 'SIGNED_IN')
-      ) {
-        setStatus('unavailable')
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase])
-
-  useEffect(() => {
-    if (!recoveryObserved) return
-
-    let active = true
-
-    async function validateRecoveryUser() {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser()
-
-        if (!active) return
-        if (!error && user) {
-          setStatus('ready')
-          return
-        }
-
-        setStatus('unavailable')
-      } catch {
-        if (active) {
-          setStatus('unavailable')
-        }
-      }
+    try {
+      recovery.current = createRecoverySession({
+        auth: supabase.auth,
+        storage: window.sessionStorage,
+        hasCallback: () => {
+          const url = new URL(window.location.href)
+          const hash = new URLSearchParams(url.hash.slice(1))
+          return ['code', 'error', 'error_code', 'error_description', 'access_token'].some(
+            (key) => url.searchParams.has(key) || hash.has(key),
+          )
+        },
+        onStatus: setStatus,
+      })
+    } catch { setStatus('unavailable'); return }
+    const recheck = () => {
+      if (document.visibilityState === 'visible') recovery.current?.recheck()
     }
-
-    void validateRecoveryUser()
-
+    window.addEventListener('focus', recheck)
+    window.addEventListener('pageshow', recheck)
+    document.addEventListener('visibilitychange', recheck)
     return () => {
-      active = false
+      window.removeEventListener('focus', recheck)
+      window.removeEventListener('pageshow', recheck)
+      document.removeEventListener('visibilitychange', recheck)
+      recovery.current?.dispose()
+      recovery.current = null
     }
-  }, [recoveryObserved, supabase])
+  }, [supabase])
 
   async function handlePasswordSubmit(password: string) {
     if (status !== 'ready' || providerPending) return
@@ -102,20 +76,13 @@ export default function PasswordRecoveryFlow() {
     setProviderPending(true)
     setProviderError('')
 
-    try {
-      const { error } = await supabase.auth.updateUser({ password })
-
-      if (error) {
-        setProviderError("We couldn't update your password. Please try again.")
-        setProviderPending(false)
-        return
-      }
-
+    const result = await recovery.current?.submit(password)
+    if (result === 'success') {
       router.replace(AUTH_ROUTES.resetPasswordSuccess)
-    } catch {
+    } else if (result === 'failed') {
       setProviderError("We couldn't update your password. Please try again.")
-      setProviderPending(false)
     }
+    setProviderPending(false)
   }
 
   if (status === 'ready') {

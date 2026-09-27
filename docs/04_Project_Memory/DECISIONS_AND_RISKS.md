@@ -1596,3 +1596,25 @@ Full auth recovery email delivery remains outside this stage. More-than-20-recor
 History pagination remains pending (RISK-016). Existing security/technical debt,
 including account edge cases in RISK-017, remains unchanged. Supplied route PASS
 results do not establish full recovery-email delivery or resolve provider security.
+
+---
+
+## DECISION-033 — Verified Recovery Provenance and Bounded Continuity
+
+Recorded: 2026-09-27. AUTH_RECOVERY_01: IMPLEMENTED; automated validation and user-supplied browser runtime acceptance PASS. Chrome normal profile is the successful acceptance environment.
+
+### Final recovery architecture
+
+- Preserve Supabase automatic PKCE flow; no manual exchangeCodeForSession().
+- Recovery eligibility requires a verified Supabase session, verified user, verified JWT session_id, verified AMR entry with method exactly "recovery", and bounded tab-scoped sessionStorage workflow continuity. The verified PASSWORD_RECOVERY establishment path creates the marker; refresh restoration requires that valid marker.
+- Marker alone is never authorization. It stores only userId, sessionId, expiresAt; no credentials, raw JWT or AMR payload.
+- The 15-minute local continuity window is fixed and not renewed by refresh or token rotation.
+- TOKEN_REFRESHED uses verified user/session identity and recovery AMR, not access-token string equality as an identity requirement.
+- SIGNED_OUT/session loss revokes eligibility. No periodic 15-second polling; retain auth events, focus/pageshow/visibility, pre-submit validation and bounded timers.
+- Direct reset access and different-browser/profile PKCE recovery remain fail-closed by design.
+
+Evidence: all ten runtime checks are recorded in the AUTH_RECOVERY_01 reports and STAGE_LOG. Live recovery confirms the deployed session passes recovery-AMR validation. Same-profile cross-tab Dashboard logout revokes the recovery form. Edge-to-Chrome links rejected because Outlook used default-browser Chrome are expected PKCE boundary enforcement, not implementation failure. The acceptance updates RISK-017 only for the tested recovery cross-tab scenario and RISK-018 only for the supplied full recovery-email flow; unrelated boundaries remain untested.
+
+Remaining limits: marker/local TTL is client-controlled workflow continuity, not server-enforced one-use authorization. Verified AMR records session authentication history. Silent remote revocation still depends on retained checks; arbitrary browser/hook configurations are not asserted covered. The 1–2 second Check your email flash on refresh is minor deferred UX polish, not a security issue or functional blocker; separate approval required to fix.
+
+At documentation closure, the checkpoint was ff67db4 on feature/auth-foundation and AUTH_RECOVERY_01 was uncommitted; earlier checkpoint/next-stage statements are historical. No staging, commit, push, next stage or runtime rerun authorized by this documentation closure.

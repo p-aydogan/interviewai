@@ -1,6 +1,6 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-09-22
+Last updated: 2026-09-27
 
 ## 1. Canonical Repository State
 
@@ -12,9 +12,9 @@ Active branch:
 
 feature/auth-foundation
 
-Latest safe committed checkpoint:
+Committed base before AUTH_RECOVERY_01:
 
-1ca9982 feat(account): add user menu and authenticated account pages
+ff67db4 feat(onboarding): add pre-auth splash and onboarding flow
 
 Remote recovery branch:
 
@@ -22,7 +22,7 @@ origin/feature/auth-foundation
 
 The recovery checkpoint before Live Interview was `bbffe9b`; Result started from `ef18af9` and is now committed at `c36c15a`. Dashboard / Recent History was subsequently committed at 3dbaca7 after starting from `c36c15a`.
 
-Full My Interviews / History and Dashboard history removal are complete, runtime-accepted for the available 13 real records, and production-build validated. Full History implementation and Dashboard cleanup are committed at 6569572. User Menu / Profile app-shell is runtime-accepted, production-build validated and committed at 1ca9982. PREAUTH_ONBOARDING_01 implementation/runtime/build is accepted but remains UNCOMMITTED. Update the recovery point separately after its authorized stage commit; no next stage has started. More-than-20-record runtime pagination acceptance remains pending. Setup mobile closure is included in bde1612. This step updates only Project Memory; no commit, push or next stage is authorized. Remote checkpoint freshness was not checked.
+Full My Interviews / History and Dashboard history removal are complete, runtime-accepted for the available 13 real records, and production-build validated. Full History implementation and Dashboard cleanup are committed at 6569572. User Menu / Profile app-shell is runtime-accepted, production-build validated and committed at 1ca9982. PREAUTH_ONBOARDING_01 is committed at ff67db4. AUTH_RECOVERY_01 implementation and automated validation are complete; browser runtime acceptance is COMPLETE — PASS. At the 2026-09-27 pre-commit review, AUTH_RECOVERY_01 was uncommitted; no next stage was authorized. More-than-20-record runtime pagination acceptance remains pending. Setup mobile closure is included in bde1612. This step updates only AUTH_RECOVERY_01 reports and Project Memory; no commit, push or next stage is authorized. Remote checkpoint freshness was not checked.
 
 Do not use `origin/main` as the current recovery reference. The active development and latest safe work are on `feature/auth-foundation`.
 
@@ -767,7 +767,7 @@ Do not begin the next stage automatically.
 
 - Repository: `C:\Users\p-ayd\interviewai`
 - Branch: `feature/auth-foundation`
-- Current safe committed checkpoint: `1ca9982 feat(account): add user menu and authenticated account pages`; PREAUTH_ONBOARDING_01 is accepted and remains uncommitted.
+- Pre-AUTH_RECOVERY_01 committed base: `ff67db4 feat(onboarding): add pre-auth splash and onboarding flow`; AUTH_RECOVERY_01 passed runtime acceptance; it was uncommitted at the 2026-09-27 pre-commit review.
 - New-computer migration: completed successfully
 - Node.js: `24.18.0`
 - npm: `11.16.0`
@@ -935,3 +935,37 @@ Interviews pagination acceptance remains pending. All existing security/technica
 debt remains unless specifically resolved above, including provider endpoint/auth
 hardening, private-content logging, scoring trust, fragmented localization, PDF and
 avatar work. No unrelated debt is closed by this acceptance.
+
+
+## AUTH_RECOVERY_01 — Verified Browser Runtime Acceptance
+
+Recorded: 2026-09-27. Status: COMPLETE — PASS. Evidence: verified runtime results supplied by the user; no browser tests, TypeScript, regression tests or production build rerun during this documentation update. Successful acceptance browser: Chrome normal profile.
+
+| Check | Verified result | Status |
+| --- | --- | --- |
+| Fresh recovery | Request in Chrome normal profile; email received; link opened promptly in the same profile; Create a new password form opened. Confirms the deployed live recovery session satisfies the hardened recovery-AMR validation. | PASS |
+| Refresh continuity | Ctrl+R before submission briefly showed Check your email for 1–2 seconds, then restored the usable recovery form. | PASS |
+| Reset happy path | New password submitted; reset success / password updated / Continue to dashboard screen appeared; Dashboard opened. | PASS |
+| Same-profile cross-tab logout | Fresh recovery form open; Dashboard opened in a second Chrome tab; Logout made the recovery tab non-actionable and returned it to Forgot Password state. Stale recovery form issue resolved. | PASS |
+| Signed-out direct access | Direct /reset-password showed Reset link unavailable. | PASS |
+| Ordinary authenticated direct access | Normal login with new password followed by direct /reset-password showed Reset link unavailable. | PASS |
+| Old password | Rejected after reset. | PASS |
+| New password | Accepted after reset; Dashboard opened. | PASS |
+| Consumed recovery link replay | Reusing the successful recovery email link showed Reset link unavailable. | PASS |
+| Different browser/profile boundary | Recovery initiated in Edge; email link opened in Chrome; Reset link unavailable. | PASS — expected fail-closed behavior |
+
+Earlier unavailable results arose because Outlook opened the email link in default-browser Chrome after recovery was initiated in Edge. These are expected different-browser/profile PKCE failures, not implementation failures.
+
+Minor deferred UX note: Ctrl+R on a valid recovery form can briefly show Check your email for 1–2 seconds before restoring the form. This is not a security issue or functional blocker. Do not fix during AUTH_RECOVERY_01 closure without separate approval.
+
+### Final recovery architecture
+
+- Preserve Supabase automatic PKCE flow; no manual exchangeCodeForSession().
+- Recovery eligibility requires a verified Supabase session, verified user, verified JWT session_id, verified AMR entry with method exactly "recovery", and bounded tab-scoped sessionStorage workflow continuity. The verified PASSWORD_RECOVERY establishment path creates the marker; refresh restoration requires that valid marker.
+- Marker alone is never authorization. It stores only userId, sessionId, expiresAt; no credentials, raw JWT or AMR payload.
+- The 15-minute local continuity window is fixed and not renewed by refresh or token rotation.
+- TOKEN_REFRESHED uses verified user/session identity and recovery AMR, not access-token string equality as an identity requirement.
+- SIGNED_OUT/session loss revokes eligibility. No periodic 15-second polling; retain auth events, focus/pageshow/visibility, pre-submit validation and bounded timers.
+- Direct reset access and different-browser/profile PKCE recovery remain fail-closed by design.
+
+Pre-AUTH_RECOVERY_01 committed base: ff67db4 on feature/auth-foundation. This acceptance supersedes earlier pending recovery/browser statements only for the checks listed above. Earlier stage closure checkpoints are historical snapshots. Prior automated checks passed: TypeScript, 34 regression tests and production build (22/22 pages); not rerun here. No staging, commit, push or next stage authorized.

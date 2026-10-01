@@ -5,6 +5,7 @@ import { SectionHeader, TalentryCard } from '@/components/ui'
 import type { InterviewDetail } from '@/app/result/[id]/page'
 import type { AppLanguage } from '@/types/auth'
 import ResultAnswers from './ResultAnswers'
+import ResultPdfDownload from './ResultPdfDownload'
 import { displayValue, INTERVIEW_LANGUAGE_NAMES } from './result-copy'
 import type { ResultCopy } from './result-copy'
 import styles from '@/app/result/result.module.css'
@@ -119,6 +120,7 @@ export default function ResultContent({ interview, copy, uiLanguage }: ResultCon
           </p>
         </TalentryCard>
       </div>
+      <ResultPdfDownload interviewId={interview.id} copy={copy.pdf} />
         </div>
         <div {...panelProps(1)}>
       <TalentryCard aria-labelledby="result-details">

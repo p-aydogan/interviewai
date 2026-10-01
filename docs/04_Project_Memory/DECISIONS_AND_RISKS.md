@@ -1618,3 +1618,34 @@ Evidence: all ten runtime checks are recorded in the AUTH_RECOVERY_01 reports an
 Remaining limits: marker/local TTL is client-controlled workflow continuity, not server-enforced one-use authorization. Verified AMR records session authentication history. Silent remote revocation still depends on retained checks; arbitrary browser/hook configurations are not asserted covered. The 1–2 second Check your email flash on refresh is minor deferred UX polish, not a security issue or functional blocker; separate approval required to fix.
 
 At documentation closure, the checkpoint was ff67db4 on feature/auth-foundation and AUTH_RECOVERY_01 was uncommitted; earlier checkpoint/next-stage statements are historical. No staging, commit, push, next stage or runtime rerun authorized by this documentation closure.
+
+
+## Final status — REPORT_EXPORT_01 — 2026-10-01
+
+**IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**
+
+**DEPLOYED RUNTIME SMOKE ACCEPTANCE: PENDING**
+
+At this documentation/pre-commit checkpoint, HEAD and origin/feature/auth-foundation were b08f446 on feature/auth-foundation, and REPORT_EXPORT_01 work was uncommitted. No future commit hash is asserted. Local runtime acceptance is user-verified in Chrome normal profile; it was not rerun during this documentation-only closure. The user reported the dev server manually stopped.
+
+Final renderer: exact jsPDF 4.2.1; React-PDF rejected. Node-first / managed Next.js, owner-authorized Node PDF route, shared owner-reader security boundary, persisted-data-only direct-text report, application-owned pagination and local static Inter Regular/SemiBold fonts. Auth/recovery architecture and DB/schema remain unchanged. Export makes no AI/provider call, stores no PDF, offers no public sharing, and introduces no Python production runtime, DOM or headless browser.
+
+Final endpoint: GET /api/interviews/[id]/pdf. PDF label language is derived server-side from persisted interview.language AFTER the authenticated owner-scoped read (en -> English, tr -> Turkish, de -> German). UI language controls browser button/loading/status/error copy only. Summary, questions, answers, role, company and other saved free text are never translated. Legacy language query parameters are ignored and cannot override saved language; unsupported persisted language fails through the generic PDF-generation error path. The previous client-selected language query contract is superseded.
+
+Recorded final validation: PDF 14/14 PASS; owner-reader 8/8 PASS; recovery 34/34 PASS; TypeScript PASS; git diff --check PASS; production build PASS with static generation 22/22; post-build PDF tests 14/14 PASS. Exact Turkish/German Unicode, nonempty used-glyph ToUnicode mappings, composite/base sequences, ten alternating reports, exact LONG_QUESTION, 140 ordered paragraphs, content through ANSWER_11, six-page long reports and all footers passed. Recorded visual inspection found no overlap, clipping, off-page text, missing glyphs or footer collision.
+
+Representative local observations from the accepted post-build run: approximately 94 KB long PDF, 80–135 ms rendering, RSS around 380 MiB and whole-process peak around 407 MiB. These are local observations only, not production concurrency capacity or proof of memory-leak absence.
+
+Deployed packaging/resource smoke remains a deployment acceptance / operational follow-up, not a local functional blocker. Host font/jsPDF packaging, production render duration, sustained/concurrent memory, response-size/resource limits and long reports under host limits have not been verified. Full production closure is not claimed. Concurrency/resource profiling is deferred only if future usage scale requires it.
+
+### Renderer and corrective-work history
+
+1. Initial React-PDF implementation failed validation: empty ToUnicode mappings, fontkit sequential glyph/codepoint contamination and Turkish/German extraction corruption; inherited numeric line-height also broke long-report pagination.
+2. Layout had a clean application-level candidate correction. Unicode had no acceptable maintainable correction; upstream issue/PR remained unresolved at that audit. React-PDF was rejected, not accepted retroactively.
+3. fpdf2 was investigated and technically suitable, but production Python deployment was not established. Node-first remained preferred; Node-native alternatives were audited.
+4. jsPDF 4.2.1 isolated spike passed Unicode, mappings, composite/base sequences, sequential documents and long pagination; repository migration followed.
+5. A multipage contiguous-answer assertion was proven invalid because legitimate page footers interrupted extraction. Its replacement strengthened exact per-page footer and ordered semantic-body checks.
+6. TypeScript API mismatch was corrected from direct getPageWidth/getPageHeight to doc.internal.pageSize.getWidth()/getHeight(), without changing pagination.
+7. Full automated/build/post-build validation passed. PDF language source then changed from UI language to persisted interview.language; automated validation and browser re-acceptance passed.
+
+User-verified historical/repeated/mobile export, live Unicode search and signed-out/wrong-owner boundaries passed; see STAGE_LOG. The incomplete-logout attempt was invalid, not an auth failure. ADR-003 supersedes ADR-002, which remains unchanged historical evidence.

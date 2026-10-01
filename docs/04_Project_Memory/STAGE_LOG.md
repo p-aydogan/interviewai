@@ -1746,3 +1746,49 @@ Minor deferred UX note: Ctrl+R on a valid recovery form can briefly show Check y
 - Direct reset access and different-browser/profile PKCE recovery remain fail-closed by design.
 
 Checkpoint at documentation closure: feature/auth-foundation, HEAD ff67db4; AUTH_RECOVERY_01 remains uncommitted. This append records later evidence without rewriting stage history. Prior automated validation: TypeScript PASS, 34 regression tests PASS, production build PASS (22/22 pages). None rerun. Only two existing AUTH_RECOVERY_01 reports and four project-memory files updated. No application/test edits or Git mutations.
+
+
+## Final status — REPORT_EXPORT_01 — 2026-10-01
+
+**IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**
+
+**DEPLOYED RUNTIME SMOKE ACCEPTANCE: PENDING**
+
+At this documentation/pre-commit checkpoint, HEAD and origin/feature/auth-foundation were b08f446 on feature/auth-foundation, and REPORT_EXPORT_01 work was uncommitted. No future commit hash is asserted. Local runtime acceptance is user-verified in Chrome normal profile; it was not rerun during this documentation-only closure. The user reported the dev server manually stopped.
+
+Final renderer: exact jsPDF 4.2.1; React-PDF rejected. Node-first / managed Next.js, owner-authorized Node PDF route, shared owner-reader security boundary, persisted-data-only direct-text report, application-owned pagination and local static Inter Regular/SemiBold fonts. Auth/recovery architecture and DB/schema remain unchanged. Export makes no AI/provider call, stores no PDF, offers no public sharing, and introduces no Python production runtime, DOM or headless browser.
+
+Final endpoint: GET /api/interviews/[id]/pdf. PDF label language is derived server-side from persisted interview.language AFTER the authenticated owner-scoped read (en -> English, tr -> Turkish, de -> German). UI language controls browser button/loading/status/error copy only. Summary, questions, answers, role, company and other saved free text are never translated. Legacy language query parameters are ignored and cannot override saved language; unsupported persisted language fails through the generic PDF-generation error path. The previous client-selected language query contract is superseded.
+
+Recorded final validation: PDF 14/14 PASS; owner-reader 8/8 PASS; recovery 34/34 PASS; TypeScript PASS; git diff --check PASS; production build PASS with static generation 22/22; post-build PDF tests 14/14 PASS. Exact Turkish/German Unicode, nonempty used-glyph ToUnicode mappings, composite/base sequences, ten alternating reports, exact LONG_QUESTION, 140 ordered paragraphs, content through ANSWER_11, six-page long reports and all footers passed. Recorded visual inspection found no overlap, clipping, off-page text, missing glyphs or footer collision.
+
+Representative local observations from the accepted post-build run: approximately 94 KB long PDF, 80–135 ms rendering, RSS around 380 MiB and whole-process peak around 407 MiB. These are local observations only, not production concurrency capacity or proof of memory-leak absence.
+
+Deployed packaging/resource smoke remains a deployment acceptance / operational follow-up, not a local functional blocker. Host font/jsPDF packaging, production render duration, sustained/concurrent memory, response-size/resource limits and long reports under host limits have not been verified. Full production closure is not claimed. Concurrency/resource profiling is deferred only if future usage scale requires it.
+
+### User-verified local Chrome acceptance — PASS
+
+- Historical Result: interview 19c2c248-b4b7-4b99-b9c2-ce0ef316b39e downloaded and opened in Chrome; score 12 / 100, role/company Genel / Genel, saved assessment and Q&A correct.
+- English saved interview while UI remained Turkish: English PDF labels and unchanged English content. User-reported labels included Interview Report, Score, Performance Assessment, Interview Details, Questions and Answers, Question, Answer and Page. These are user-supplied acceptance observations, not a fresh source-copy assertion.
+- Query override attempt: the same interview's /pdf?language=tr still produced English labels from persisted en.
+- Turkish saved interview: Turkish labels verified (Mülakat Raporu, Puan, Performans değerlendirmesi, Görüşme bilgileri, Sorular ve cevaplar, Soru, Cevap, Sayfa).
+- Unicode visual/search: saved answer "ı don't panik everything gonna be ok" displayed dotless ı correctly; Chrome Ctrl+F found "ı don't panik".
+- Repeated historical export succeeded without stuck loading or a remaining request lock.
+- /api/interviews/not-a-valid-id/pdf returned {"error":"Invalid interview id"}.
+- /api/interviews/00000000-0000-4000-8000-000000000000/pdf returned {"error":"Interview not found"}.
+- Signed-out: after completed logout and visibly reaching login, the historical PDF endpoint returned {"error":"Unauthorized"} (401); no download.
+- Earlier attempted unauthorized check was INVALID: logout had not completed, PDF/detail data and Dashboard still worked. This is not recorded as an authorization failure.
+- Wrong owner: a second authenticated account received {"error":"Interview not found"} (404), with no download; indistinguishable from nonexistent record.
+- Mobile Chrome 400 × 690: action reachable with a small downward scroll, no horizontal overflow or overlapping controls, Result remained usable. Download and repeated export passed.
+
+German labels/Unicode have automated fixture evidence; no additional live German-record acceptance is invented. Deployed runtime acceptance remains pending.
+
+### Renderer and corrective-work history
+
+1. Initial React-PDF implementation failed validation: empty ToUnicode mappings, fontkit sequential glyph/codepoint contamination and Turkish/German extraction corruption; inherited numeric line-height also broke long-report pagination.
+2. Layout had a clean application-level candidate correction. Unicode had no acceptable maintainable correction; upstream issue/PR remained unresolved at that audit. React-PDF was rejected, not accepted retroactively.
+3. fpdf2 was investigated and technically suitable, but production Python deployment was not established. Node-first remained preferred; Node-native alternatives were audited.
+4. jsPDF 4.2.1 isolated spike passed Unicode, mappings, composite/base sequences, sequential documents and long pagination; repository migration followed.
+5. A multipage contiguous-answer assertion was proven invalid because legitimate page footers interrupted extraction. Its replacement strengthened exact per-page footer and ordered semantic-body checks.
+6. TypeScript API mismatch was corrected from direct getPageWidth/getPageHeight to doc.internal.pageSize.getWidth()/getHeight(), without changing pagination.
+7. Full automated/build/post-build validation passed. PDF language source then changed from UI language to persisted interview.language; automated validation and browser re-acceptance passed.

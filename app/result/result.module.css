@@ -192,6 +192,25 @@
   max-width: calc(var(--talentry-space-16) * 11);
 }
 
+.pdfDownload {
+  margin-top: var(--talentry-space-4);
+}
+
+.pdfStatus,
+.pdfError {
+  margin: var(--talentry-space-2) 0 0;
+  font-size: var(--talentry-font-size-sm);
+  color: var(--talentry-color-text-secondary);
+}
+
+.pdfStatus:empty {
+  margin: 0;
+}
+
+.pdfError {
+  color: var(--talentry-color-text);
+}
+
 .status :global(.talentry-empty-state__description) {
   margin-top: var(--talentry-space-3);
 }

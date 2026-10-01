@@ -1,6 +1,7 @@
 import type { AppLanguage } from '@/types/auth'
 
 export type ResultCopy = {
+  pdf: { download: string; generating: string; started: string; unavailable: string; error: string; title: string; reference: string; page: string }
   backToDashboard: string
   review: string; completed: string; score: string; summary: string; details: string
   role: string; company: string; level: string; interviewType: string
@@ -27,6 +28,7 @@ export function displayValue(labels: Readonly<Record<string, string>>, value: st
 
 export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
   tr: {
+    pdf: { download: 'PDF raporunu indir', generating: 'PDF hazırlanıyor…', started: 'İndirme başlatıldı.', unavailable: 'Rapor kullanılamıyor.', error: 'PDF oluşturulamadı. Tekrar deneyin.', title: 'Mülakat Raporu', reference: 'Mülakat referansı', page: 'Sayfa' },
     backToDashboard: 'Panele Dön',
     pager: 'Sonuç bölümleri', panels: ['Değerlendirme', 'Görüşme bilgileri', 'Sorular ve cevaplar'],
     review: 'Mülakat değerlendirmesi', completed: 'Mülakat tamamlandı', score: 'Puan',
@@ -44,6 +46,7 @@ export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
     personas: { friendly: 'Arkadaşça', formal: 'Profesyonel', tough: 'Zorlu', curious: 'Analitik' },
   },
   en: {
+    pdf: { download: 'Download PDF report', generating: 'Generating PDF…', started: 'Download started.', unavailable: 'Report unavailable.', error: 'Could not generate PDF. Please try again.', title: 'Interview Report', reference: 'Interview reference', page: 'Page' },
     backToDashboard: 'Back to Dashboard',
     pager: 'Result sections', panels: ['Evaluation', 'Interview details', 'Questions and answers'],
     review: 'Interview result review', completed: 'Interview complete', score: 'Score',
@@ -61,6 +64,7 @@ export const RESULT_COPY: Record<AppLanguage, ResultCopy> = {
     personas: { friendly: 'Friendly', formal: 'Professional', tough: 'Tough', curious: 'Analytical' },
   },
   de: {
+    pdf: { download: 'PDF-Bericht herunterladen', generating: 'PDF wird erstellt…', started: 'Download gestartet.', unavailable: 'Bericht nicht verfügbar.', error: 'PDF konnte nicht erstellt werden. Bitte erneut versuchen.', title: 'Interviewbericht', reference: 'Interviewreferenz', page: 'Seite' },
     backToDashboard: 'Zurück zum Dashboard',
     pager: 'Ergebnisbereiche', panels: ['Auswertung', 'Gesprächsdetails', 'Fragen und Antworten'],
     review: 'Interviewauswertung', completed: 'Interview abgeschlossen', score: 'Punktzahl',

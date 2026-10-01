@@ -968,3 +968,13 @@ Recorded: 2026-09-27. Status: MINOR UX FLICKER / DEFERRED POLISH.
 On Ctrl+R while a valid recovery form is open, a brief 1–2 second Check your email screen can appear before the usable recovery form is restored. User-verified refresh continuity PASS. Not a security issue, not a functional blocker; do not fix during AUTH_RECOVERY_01 closure without separate approval.
 
 All ten supplied recovery runtime checks passed in the specified scenarios. Edge-initiated recovery opened by Outlook in default-browser Chrome correctly fails closed; this is expected PKCE browser/profile separation, not a defect to fix. Existing unrelated debt remains deferred. The earlier pre-auth uncommitted/checkpoint note is historical: at documentation closure, HEAD was ff67db4 and AUTH_RECOVERY_01 was uncommitted.
+
+
+## REPORT_EXPORT_01 follow-up — 2026-10-01
+
+PDF implementation is no longer deferred: IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS. Earlier PDF backlog statements are historical and superseded for this stage. At this pre-commit checkpoint the base was b08f446; no final feature commit had been created.
+
+- DEPLOYED PACKAGING / RESOURCE SMOKE TEST: PENDING. Deployment acceptance / operational follow-up, not a local functional blocker. Verify actual host jsPDF/font packaging, duration, sustained/concurrent memory, response-size/resource constraints and representative long reports. Local build/PDF acceptance is not deployed acceptance.
+- Concurrency/resource profiling: conditional follow-up if future usage scale requires it. Local observations do not establish capacity or absence of leaks.
+
+No unrelated backlog is added to REPORT_EXPORT_01. See CURRENT_STATE, STAGE_LOG and ADR-003 for the final persisted-language/owner-authorized Node/jsPDF contract and user-verified local evidence.

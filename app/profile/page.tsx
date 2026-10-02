@@ -10,6 +10,6 @@ export default async function AccountPage() {
   if (auth.status === 'unauthorized') redirect(AUTH_ROUTES.login)
   const identity = projectUserIdentity(auth.user)
   return <DashboardLayout identity={identity} accountPage>
-    <AccountPageContent page="profile" identity={identity} />
+    <AccountPageContent page="profile" identity={identity} identityVersion={auth.user.updated_at} />
   </DashboardLayout>
 }

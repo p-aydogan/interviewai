@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 export function useAccountSession() {
+  const router = useRouter()
   const [supabase] = useState(createClient)
   const [pending, setPending] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -22,8 +24,22 @@ export function useAccountSession() {
 
   useEffect(() => {
     mounted.current = true
+    let refreshTimer: ReturnType<typeof setTimeout> | undefined
+    let lastRefresh = 0
+    const scheduleRefresh = () => {
+      if (refreshTimer !== undefined || leaving.current) return
+      // Leave the Auth callback before refreshing server-verified identity.
+      refreshTimer = setTimeout(() => {
+        refreshTimer = undefined
+        if (!mounted.current || leaving.current) return
+        lastRefresh = Date.now()
+        router.refresh()
+      }, 0)
+    }
+    const onFocus = () => { if (Date.now() - lastRefresh >= 2000) scheduleRefresh() }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) leave()
+      if (event === 'USER_UPDATED' && session) scheduleRefresh()
     })
     // A restored browser-history document must not retain stale account UI.
     const revalidate = async () => {
@@ -34,12 +50,15 @@ export function useAccountSession() {
       if (event.persisted) void revalidate().catch(() => {})
     }
     window.addEventListener('pageshow', onPageShow)
+    window.addEventListener('focus', onFocus)
     return () => {
       mounted.current = false
       subscription.unsubscribe()
+      clearTimeout(refreshTimer)
       window.removeEventListener('pageshow', onPageShow)
+      window.removeEventListener('focus', onFocus)
     }
-  }, [supabase])
+  }, [supabase, router])
 
   async function signOut() {
     if (inFlight.current || leaving.current) return

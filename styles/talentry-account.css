@@ -92,3 +92,28 @@
 .talentry-account-card { display: grid; gap: var(--talentry-space-3); padding: var(--talentry-space-5); border: var(--talentry-card-border); border-radius: var(--talentry-radius-lg); background: var(--talentry-color-surface); }
 .talentry-account-card dt { font-weight: var(--talentry-font-weight-semibold); }
 .talentry-account-card dd, .talentry-account-content p { color: var(--talentry-color-text-secondary); }
+
+.talentry-profile-editor dl,
+.talentry-profile-editor form { display: grid; min-width: 0; gap: var(--talentry-space-3); }
+.talentry-profile-editor dl > *, .talentry-profile-editor form p { margin: 0; }
+.talentry-profile-editor label { font-weight: var(--talentry-font-weight-semibold); }
+.talentry-profile-editor input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--talentry-button-height-md);
+  padding: var(--talentry-space-3);
+  border: var(--talentry-card-border);
+  border-radius: var(--talentry-radius-md);
+  background: var(--talentry-color-surface);
+  color: var(--talentry-color-text);
+  font: inherit;
+}
+.talentry-profile-editor input:focus-visible {
+  outline: 2px solid var(--talentry-color-border-focus);
+  outline-offset: var(--talentry-space-1);
+}
+.talentry-profile-editor input[aria-invalid='true'] { border-color: var(--talentry-color-danger); }
+.talentry-profile-editor .talentry-profile-error { color: var(--talentry-color-danger-hover); }
+.talentry-profile-actions { display: flex; flex-wrap: wrap; gap: var(--talentry-space-3); }
+.talentry-profile-editor .talentry-button { max-width: 100%; white-space: normal; }

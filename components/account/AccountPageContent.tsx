@@ -6,9 +6,10 @@ import { DashboardLanguageContext, AccountLanguageContext } from '@/components/d
 import type { UserIdentity } from '@/lib/auth/user-identity'
 import { ACCOUNT_COPY } from './account-copy'
 import LanguageSelector from './LanguageSelector'
+import ProfileEditor from './ProfileEditor'
 
-export default function AccountPageContent({ page, identity }: {
-  page: 'profile' | 'settings' | 'help'; identity: UserIdentity
+export default function AccountPageContent({ page, identity, identityVersion }: {
+  page: 'profile' | 'settings' | 'help'; identity: UserIdentity; identityVersion?: string
 }) {
   const language = useContext(DashboardLanguageContext)
   const changeLanguage = useContext(AccountLanguageContext)
@@ -17,10 +18,7 @@ export default function AccountPageContent({ page, identity }: {
     <Link className="talentry-account-back" href="/dashboard">{copy.back}</Link>
     <h1>{copy[page]}</h1>
     <p>{copy[`${page}Description`]}</p>
-    {page === 'profile' && <dl className="talentry-account-card">
-      <dt>{copy.displayName}</dt><dd>{identity.displayName ?? copy.missing}</dd>
-      <dt>{copy.email}</dt><dd>{identity.email ?? copy.missing}</dd>
-    </dl>}
+    {page === 'profile' && <ProfileEditor identity={identity} identityVersion={identityVersion} language={language} />}
     {page === 'settings' && <>
       <div className="talentry-account-card">
         <LanguageSelector language={language} onChange={changeLanguage} />

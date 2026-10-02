@@ -4,6 +4,9 @@ interface AccountCopy {
   account: string; profile: string; settings: string; language: string; help: string
   signOut: string; signingOut: string; signOutFailed: string; back: string
   profileDescription: string; displayName: string; email: string; missing: string
+  editProfile: string; save: string; cancel: string; saving: string; saved: string
+  profileChanged: string; useLatest: string; profileEditHint: string
+  profileErrors: Record<'required' | 'tooLong' | 'invalid' | 'saveFailed', string>
   settingsDescription: string; languageDescription: string; security: string
   recoveryDescription: string; recovery: string; helpDescription: string
   guidance: readonly { title: string; description: string; href?: string }[]
@@ -14,7 +17,13 @@ export const ACCOUNT_COPY: Record<AppLanguage, AccountCopy> = {
     account: 'Hesap', profile: 'Profil', settings: 'Hesap Ayarları', language: 'Uygulama dili',
     help: 'Yardım ve Destek', signOut: 'Çıkış Yap', signingOut: 'Çıkış yapılıyor…',
     signOutFailed: 'Çıkış tamamlanamadı. Lütfen tekrar deneyin.', back: 'Panele Dön',
-    profileDescription: 'Hesabınızda bulunan bilgiler. Bu sayfa salt okunurdur.',
+    profileDescription: 'Görünen adınızı düzenleyebilirsiniz. E-posta adresiniz salt okunurdur.',
+    editProfile: 'Profili düzenle', save: 'Kaydet', cancel: 'İptal', saving: 'Kaydediliyor…', saved: 'Görünen ad kaydedildi.',
+    profileChanged: 'Profiliniz başka bir yerde değişti. Devam etmek için güncel değeri kullanın.',
+    useLatest: 'Güncel değeri kullan',
+    profileEditHint: '1–80 karakter. Kaydedilmemiş değişiklikler sayfadan ayrılınca silinir.',
+    profileErrors: { required: 'Görünen ad boş bırakılamaz.', tooLong: 'En fazla 80 karakter girin.',
+      invalid: 'Geçerli bir görünen ad girin.', saveFailed: 'Kaydedilemedi. Lütfen tekrar deneyin.' },
     displayName: 'Görünen ad', email: 'E-posta', missing: 'Belirtilmedi',
     settingsDescription: 'Uygulama dilinizi seçin veya mevcut parola kurtarma akışını kullanın.',
     languageDescription: 'Bu tarayıcı için kaydedilir. Mülakat dilini değiştirmez.',
@@ -32,7 +41,13 @@ export const ACCOUNT_COPY: Record<AppLanguage, AccountCopy> = {
     account: 'Account', profile: 'Profile', settings: 'Account Settings', language: 'Application language',
     help: 'Help & Support', signOut: 'Sign Out', signingOut: 'Signing out…',
     signOutFailed: 'Sign out could not be completed. Please try again.', back: 'Back to Dashboard',
-    profileDescription: 'The information available on your account. This page is read-only.',
+    profileDescription: 'Edit your display name. Your email address is read-only.',
+    editProfile: 'Edit profile', save: 'Save', cancel: 'Cancel', saving: 'Saving…', saved: 'Display name saved.',
+    profileChanged: 'Your profile changed elsewhere. Use the latest value to continue.',
+    useLatest: 'Use latest value',
+    profileEditHint: '1–80 characters. Unsaved changes are discarded when you leave this page.',
+    profileErrors: { required: 'Display name is required.', tooLong: 'Enter no more than 80 characters.',
+      invalid: 'Enter a valid display name.', saveFailed: 'Could not save. Please try again.' },
     displayName: 'Display name', email: 'Email', missing: 'Not provided',
     settingsDescription: 'Choose your application language or use the existing password recovery flow.',
     languageDescription: 'Saved for this browser. Does not change the interview language.',
@@ -50,7 +65,13 @@ export const ACCOUNT_COPY: Record<AppLanguage, AccountCopy> = {
     account: 'Konto', profile: 'Profil', settings: 'Kontoeinstellungen', language: 'Anwendungssprache',
     help: 'Hilfe & Support', signOut: 'Abmelden', signingOut: 'Abmeldung läuft…',
     signOutFailed: 'Die Abmeldung konnte nicht abgeschlossen werden. Bitte erneut versuchen.', back: 'Zurück zum Dashboard',
-    profileDescription: 'Die verfügbaren Angaben zu deinem Konto. Diese Seite ist schreibgeschützt.',
+    profileDescription: 'Bearbeite deinen Anzeigenamen. Deine E-Mail-Adresse ist schreibgeschützt.',
+    editProfile: 'Profil bearbeiten', save: 'Speichern', cancel: 'Abbrechen', saving: 'Wird gespeichert…', saved: 'Anzeigename gespeichert.',
+    profileChanged: 'Dein Profil wurde anderswo geändert. Übernimm den aktuellen Wert, um fortzufahren.',
+    useLatest: 'Aktuellen Wert übernehmen',
+    profileEditHint: '1–80 Zeichen. Ungespeicherte Änderungen werden beim Verlassen dieser Seite verworfen.',
+    profileErrors: { required: 'Ein Anzeigename ist erforderlich.', tooLong: 'Gib höchstens 80 Zeichen ein.',
+      invalid: 'Gib einen gültigen Anzeigenamen ein.', saveFailed: 'Speichern fehlgeschlagen. Bitte versuche es erneut.' },
     displayName: 'Anzeigename', email: 'E-Mail', missing: 'Nicht angegeben',
     settingsDescription: 'Wähle die Anwendungssprache oder nutze die bestehende Passwortwiederherstellung.',
     languageDescription: 'Wird für diesen Browser gespeichert. Ändert die Interviewsprache nicht.',

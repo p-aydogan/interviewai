@@ -912,6 +912,8 @@ No Dashboard, Result, Interview logic, API, schema, auth, scoring, prompts, HeyG
 
 ## ACCOUNT-001 — Profile Editing and Persistence
 
+Update 2026-10-02: RESOLVED for display-name-only V1 under PROFILE_EDIT_01; implementation, automated validation and user-verified local browser acceptance PASS. At this pre-commit documentation checkpoint the work was uncommitted on base 56b9cdf; no future commit hash is asserted. No profile schema is required by the accepted auth-metadata design. The earlier deferral below is historical. Email/password/avatar editing and broader account features remain outside scope.
+
 Date: 2026-09-20. Status: INTENTIONALLY DEFERRED.
 
 User Menu, read-only /profile, /account/settings (application language and password recovery), and /help are implemented and main-flow runtime/build accepted. No fake account controls, avatar upload, support channels, raw metadata exposure, profile table or migration. Editing/persistence needs a real product requirement/schema. Email change, deletion, MFA, device/session management and notification preferences remain unsupported and were not added.
@@ -978,3 +980,23 @@ PDF implementation is no longer deferred: IMPLEMENTATION + AUTOMATED VALIDATION 
 - Concurrency/resource profiling: conditional follow-up if future usage scale requires it. Local observations do not establish capacity or absence of leaks.
 
 No unrelated backlog is added to REPORT_EXPORT_01. See CURRENT_STATE, STAGE_LOG and ADR-003 for the final persisted-language/owner-authorized Node/jsPDF contract and user-verified local evidence.
+
+
+## PROFILE_EDIT_01 — Accepted V1 and remaining boundaries — 2026-10-02
+
+At the 2026-10-02 documentation/pre-commit checkpoint, HEAD and local origin/feature/auth-foundation were 56b9cdf on feature/auth-foundation; PROFILE_EDIT_01 work was uncommitted. No future commit hash is asserted. The user reported the dev server manually stopped. No tests/build or browser checks were rerun during this documentation-only update; no server restart or Git mutation was performed. No next stage is authorized.
+
+Recorded final automated validation: focused profile tests 49/49 PASS; recovery regression 34/34 PASS; TypeScript PASS; git diff --check PASS; production build PASS, 22/22 pages. These existing test/build results were not rerun. Prior webpack cache snapshot warnings, LF-to-CRLF notices and npm update notices remain documented; no dependency update was performed.
+
+Browser acceptance A-Q: USER-VERIFIED PASS in Chrome normal profile; see STAGE_LOG for exact observations. ACCOUNT-002's cross-tab logout gap is resolved specifically for a dirty profile editor navigating to login without persisting its draft. Metadata-update revocation of an open recovery form is also live-verified intentional fail-closed behavior. Other ACCOUNT-002 edge cases remain unverified; no broad closure is claimed.
+
+Provider failure/retry and rapid duplicate submission prevention remain automated-test-covered only; they were not deliberately forced live and are not browser failures or V1 blockers.
+
+- user.updated_at is a whole-auth-user version, not an atomic profile revision; unrelated auth-user changes may conservatively trigger reconciliation.
+- No atomic multi-device conflict guarantee exists.
+- Drafts are memory-only and discarded on navigation.
+- External changes are observed through auth events/focus/refresh behavior.
+- Deployed Supabase project behavior was live-tested only for the exercised flows.
+- No profile-schema enforcement exists because V1 intentionally uses auth metadata.
+
+These limitations are not blockers for the accepted V1. REPORT_EXPORT_01 deployed packaging/resource smoke remains PENDING as a deployment/operations follow-up, not a local functional blocker; PDF implementation remains closed. Unrelated deferred work remains unchanged.

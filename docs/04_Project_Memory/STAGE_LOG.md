@@ -1792,3 +1792,71 @@ German labels/Unicode have automated fixture evidence; no additional live German
 5. A multipage contiguous-answer assertion was proven invalid because legitimate page footers interrupted extraction. Its replacement strengthened exact per-page footer and ordered semantic-body checks.
 6. TypeScript API mismatch was corrected from direct getPageWidth/getPageHeight to doc.internal.pageSize.getWidth()/getHeight(), without changing pagination.
 7. Full automated/build/post-build validation passed. PDF language source then changed from UI language to persisted interview.language; automated validation and browser re-acceptance passed.
+
+
+## Final runtime acceptance — PROFILE_EDIT_01 — 2026-10-02
+
+**IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**
+
+At the 2026-10-02 documentation/pre-commit checkpoint, HEAD and local origin/feature/auth-foundation were 56b9cdf on feature/auth-foundation; PROFILE_EDIT_01 work was uncommitted. No future commit hash is asserted. The user reported the dev server manually stopped. No tests/build or browser checks were rerun during this documentation-only update; no server restart or Git mutation was performed. No next stage is authorized.
+
+### Final architecture and name contract
+
+Display-name-only V1 writes user_metadata.display_name through authenticated browser supabase.auth.updateUser({ data: { display_name: normalizedValue } }). No target user ID, app_metadata, service-role/admin mutation, profile table, application profile API, schema/RLS, dependency or configuration change. Email remains read-only; email/password/avatar changes are outside scope. Server projection remains defensive: display_name -> full_name -> name -> honest fallback. Metadata is display text only, never authorization.
+
+The name contract trims leading/trailing whitespace, collapses internal whitespace runs, requires 1-80 Unicode code points and rejects remaining control characters. International Unicode, accents/diacritics and punctuation are preserved. No transliteration, first/last-name split, email-derived name or clear-name action. Existing missing-name fallback remains valid until edited.
+
+### Identity snapshot and refresh
+
+The server-projected editor snapshot contains projected display name and the authenticated user's top-level user.updated_at as identityVersion. This server-controlled value is separate from user_metadata and used only for identity reconciliation, never authorization. No random or client-generated version token is used.
+
+A/V1 -> local save B/V2 -> later external/server A/V3 is recognized as a NEW snapshot even when the name repeats. Clean editors accept the fresh snapshot and update confirmed/displayed name. Dirty editors preserve the draft, detect external changes, block Save, and require explicit Use latest / Cancel reconciliation. Successful saves use the provider-returned user for confirmed name and updated_at baseline, avoiding a false conflict when that same saved snapshot returns through refresh.
+
+USER_UPDATED schedules bounded refresh outside the auth callback; focus refresh is a bounded fallback, with no polling. Existing SIGNED_OUT/session-loss navigation is preserved. Server-projected identity remains authoritative; shared menu and clean profile views update after metadata changes.
+
+### Recovery interaction
+
+PROFILE_EDIT_01 did NOT modify recovery code. A successful profile metadata update emits USER_UPDATED. An open recovery form in another same-profile tab therefore remains fail-closed and becomes unavailable. This intentional behavior was LIVE-VERIFIED: the recovery tab transitioned to Reset link unavailable. It is not a regression.
+
+### Validation evidence
+
+Recorded final automated validation: focused profile tests 49/49 PASS; recovery regression 34/34 PASS; TypeScript PASS; git diff --check PASS; production build PASS, 22/22 pages. These existing test/build results were not rerun. Prior webpack cache snapshot warnings, LF-to-CRLF notices and npm update notices remain documented; no dependency update was performed.
+
+### Local browser acceptance
+
+Evidence: USER-VERIFIED PASS in Chrome normal profile, supplied by the user on 2026-10-02. This documentation step did not independently repeat the browser checks.
+
+| Check | User-confirmed observation | Result |
+| --- | --- | --- |
+| A. Display-name save | /profile saved Çağrı Öztürk; profile card and menu/avatar identity updated. | USER-VERIFIED PASS |
+| B. Refresh persistence | Ctrl+R retained the saved name. | USER-VERIFIED PASS |
+| C. Logout/login persistence | Same-account logout/login retained the saved name. | USER-VERIFIED PASS |
+| D. Cross-account isolation | Second test account did not show the first account's edited name. | USER-VERIFIED PASS |
+| E. Cancel | Temporary Deneme İsim draft cancelled; persisted value unchanged. | USER-VERIFIED PASS |
+| F. Blank validation | Blank/whitespace rejected; no save. | USER-VERIFIED PASS |
+| G. Length validation | 81-character value rejected. | USER-VERIFIED PASS |
+| H. Clean cross-tab update | Tab B saved Sekma Testi / equivalent tested value; clean Tab A updated automatically without manual refresh. No timing measurement is asserted. | USER-VERIFIED PASS |
+| I. Dirty draft conflict | Tab A retained Taslak İsim after Tab B saved Dış Değişiklik; conflict notice appeared and Save was blocked. | USER-VERIFIED PASS |
+| J. Use latest | Adopted current server value and cleared conflict. | USER-VERIFIED PASS |
+| K. Repeated A -> B -> A | Clean view moved to temporary B; another tab restored prior A under a NEW server identity version; clean view reconciled back to A. Validates the pre-browser updated_at snapshot fix. | USER-VERIFIED PASS |
+| L. Mobile | Approximately 400 x 690: editing usable, no horizontal overflow or control overlap, normal vertical scrolling. | USER-VERIFIED PASS |
+| M. Autofocus/keyboard | Edit Profile focused the input; typing worked without an extra click. | USER-VERIFIED PASS |
+| N. Recovery interaction | Fresh same-profile recovery form became Reset link unavailable after another tab saved profile metadata. Intentional fail-closed behavior. | USER-VERIFIED PASS |
+| O. English copy | Switching application UI to English showed correct English profile-edit copy. | USER-VERIFIED PASS |
+| P. German copy | Switching application UI to German showed correct German profile-edit copy. | USER-VERIFIED PASS |
+| Q. Session loss while editing | Another same-profile tab logged out; dirty profile/edit tab navigated to login and the draft was not persisted. | USER-VERIFIED PASS |
+
+Provider failure/retry and rapid duplicate submission prevention were NOT intentionally forced against the live provider. They are automated-test-covered only, not browser-tested. Other unlisted browser/device or screen-reader behavior is not newly claimed as verified.
+
+### Remaining non-blocking limitations
+
+- user.updated_at is a whole-auth-user version, not an atomic profile revision; unrelated auth-user changes may conservatively trigger reconciliation.
+- No atomic multi-device conflict guarantee exists.
+- Drafts are memory-only and discarded on navigation.
+- External changes are observed through auth events/focus/refresh behavior.
+- Deployed Supabase project behavior was live-tested only for the exercised flows.
+- No profile-schema enforcement exists because V1 intentionally uses auth metadata.
+
+These limitations are not blockers for the accepted V1. REPORT_EXPORT_01 deployed packaging/resource smoke remains PENDING as a deployment/operations follow-up, not a local functional blocker; PDF implementation remains closed. Unrelated deferred work remains unchanged.
+
+This closure supersedes earlier profile-editing deferral for display-name-only V1. Only the two current sprint reports and four named Project Memory files were updated; no other sprint report was rewritten.

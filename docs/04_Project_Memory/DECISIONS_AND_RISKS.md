@@ -1681,3 +1681,17 @@ This supersedes DECISION-031's read-only-profile/editing-deferral wording for di
 - No profile-schema enforcement exists because V1 intentionally uses auth metadata.
 
 These limitations are not blockers for the accepted V1. REPORT_EXPORT_01 deployed packaging/resource smoke remains PENDING as a deployment/operations follow-up, not a local functional blocker; PDF implementation remains closed. Unrelated deferred work remains unchanged.
+
+## DECISION-035 — HISTORY_PAGINATION_01 automated closure and seeding prerequisite — 2026-10-03
+
+AUTOMATED ACCEPTANCE: PASS. Production pagination implementation: UNCHANGED. No source-level pagination defect demonstrated. Preserve DECISION-030's owner-scoped position-only cursor, exact timestamp/UUID ordering and live-keyset semantics.
+
+Recorded prior results: cursor 15/15, server 24/24, hook 12/12, recovery 34/34, profile 49/49, PDF 14/14; total 148 PASS. TypeScript/whitespace PASS; build PASS, 22/22. Deterministic 0/1/19/20/21/40/41 boundaries, UUID timestamp ties, microseconds, owner isolation, retry/dedupe, rapid Load More protection, terminal cursor and live-keyset inserts: PASS. No reruns during documentation closure.
+
+LIVE <20 BROWSER CHECK: USER-VERIFIED PASS — authenticated page displayed 13 records / Load More hidden. REAL 21+ RECORD SUPABASE/BROWSER ACCEPTANCE: PENDING because the account has only 13 records. RISK-016 now has automated coverage, but its real multi-page acceptance gap remains open; no deployed page-two PASS is claimed.
+
+Existing authenticated POST can create synthetic owner-scoped completed records without AI/provider calls. Connected Supabase environment classification is UNKNOWN and the application has no supported interview DELETE path. Accordingly no synthetic records were created/deleted.
+
+Product decision: implement a separately scoped DELETE_INTERVIEW_01 feature before seeding pagination fixtures. It should allow users and acceptance cleanup to remove specific owned interviews through the application. This records future sequencing only: DELETE_INTERVIEW_01 is NOT implemented or authorized by this documentation update and is outside HISTORY_PAGINATION_01. Environment confirmation and explicit seed authorization remain required before future data creation.
+
+Historical documentation/pre-commit checkpoint: committed base before stage 96bd04c on feature/auth-foundation; stage tests/reports were uncommitted. No future commit hash asserted. No auth/recovery/profile/PDF/Result/scoring/schema/RLS/source/test changes or Git mutation in this closure.

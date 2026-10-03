@@ -1,8 +1,24 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-10-02
+Last updated: 2026-10-03
 
-## Current status — PROFILE_EDIT_01 — 2026-10-02
+## Current status — HISTORY_PAGINATION_01 — 2026-10-03
+
+**AUTOMATED ACCEPTANCE: PASS. Production pagination implementation: UNCHANGED. No source-level pagination defect demonstrated.**
+
+Recorded prior validation: cursor 15/15, server pagination 24/24, client hook 12/12, recovery 34/34, profile 49/49, PDF 14/14 — total 148 PASS. TypeScript PASS; git diff --check/new-file whitespace scan PASS; production build PASS, 22/22 pages. No tests/build were rerun in this documentation-only closure.
+
+Deterministic matrix PASS: 0 -> 0; 1 -> 1; 19 -> 19; 20 -> 20; 21 -> 20 + 1; 40 -> 20 + 20; 41 -> 20 + 20 + 1. Equal-timestamp UUID tie-break, microsecond precision, owner isolation, retry, deduplication, rapid Load More protection, terminal cursor behavior and live-keyset new-insert semantics: automated PASS.
+
+**LIVE <20 BROWSER CHECK: USER-VERIFIED PASS — 13 records / Load More hidden. REAL 21+ RECORD SUPABASE/BROWSER ACCEPTANCE: PENDING because the live account has only 13 records.** No real multi-page browser acceptance is claimed.
+
+Live seeding was deferred: authenticated POST supports synthetic owner-scoped records without AI calls, but connected Supabase environment classification is UNKNOWN and there is no supported interview DELETE path. No synthetic records were created or deleted.
+
+Product decision: implement separately scoped DELETE_INTERVIEW_01 before seeding pagination fixtures, allowing users and acceptance cleanup to remove specific owned interviews through the application. This feature is NOT implemented or authorized by this documentation update and is outside HISTORY_PAGINATION_01.
+
+At this documentation/pre-commit checkpoint, the committed base before the stage is 96bd04c on feature/auth-foundation; stage tests/reports are uncommitted. No future commit hash is asserted. Only the two stage reports and four Project Memory files were updated in closure. Production source/test files remain unchanged during this step; no dev server start or Git mutation. This entry qualifies earlier DASH-003/RISK-016 statements: automated coverage is now PASS, while real 21/>20 browser acceptance remains pending.
+
+## Previous stage status — PROFILE_EDIT_01 — 2026-10-02
 
 **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**
 

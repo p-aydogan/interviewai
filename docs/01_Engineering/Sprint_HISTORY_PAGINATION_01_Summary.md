@@ -1,0 +1,29 @@
+# Sprint HISTORY_PAGINATION_01 Summary
+
+- Title: Deterministic history pagination acceptance
+- Date: 2026-10-03
+- Branch: feature/auth-foundation
+- Base: HEAD and local origin/feature/auth-foundation both 96bd04c; initial working tree clean.
+- Status: AUTOMATED ACCEPTANCE: PASS. Documentation closure recorded; review of this update pending.
+- Goal: Test existing history pagination without production behavior changes.
+- Source audit: Approved verdict A; no production defect identified.
+- Created files: lib/interviews/history-test-helpers.cjs; lib/interviews/history-cursor.test.cjs; lib/interviews/history-pagination.test.cjs; components/interviews/useFullInterviewHistory.test.cjs; this Summary; Sprint_HISTORY_PAGINATION_01_Engineering_Report.md.
+- Modified existing files during test implementation: None. No production-source extraction was necessary. This documentation closure updates both stage reports and CURRENT_STATE.md, STAGE_LOG.md, DEFERRED_FIXES.md, DECISIONS_AND_RISKS.md only.
+- Validation: Cursor 15/15; server 24/24; hook 12/12; recovery 34/34; profile 49/49; report/PDF 14/14. All commands exited 0 with zero failed, cancelled or skipped tests. Total: 148 passing tests.
+- TypeScript: npx.cmd tsc --noEmit --incremental false exited 0.
+- Whitespace: git diff --check exited 0; because files are untracked, a separate trailing-whitespace check covers all six new files.
+- Build: npm.cmd run build exited 0, Next.js 14.2.5, static generation 22/22. Dev-server absence verified before build; no dev server started/restarted.
+- Warnings: Webpack cache warning appeared twice: Caching failed for pack: Error: Unable to snapshot resolve dependencies. npm printed an 11.16.0 -> 12.2.0 update notice during TypeScript/build; no update performed.
+- Permission issue: Initial read-only process inspection was denied. Approved elevated retry succeeded and found no Next.js dev server.
+- Boundaries PASS: 0->[0], 1->[1], 19->[19], 20->[20], 21->[20,1], 40->[20,20], 41->[20,20,1]. Exact totals, descending timestamp/UUID order, last-returned-row cursors, terminal null, and zero duplicate IDs verified.
+- Additional PASS: 41 equal timestamps; 41 microsecond-separated timestamps; synthetic owner isolation; foreign/nonexistent position-only anchors; malformed parameters/auth precedence; retry, overlap/replay dedupe, concurrent-request guard, abort/disposal and 401 navigation.
+- Insert semantics: Live keyset behavior verified. Ahead-of-cursor insert waits for fresh page one; behind-cursor insert may appear later; UUID determines side for equal timestamps. No snapshot semantics added.
+- Risks/limitations: Isolated database and React doubles do not prove deployed PostgreSQL/PostgREST behavior, DOM visibility, browser scheduling, accessibility or live Supabase multi-page acceptance. Those remain pending explicit authorization.
+- Data: Immutable reusable 41-row synthetic fixture; derived owner B, equal-timestamp and microsecond variants. No real records created, read through tests, modified or deleted.
+- Historical pre-commit implementation checkpoint: six new untracked test/report files; git diff --stat was empty. Committed base before this stage: 96bd04c. No future stage commit hash is asserted.
+- LIVE <20 BROWSER CHECK: USER-VERIFIED PASS — authenticated My Interviews displayed 13 records; Load More hidden, consistent with the contract.
+- REAL 21+ RECORD SUPABASE/BROWSER ACCEPTANCE: PENDING — live account has only 13 records. No real multi-page browser PASS is claimed.
+- Seeding deferred: existing authenticated POST supports synthetic owner-scoped completed records without AI calls, but connected Supabase environment classification is UNKNOWN and the application has no supported interview DELETE path. No synthetic records were created.
+- Product decision: implement a separately scoped DELETE_INTERVIEW_01 feature before seeding pagination fixtures, so users and acceptance cleanup can remove specific owned interviews through the application. This future feature is NOT implemented or authorized by this documentation update and is outside HISTORY_PAGINATION_01.
+- Closure evidence: test counts, matrix and build results above are recorded prior results, not reruns. Production pagination remains UNCHANGED; no source-level pagination defect demonstrated. Production source and test files were not modified during this step. No records created/deleted; no dev server started; no staging/commit/push.
+- Approval status: Automated PASS recorded per user instruction. Documentation review pending; stop here with no automatic next stage.

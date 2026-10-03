@@ -1014,3 +1014,41 @@ The authenticated POST supports synthetic owner-scoped records, but Supabase env
 Separate future product scope: DELETE_INTERVIEW_01 must precede pagination fixture seeding, enabling users and acceptance cleanup to remove specific owned interviews through the application. NOT implemented, NOT authorized by this documentation update, and outside HISTORY_PAGINATION_01. Broader search/filter/sort, virtualization, scroll restoration and unrelated debt remain deferred.
 
 Historical documentation/pre-commit checkpoint: base 96bd04c on feature/auth-foundation; stage tests/reports were uncommitted. No future commit hash asserted. No production/test edits or Git mutation during closure.
+
+## DELETE_INTERVIEW_01 — Final runtime acceptance closure — 2026-10-03
+
+**IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**, with explicit qualification: wrong-owner live DELETE was NOT COMPLETED / NOT USER-VERIFIED; deterministic automated coverage remains.
+
+Historical/pre-commit checkpoint: branch feature/auth-foundation; committed base before DELETE_INTERVIEW_01 faac5e2. At this documentation checkpoint the stage work was uncommitted. No future commit hash is asserted. This update records user-provided browser evidence; no tests/build or browser checks were rerun, no server restarted, and no Git mutation or Supabase operation was performed by the agent during this documentation turn.
+
+Recorded automated results: server deletion 13/13, client deletion 10/10, pagination 51/51, recovery 34/34, profile 49/49, PDF 14/14; total 171 PASS. TypeScript PASS; git diff --check PASS; production build PASS, 22/22 pages. Initial PDF regression failures were environmental: default/user Python lacked pypdf; invocation-local Codex-bundled Python with pypdf 6.10.0 passed. No production PDF regression found; no persistent env/config or package change. Unused outer loop cleanup reduced 25 misleading registrations to 13 unique server deletion tests without losing assertions. Prior webpack cache snapshot warnings, LF-to-CRLF and npm update notices remain recorded in the Engineering Report.
+
+USER-VERIFIED PASS:
+- A. Cancel: opened confirmation; Cancel preserved the interview.
+- B. Owner hard delete: confirmed permanent deletion, navigated to /interviews, History count 13 -> 12.
+- C. Persistence: closed/reopened/fresh-loaded History; deleted record remained absent and 12 remained.
+- D. Mobile: approximately 400x690 viewport; usable confirmation, no overflow, accessible Cancel/destructive controls.
+- E. Focus: opening confirmation focused Cancel; cancelling returned focus to Delete interview trigger.
+- F. Repeated-delete fail-safe: later DELETE for an already-deleted interview returned 404.
+- G. Deleted Result: deleted interview URL displayed existing unavailable state.
+
+Manual acceptance procedure incident: one additional real interview, ID 19c2c248-b4b7-4b99-b9c2-ce0ef316b39e, was unintentionally deleted by a DevTools Console DELETE fetch while the original owner account remained authenticated. Promise {<pending>} was incorrectly interpreted as if the request had not completed. The DELETE actually succeeded; a second DELETE returned 404 because the record was already deleted. Subsequent Result was unavailable; History became 11 and remained 11 after fresh refresh. This was a MANUAL ACCEPTANCE PROCEDURE ERROR, not an application authorization defect. No restoration is claimed or attempted.
+
+Wrong-owner live DELETE was NOT COMPLETED / NOT USER-VERIFIED: the intended second-account test was not performed before the accidental owner DELETE. Do not infer wrong-owner or second-account browser isolation from this incident. Wrong-owner DELETE, database/provider failure and retry, rapid duplicate prevention, malformed success payload, and deleted PDF 404 behavior are recorded as automated-test-covered only, not browser-tested. PDF automated tests cover owner-read notFound -> 404; no live deletion-to-PDF integration claim is made.
+
+Final architecture: permanent HARD DELETE; Result page only; inline confirmation; DELETE /api/interviews/[id]; server-derived authenticated identity; both id and owner_id predicates; wrong-owner and nonexistent indistinguishable; confirmed success router.replace('/interviews'); fresh History mount/refetch. No History-row delete action, schema/RLS change, new dependency, polling or realtime deletion synchronization.
+
+Exact delete chain:
+```ts
+.delete()
+.eq('id', id)
+.eq('owner_id', auth.user.id)
+.select('id')
+.maybeSingle()
+```
+
+API contract: 200 {"deleted":true}; 401 {"error":"Unauthorized"}; 400 {"error":"Invalid interview id"}; identical 404 {"error":"Interview not found"} for wrong-owner/nonexistent/repeated requests; generic 500 {"error":"Failed to delete interview"}. DELETE responses private, no-store. Auth precedes UUID validation; request ownership inputs are not consumed.
+
+Current user-reported real account count after both deletions: 11. HISTORY_PAGINATION_01 real 21+ browser acceptance remains PENDING. Minimum future seed count is now 10 synthetic records to reach exactly 21; previous 13+8 planning is historical. Future seeding requires explicit authorization and environment confirmation, recording exact new IDs, then exact-ID cleanup and verification of the original 11-ID set. No seeding authorized or performed here.
+
+Remaining limitations: hard deletion is irreversible; stale rendered tabs may retain content until navigation/refresh; downloaded PDFs and backups are outside the row deletion guarantee; live schema parity and unexercised browser cases remain unverified. Auth/recovery/profile/scoring/PDF/history foundations remain frozen. No next stage, staging, commit or push is authorized by this closure.

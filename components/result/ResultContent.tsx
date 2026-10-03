@@ -6,6 +6,7 @@ import type { InterviewDetail } from '@/app/result/[id]/page'
 import type { AppLanguage } from '@/types/auth'
 import ResultAnswers from './ResultAnswers'
 import ResultPdfDownload from './ResultPdfDownload'
+import ResultDeleteInterview from './ResultDeleteInterview'
 import { displayValue, INTERVIEW_LANGUAGE_NAMES } from './result-copy'
 import type { ResultCopy } from './result-copy'
 import styles from '@/app/result/result.module.css'
@@ -154,6 +155,7 @@ export default function ResultContent({ interview, copy, uiLanguage }: ResultCon
           </button>
         ))}
       </nav>
+      <ResultDeleteInterview interview={interview} uiLanguage={uiLanguage} />
     </>
   )
 }

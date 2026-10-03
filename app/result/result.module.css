@@ -3,6 +3,21 @@
   box-sizing: border-box;
 }
 
+.deletion {
+  flex: none;
+  min-width: 0;
+  max-height: 45dvh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  padding: var(--talentry-space-3);
+  border-top: 1px solid var(--talentry-color-border);
+  font-size: var(--talentry-font-size-sm);
+}
+
+.deletionIdentity { font-weight: var(--talentry-font-weight-semibold); }
+.deletionActions { display: flex; flex-wrap: wrap; gap: var(--talentry-space-2); }
+.deletion button, .deletion a { max-width: 100%; white-space: normal; }
+
 .page {
   min-height: 100vh;
   min-height: 100dvh;

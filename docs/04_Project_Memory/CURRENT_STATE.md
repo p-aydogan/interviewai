@@ -1,6 +1,20 @@
 # Talentry / InterviewAI — Current Project State
 
-Last updated: 2026-10-03
+Last updated: 2026-10-06
+
+## ROADMAP_FREEZE_01 — Current planning checkpoint — 2026-10-06
+
+Documentation implementation complete; freeze review/acceptance pending. Verified safe base: 317c221b576abe5e39ac4e0e79fe77ea33fe754f on feature/auth-foundation, equal to local origin; initial tree clean. Historical/pre-commit snapshots below do not override this base. No future commit asserted.
+
+[WEB V1 Master Roadmap](../03_Roadmap/WEB_V1_MASTER_ROADMAP.md) is the canonical planning authority for the frozen 24-stage order, scope classifications and gates. Planning only, no automatic implementation authorization.
+
+Completed foundation: Pre-auth onboarding; real signup/login/email verification; hardened password recovery; Dashboard shell/navigation; Interview Setup; existing Live Interview; completion persistence; persisted Result; My Interviews/History; cursor pagination implementation; local PDF export; profile display-name editing; owner-authorized interview deletion.
+
+Existing qualifications remain: deployed PDF smoke pending; wrong-owner live DELETE unverified with deterministic coverage retained. Frozen auth/recovery, profile reconciliation, PDF, ownership, History and Result-page hard delete stay protected.
+
+HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE. User-verified live baseline on 2026-10-06: 11 real records. Do NOT create synthetic interviews merely to reach 21. Deterministic pagination tests and existing <20 browser behavior remain accepted. Real 21+ browser acceptance waits until ordinary project testing/development naturally produces at least 21 records. This acceptance gap does NOT block unrelated WEB development. Earlier synthetic seed plans are historical/superseded for current planning; preserve historical entries and old reports. No Supabase query or mutation performed in this stage.
+
+Next planned technical stage: INTERVIEW_RELIABILITY_01, NOT STARTED; its own read-only audit and explicit scope approval required. Documentation-only work; no executable/config/test/dependency/data changes, runtime/build testing or Git finalization.
 ## DELETE_INTERVIEW_01 — Final runtime acceptance closure — 2026-10-03
 
 **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**, with explicit qualification: wrong-owner live DELETE was NOT COMPLETED / NOT USER-VERIFIED; deterministic automated coverage remains.

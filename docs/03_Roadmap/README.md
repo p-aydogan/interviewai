@@ -1,23 +1,7 @@
 # Talentry Roadmap Records
 
-This folder will hold approved planning documents for:
+[WEB_V1_MASTER_ROADMAP.md](WEB_V1_MASTER_ROADMAP.md) is the canonical WEB V1 stage-order and scope authority, subject to the Engineering Standard and explicit user decisions.
 
-- Product Roadmap
-- Sprint Roadmap
-- Deferred Features
-- MVP boundaries
+Roadmap documents do not themselves authorize implementation. Each stage follows audit → scope approval → implementation → validation → reporting/acceptance review → explicitly authorized commit. Push requires separate authorization; never begin the next stage automatically.
 
-Roadmap documents describe approved direction and sequencing. They do not independently authorize implementation; each implementation still requires an explicitly scoped sprint.
-
-## Currently deferred items
-
-Only the following deferred items are currently recorded:
-
-- Career Level
-- XP
-- Gamification
-- Achievement badges
-- Skill trees
-- Advanced premium career progression
-
-These items must not be added to the MVP without explicit approval. No detailed roadmap files are created as part of the initial governance setup.
+The master roadmap contains required, conditional, V1.1/post-launch and out-of-MVP scope. Career Level, XP, gamification, badges, skill trees and advanced premium career progression remain excluded from MVP. Earlier governance-only folder setup is historical; the master roadmap now supplies detailed planning.

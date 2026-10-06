@@ -1052,3 +1052,11 @@ API contract: 200 {"deleted":true}; 401 {"error":"Unauthorized"}; 400 {"error":"
 Current user-reported real account count after both deletions: 11. HISTORY_PAGINATION_01 real 21+ browser acceptance remains PENDING. Minimum future seed count is now 10 synthetic records to reach exactly 21; previous 13+8 planning is historical. Future seeding requires explicit authorization and environment confirmation, recording exact new IDs, then exact-ID cleanup and verification of the original 11-ID set. No seeding authorized or performed here.
 
 Remaining limitations: hard deletion is irreversible; stale rendered tabs may retain content until navigation/refresh; downloaded PDFs and backups are outside the row deletion guarantee; live schema parity and unexercised browser cases remain unverified. Auth/recovery/profile/scoring/PDF/history foundations remain frozen. No next stage, staging, commit or push is authorized by this closure.
+
+## ROADMAP_FREEZE_01 — Current backlog classification — 2026-10-06
+
+HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE. User-verified live baseline on 2026-10-06: 11 real records. Do NOT create synthetic interviews merely to reach 21. Deterministic pagination tests and existing <20 browser behavior remain accepted. Real 21+ browser acceptance waits until ordinary project testing/development naturally produces at least 21 records. This acceptance gap does NOT block unrelated WEB development. Earlier synthetic seed plans are historical/superseded for current planning; preserve historical entries and old reports. No Supabase query or mutation performed in this stage.
+
+[Master roadmap](../03_Roadmap/WEB_V1_MASTER_ROADMAP.md) owns full classifications. V1.1/post-launch: History search/filter, favorites/tags, virtualization, advanced Dashboard modules, Recommended Jobs, advanced analytics, notifications, profile photo, email editing, device/session management. Native APP follows WEB launch. Career Level/XP/badges/skill trees/gamification remain excluded from MVP.
+
+Session resume, CV, HeyGen/avatar, MFA, password change, account/data deletion and billing remain conditional, not silently required. Audited launch hardening is planned, not resolved. INTERVIEW_RELIABILITY_01 is next planned, NOT STARTED; server completion idempotency stays separate. Historical entries/reports preserved.

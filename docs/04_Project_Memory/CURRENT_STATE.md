@@ -2,6 +2,56 @@
 
 Last updated: 2026-10-06
 
+## COMPLETION_IDEMPOTENCY_01 — Acceptance closure — 2026-10-06
+
+- **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL FIRST-SAVE BROWSER ACCEPTANCE: PASS**.
+- Current stage: **UNCOMMITTED / pending final Git closure**. Acceptance evidence is complete; documentation/final pre-commit review remains pending. No stage commit hash is asserted.
+- INTERVIEW_RELIABILITY_01: **complete / committed / pushed**. Safe committed recovery point before this stage: `229faf678c22f2ed89497fc3a97ae3b477eafba5` (`fix(interview): harden session transitions`). Pushed status includes user-provided closure evidence; no fetch performed here.
+- Branch: `feature/auth-foundation`.
+- Next roadmap stage AFTER Git closure: **ROUTE_INPUT_HARDENING_01 — planned / NOT STARTED / NOT IMPLEMENTED / NOT YET AUTHORIZED**. No automatic next-stage authority.
+
+### Completed bounded persistence decision
+
+One browser-generated UUID v4 `completionId` per nonempty completion intent is persisted directly as existing `interviews.id`. No schema migration or dependency. Insert-first persistence uses the existing primary key; no read-before-insert or upsert overwrite. Only PostgreSQL `23505` naming `interviews_pkey` enters replay recovery. Recovery reads both `id = completionId` and `owner_id = authenticated server-derived owner`. Matching persisted content returns the same ID: first insert `201 { id, replayed: false }`, matching replay `200 { id, replayed: true }`. Conflicting content or unavailable identity returns generic `409 { error: "Completion conflict" }`; no overwrite or foreign row/details returned. The client never supplies trusted ownership. POST validates required UUID v4 identity and sets `Cache-Control: private, no-store`; GET behavior is preserved.
+
+Client persistence payload freezes once after valid evaluation, including ordered submitted answers, metadata, score/summary and duration. After POST attempt, explicit retry uses the same identity and frozen payload; evaluation is not rerun, duration not recalculated, and changed live answers do not replace the original intent. Returned ID must validate and equal completionId. A known saved ID supports navigation-only retry. State is in-memory and resets on session disposal/new lifecycle. Zero answers create no identity, evaluation, save or Result and retain the existing warning/session behavior. Partial completion includes only submitted answers.
+
+### Recorded automated validation — not rerun in this documentation turn
+
+- Completion-state tests: **14/14 PASS**, exit 0.
+- Persistence/helper/route tests: **31/31 PASS**, exit 0.
+- Session/page tests: **55/55 PASS**, exit 0.
+- Relevant regressions (detail reads, deletion, pagination, History loading, Result deletion and PDF): **96/96 PASS**, exit 0.
+- TypeScript and implementation `git diff --check`: **PASS**, exit 0.
+- Production build: **PASS**, exit 0; **22/22** generated pages. Dev-server process recheck found zero matching repository dev processes before build; dev server was not restarted.
+- Two webpack dependency-cache snapshot warnings, npm update notice and informational Git LF-to-CRLF notice were recorded. No product regression established by those warnings.
+
+### Primary deterministic response-loss evidence
+
+One identity X and frozen payload P: final evaluation executes once; the actual POST route/helper against a stateful persistence double commits row X/P; the client experiences a lost response. Explicit retry retains X/P and frozen duration, skips reevaluation, recovers the matching original row, returns original ID X, creates no second logical row and navigates to `/result/X`. This is automated/deterministic PASS, not a browser replay claim.
+
+Same-ID replay, no duplicate logical row, `replayed: true`, controlled concurrent application requests, conflicting replay, foreign-owner collision, wrong returned-ID rejection, immutable payload/duration and no reevaluation are automated-only evidence. Actual PostgreSQL concurrency integration was NOT run. Race safety relies on the repository migration's UUID PRIMARY KEY definition and deployed-model assumption; no real/test Supabase concurrency writes were performed.
+
+### User-verified browser first-save acceptance
+
+User completed one ordinary interview through the current application. Network showed POST `/api/interviews`, **201**, `replayed: false`. User manually compared request completionId, response id and Result URL id: **all three UUID values identical**. **FIRST-SAVE IDENTITY CONTRACT: PASS**. Actual UUID is unnecessary and omitted. This is user-verified evidence, not an agent-performed browser run in this documentation turn.
+
+No deliberate live response-loss/duplicate replay was performed against real Supabase: the central replay behavior is proven deterministically, and forced live failure/replay would add unnecessary real-data risk.
+
+### History qualification
+
+**HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE**. Historical directly verified baseline: **11 records on 2026-10-06**. INTERVIEW_RELIABILITY_01 later created one natural persisted interview; COMPLETION_IDEMPOTENCY_01 browser acceptance created one additional ordinary/natural persisted interview. Neither is synthetic. History was not re-queried/recounted after those writes; no current verified total is asserted. No synthetic seeding; natural 21+ acceptance remains deferred.
+
+### Accepted remaining boundaries
+
+- Completion state is in-memory only; refresh/tab close loses retry identity/state. Cross-refresh recovery belongs to SESSION_RESUME_01.
+- Hard deletion removes the row supplying replay evidence. Indefinite replay protection after deletion requires a separate tombstone/retention product decision.
+- Actual PostgreSQL concurrency integration was not performed; deployed-schema parity remains later environment/release verification.
+- Provider security/privacy and scoring trust remain later roadmap work.
+- After failed save, retry targets the original frozen intent even if live answers change; no automatic second identity is created.
+
+These qualifications do not block local closure. Existing reliability state-machine protection and approved zero/partial behavior remain preserved. No History/Result/PDF/Profile/Auth implementation, schema, dependency or configuration changes. This entry supersedes earlier pending idempotency/reliability Git status only; historical entries/reports remain unchanged. No staging, commit, push, Supabase mutation, browser rerun, tests/build rerun or next-stage implementation in this documentation turn.
+
 ## INTERVIEW_RELIABILITY_01 — Current acceptance checkpoint — 2026-10-06
 
 ### Current roadmap progress and Git boundary

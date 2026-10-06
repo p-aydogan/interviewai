@@ -9,6 +9,7 @@ import type { InterviewFeedback, InterviewTab, InterviewWorkspaceLabels } from '
 import LiveInterviewControls from '@/components/interview/LiveInterviewControls'
 import { TalentryButton } from '@/components/ui'
 import styles from './interview.module.css'
+import { createInterviewCompletionState } from '@/lib/interviews/interview-completion-state'
 import { createInterviewSessionState } from '@/lib/interviews/interview-session-state'
 import type { AcceptedQuestion, SessionAnswer, SessionOperation } from '@/lib/interviews/interview-session-state'
 
@@ -37,7 +38,6 @@ const T: Record<string,string> = {
   mixed:'karma',
   case:'vaka analizi'
 }
-const RESULT_UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 type InterviewLanguage = 'tr' | 'en' | 'de'
 type MobileInterviewPanel = 'interviewer' | 'interview' | 'feedback'
 
@@ -156,10 +156,6 @@ type EvaluationResult = {
   summary: string
 }
 
-type PersistedInterviewResponse = {
-  id: string
-}
-
 function isEvaluationResult(value: unknown): value is EvaluationResult {
   return (
     typeof value === 'object' &&
@@ -173,16 +169,6 @@ function isEvaluationResult(value: unknown): value is EvaluationResult {
     'summary' in value &&
     typeof value.summary === 'string' &&
     value.summary.trim().length > 0
-  )
-}
-
-function isPersistedInterviewResponse(value: unknown): value is PersistedInterviewResponse {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    typeof value.id === 'string' &&
-    RESULT_UUID_PATTERN.test(value.id)
   )
 }
 
@@ -232,6 +218,7 @@ function InterviewContent() {
   const camRef = useRef<HTMLVideoElement>(null)
   const answersRef = useRef<SessionAnswer[]>([])
   const sessionRef = useRef(createInterviewSessionState())
+  const completionRef = useRef(createInterviewCompletionState())
   const curQRef = useRef('')
   const qNumRef = useRef(0)
   const camStreamRef = useRef<MediaStream | null>(null)
@@ -283,9 +270,11 @@ function InterviewContent() {
     // Effect replay owns a fresh session; obsolete closures retain their disposed owner.
     const session = createInterviewSessionState()
     sessionRef.current = session
+    completionRef.current.reset()
     initialQuestionTriggeredRef.current = false
     return () => {
       session.dispose()
+      completionRef.current.reset()
       audioRequestRef.current += 1
       stopCurrentAudio()
     }
@@ -497,48 +486,46 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     }
 
     try {
-      const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
-      const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
-      const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
-      if (!session.isCurrent(token)) return
-      const evaluation: unknown = JSON.parse(raw.replace(/```json|```/g,'').trim())
+      const completion = completionRef.current
+      const completionId = completion.begin(answers)
+      if (!completionId) throw new Error('Completion identity required')
+      if (!completion.savedId) {
+        if (!completion.payload) {
+          const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
+          const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
+          const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
+          if (!session.isCurrent(token)) return
+          const evaluation: unknown = JSON.parse(raw.replace(/```json|```/g,'').trim())
 
-      if (!isEvaluationResult(evaluation)) {
-        throw new Error('Invalid final interview evaluation')
+          if (!isEvaluationResult(evaluation)) {
+            throw new Error('Invalid final interview evaluation')
+          }
+
+          completion.freezePayload({
+            interviewerKey: ivKey,
+            role,
+            company,
+            level,
+            interviewType: itype,
+            persona,
+            language,
+            answers,
+            score: evaluation.score,
+            summary: evaluation.summary,
+            durationSeconds: secs,
+          })
+        }
+        const saveRes = await fetch('/api/interviews', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completionId, ...completion.payload }),
+        })
+        if (!saveRes.ok) throw new Error('Interview persistence failed')
+        const savedInterview: unknown = await saveRes.json()
+        if (!session.isCurrent(token)) return
+        if (!completion.acceptSaved(savedInterview)) throw new Error('Invalid interview persistence response')
       }
-
-      const saveRes = await fetch('/api/interviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          interviewerKey: ivKey,
-          role,
-          company,
-          level,
-          interviewType: itype,
-          persona,
-          language,
-          answers,
-          score: evaluation.score,
-          summary: evaluation.summary,
-          durationSeconds: secs,
-        }),
-      })
-
-      if (!saveRes.ok) {
-        console.error('Interview save failed with status:', saveRes.status)
-        throw new Error('Interview persistence failed')
-      }
-
-      const savedInterview: unknown = await saveRes.json()
-
-      if (!session.isCurrent(token)) return
-      if (!isPersistedInterviewResponse(savedInterview)) {
-        throw new Error('Invalid interview persistence response')
-      }
-
       camStreamRef.current?.getTracks().forEach(t=>t.stop())
-      router.push(`/result/${encodeURIComponent(savedInterview.id)}`)
+      router.push(`/result/${encodeURIComponent(completion.savedId!)}`)
     } catch (error) {
       if (!session.isCurrent(token)) return
       session.release(token)
@@ -551,6 +538,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
 
   function leaveWithoutSaving() {
     sessionRef.current.dispose()
+    completionRef.current.reset()
     audioRequestRef.current += 1
     stopCurrentAudio()
     camStreamRef.current?.getTracks().forEach(track => track.stop())

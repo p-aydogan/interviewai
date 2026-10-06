@@ -142,59 +142,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+    const headers = { 'Cache-Control': 'private, no-store' }
     const auth = await getAuthenticatedUser()
-
-    if (auth.status !== 'authenticated') {
-        return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 },
-        )
-    }
+    if (auth.status !== 'authenticated') return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers })
     let body: unknown
-
-    try {
-        body = await req.json()
-    } catch {
-        return NextResponse.json(
-            { error: 'Invalid JSON body' },
-            { status: 400 },
-        )
+    try { body = await req.json() } catch {
+        return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400, headers })
     }
-    if (!isInterviewPayload(body)) {
-        return NextResponse.json(
-            { error: 'Invalid interview payload' },
-            { status: 400 },
-        )
-    }
-    const admin = createAdminClient()
-    const { data, error } = await admin
-        .from('interviews')
-        .insert({
-            owner_id: auth.user.id,
-            interviewer_key: body.interviewerKey,
-            role: body.role,
-            company: body.company,
-            level: body.level,
-            interview_type: body.interviewType,
-            persona: body.persona,
-            language: body.language,
-            answers: body.answers,
-            score: body.score,
-            summary: body.summary,
-            duration_seconds: body.durationSeconds,
-        })
-        .select('id')
-        .single()
-    if (error) {
-        console.error('Interview persistence error:', error)
-
-        return NextResponse.json(
-            { error: 'Failed to save interview' },
-            { status: 500 },
-        )
-    }
-    return NextResponse.json(
-        { id: data.id },
-        { status: 201 },
+    const { normalizeCompletionId } = await import('@/lib/interviews/interview-completion-state')
+    const { persistOwnedInterview } = await import('@/lib/interviews/persist-owned-interview')
+    const completionId = normalizeCompletionId(
+        body && typeof body === 'object' && 'completionId' in body ? body.completionId : null,
     )
+    if (!completionId) return NextResponse.json({ error: 'Invalid completion identity' }, { status: 400, headers })
+    if (!isInterviewPayload(body)) return NextResponse.json({ error: 'Invalid interview payload' }, { status: 400, headers })
+    const result = await persistOwnedInterview(auth.user.id, completionId, body)
+    if (result.status === 'conflict') return NextResponse.json({ error: 'Completion conflict' }, { status: 409, headers })
+    if (result.status === 'error') return NextResponse.json({ error: 'Failed to save interview' }, { status: 500, headers })
+    return NextResponse.json({ id: result.id, replayed: result.replayed }, { status: result.replayed ? 200 : 201, headers })
 }

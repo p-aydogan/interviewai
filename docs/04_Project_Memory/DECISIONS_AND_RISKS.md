@@ -1745,3 +1745,32 @@ Product gates before dependent coding: session resume storage/restart/privacy/de
 Technical launch risks: Cost-bearing Claude / ElevenLabs / HeyGen-token route protection; Claude client-supplied prompts/private-content logging/request constraints; ambiguous completion retry can duplicate records; interview transition race / stale async risks; invalid interviewer input can create undefined interviewer state; fragmented application localization / root lang; microphone UI currently implies capture although acquisition uses audio:false. These are audited unresolved risks, not fixes completed by this documentation stage.
 
 Operational follow-ups: environment purpose unknown, email delivery, deployed PDF packaging/resources, provider/cost controls and staging/release evidence. Frozen PKCE/recovery, profile reconciliation/dirty drafts, owner-authorized jsPDF/persisted language, ownership privacy, keyset History and Result-page hard deletion remain protected. Next technical stage planned only, NOT STARTED. Existing acceptance limitations retained.
+
+
+## INTERVIEW_RELIABILITY_01 — Accepted bounded reliability decision and risks — 2026-10-06
+
+### Current roadmap progress and Git boundary
+
+- ROADMAP_FREEZE_01: complete / committed / pushed. Recovery point: `50e4da96e00a9f4c70979b5bada1ca71f3a68403` (`docs(roadmap): freeze web v1 critical path`). Pushed status records user-provided checkpoint evidence; no network fetch performed in this documentation turn.
+- INTERVIEW_RELIABILITY_01: **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**. Current uncommitted stage; acceptance PASS pending final Git closure. No stage commit hash exists or is invented here.
+- Next planned stage AFTER commit: COMPLETION_IDEMPOTENCY_01, **planned / NOT STARTED / NOT AUTHORIZED**.
+- Branch: feature/auth-foundation. Final pre-commit review pending. No staging, commit, push or automatic next-stage work authorized by this documentation closure.
+
+Decision: a small framework-independent synchronous session helper owns operation identity/admission, accepted question identity/ordinal, one-answer consumption, frozen completion snapshots and disposal. React busy state presents the invariant; helper admission enforces it independently of paint. End disabled during generation/feedback; no queued End. Valid trimmed question accepted before ordinal commit; five-question limit. Feedback-only retry reuses the committed question/answer. Same frozen answer set feeds evaluation and persistence; completion invalidates audio. Existing provider architecture, prompts, payload/UUID handoff and zero/partial contracts preserved.
+
+User-verified browser evidence supersedes the initial generation-End visual concern: visible native button MutationObserver disabled false -> true -> false; timing/paint observation, no proven defect or production correction. Initial TTS 500 classified EXTERNAL PROVIDER / ACCOUNT BILLING INCIDENT, resolved by user correcting ElevenLabs billing. Starter, 90,000 / 90,000 credits reported; Q2 TTS worked with unchanged Talentry code. No payment/card details.
+
+### Automated-only qualifications
+
+Immediate double-submit handler race; submit + End same-callback race; submit + Skip overlap; stale feedback/question continuations after completion; obsolete TTS continuation after completion; disposal/unmount invalidation; immutable completion snapshot mutation attacks; synchronous handler rejection independent of UI paint; and one-completion-attempt admission remain automated/deterministic coverage, not browser-tested claims.
+
+### Deliberately deferred boundaries — non-blocking for this stage
+
+- Underlying provider requests are not necessarily physically cancelled; correctness relies on operation/session identity invalidation.
+- Committed-but-response-lost POST duplicate persistence remains unresolved: COMPLETION_IDEMPOTENCY_01.
+- Session resume remains deferred.
+- Provider auth/privacy hardening and scoring trust remain later roadmap work.
+- Microphone acquisition truthfulness remains MEDIA_PROVIDER_V1_01.
+- No synthetic pagination seeding; natural-record acceptance policy remains unchanged.
+
+History natural-record policy preserved: historical directly verified 11-record baseline on 2026-10-06; one natural persisted acceptance interview afterward; no re-count or new verified total. Second session not completed, no second persisted record claimed. No synthetic seeding. Existing frozen foundations and prior deployed PDF/wrong-owner live DELETE qualifications remain protected.

@@ -7,6 +7,7 @@ interface LiveInterviewControlsProps {
   completionError: string
   endLabel: string
   isCompleting: boolean
+  transitionBusy: boolean
   leaveWithoutSavingLabel: string
   microphoneLabel: string
   microphoneOn: boolean
@@ -27,7 +28,7 @@ function CameraIcon() {
 }
 
 export default function LiveInterviewControls({
-  cameraLabel, cameraOn, completionError, endLabel, isCompleting, microphoneLabel,
+  cameraLabel, cameraOn, completionError, endLabel, isCompleting, transitionBusy, microphoneLabel,
   leaveWithoutSavingLabel, microphoneOn, onDismissCompletionError, onEnd,
   onLeaveWithoutSaving, onToggleCamera, onToggleMicrophone, returnToInterviewLabel,
 }: LiveInterviewControlsProps) {
@@ -53,7 +54,7 @@ export default function LiveInterviewControls({
         <TalentryButton aria-label={cameraLabel} aria-pressed={cameraOn} className={`${styles.mediaControl} ${!cameraOn ? styles.mediaControlOff : ''}`} onClick={onToggleCamera} variant="icon">
           <CameraIcon />
         </TalentryButton>
-        <TalentryButton aria-label={endLabel} className={styles.endInterview} disabled={isCompleting} onClick={onEnd} type="button" variant="danger">
+        <TalentryButton aria-label={endLabel} className={styles.endInterview} disabled={isCompleting || transitionBusy} onClick={onEnd} type="button" variant="danger">
           <span>{endLabel}</span>
         </TalentryButton>
       </div>

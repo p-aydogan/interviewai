@@ -1060,3 +1060,30 @@ HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE. User-verified live ba
 [Master roadmap](../03_Roadmap/WEB_V1_MASTER_ROADMAP.md) owns full classifications. V1.1/post-launch: History search/filter, favorites/tags, virtualization, advanced Dashboard modules, Recommended Jobs, advanced analytics, notifications, profile photo, email editing, device/session management. Native APP follows WEB launch. Career Level/XP/badges/skill trees/gamification remain excluded from MVP.
 
 Session resume, CV, HeyGen/avatar, MFA, password change, account/data deletion and billing remain conditional, not silently required. Audited launch hardening is planned, not resolved. INTERVIEW_RELIABILITY_01 is next planned, NOT STARTED; server completion idempotency stays separate. Historical entries/reports preserved.
+
+
+## INTERVIEW_RELIABILITY_01 — Accepted in-session reliability closure — 2026-10-06
+
+### Current roadmap progress and Git boundary
+
+- ROADMAP_FREEZE_01: complete / committed / pushed. Recovery point: `50e4da96e00a9f4c70979b5bada1ca71f3a68403` (`docs(roadmap): freeze web v1 critical path`). Pushed status records user-provided checkpoint evidence; no network fetch performed in this documentation turn.
+- INTERVIEW_RELIABILITY_01: **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**. Current uncommitted stage; acceptance PASS pending final Git closure. No stage commit hash exists or is invented here.
+- Next planned stage AFTER commit: COMPLETION_IDEMPOTENCY_01, **planned / NOT STARTED / NOT AUTHORIZED**.
+- Branch: feature/auth-foundation. Final pre-commit review pending. No staging, commit, push or automatic next-stage work authorized by this documentation closure.
+
+In-session duplicate submission, transition/completion overlap, premature ordinal advancement, feedback failure busy lock, mutable completion snapshots, and stale question/feedback/TTS continuation ownership are addressed within the bounded five-file implementation. Focused 50/50, existing Interview 96/96, TypeScript and build 22/22 PASS; user-verified browser acceptance PASS. No broader provider/server persistence architecture claim. Resolution is acceptance-complete but uncommitted; no resolution commit is asserted.
+
+### Deliberately deferred boundaries — non-blocking for this stage
+
+- Underlying provider requests are not necessarily physically cancelled; correctness relies on operation/session identity invalidation.
+- Committed-but-response-lost POST duplicate persistence remains unresolved: COMPLETION_IDEMPOTENCY_01.
+- Session resume remains deferred.
+- Provider auth/privacy hardening and scoring trust remain later roadmap work.
+- Microphone acquisition truthfulness remains MEDIA_PROVIDER_V1_01.
+- No synthetic pagination seeding; natural-record acceptance policy remains unchanged.
+
+### Automated-only qualifications
+
+Immediate double-submit handler race; submit + End same-callback race; submit + Skip overlap; stale feedback/question continuations after completion; obsolete TTS continuation after completion; disposal/unmount invalidation; immutable completion snapshot mutation attacks; synchronous handler rejection independent of UI paint; and one-completion-attempt admission remain automated/deterministic coverage, not browser-tested claims.
+
+HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE; directly verified historical baseline 11 on 2026-10-06. One natural persisted acceptance interview created afterward; History not re-counted, no new verified total. Second recovery session not completed; no saved second record claimed. No synthetic seeding. Deployed PDF smoke and previous wrong-owner live DELETE qualification remain unchanged. Earlier pending reliability planning is superseded only within the approved in-session boundaries.

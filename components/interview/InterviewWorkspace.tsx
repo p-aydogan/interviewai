@@ -31,6 +31,12 @@ interface InterviewWorkspaceProps {
   answer: string
   awaitingNext: boolean
   feedback: InterviewFeedback | null
+  feedbackRetryLabel: string
+  feedbackFailureMessage: string
+  onRetryFeedback: () => void
+  questionRetryLabel: string
+  questionFailureMessage: string
+  onRetryQuestion: () => void
   isCompleting: boolean
   labels: InterviewWorkspaceLabels
   maxQuestions: number
@@ -71,6 +77,8 @@ export function InterviewFeedbackCard({ feedback, labels }: InterviewFeedbackCar
 
 export default function InterviewWorkspace({
   activeTab, answer, awaitingNext, feedback, isCompleting, labels, maxQuestions,
+  feedbackRetryLabel, feedbackFailureMessage, onRetryFeedback,
+  questionRetryLabel, questionFailureMessage, onRetryQuestion,
   mobileFeedbackReadyLabel, mobileViewFeedbackLabel, notes, onAnswerChange, onNext, onNotesChange,
   onSubmit, onTabChange, onViewFeedback, qLoading, question, questionNumber, showFeedback,
 }: InterviewWorkspaceProps) {
@@ -97,12 +105,14 @@ export default function InterviewWorkspace({
             ) : <p>{question}</p>}
           </div>
 
+          {questionFailureMessage && <div role="alert"><p>{questionFailureMessage}</p><TalentryButton disabled={qLoading || isCompleting} onClick={onRetryQuestion} variant="secondary">{questionRetryLabel}</TalentryButton></div>}
+          {feedbackFailureMessage && <div role="alert"><p>{feedbackFailureMessage}</p><TalentryButton disabled={qLoading || isCompleting} onClick={onRetryFeedback} variant="secondary">{feedbackRetryLabel}</TalentryButton></div>}
           <label className={styles.answerLabel} htmlFor="interview-answer">{labels.answer}</label>
           <textarea className={styles.answerInput} disabled={qLoading || awaitingNext || isCompleting} id="interview-answer" onChange={(event) => onAnswerChange(event.target.value)} placeholder={labels.answerPlaceholder} value={answer} />
 
           <div className={styles.workspaceActions}>
             {!awaitingNext ? (
-              <TalentryButton className={styles.primaryAction} disabled={qLoading || isCompleting || !answer.trim()} onClick={onSubmit}>
+              <TalentryButton className={styles.primaryAction} disabled={qLoading || isCompleting || !question || !answer.trim()} onClick={onSubmit}>
                 {labels.submit}
               </TalentryButton>
             ) : (

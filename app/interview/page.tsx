@@ -9,6 +9,8 @@ import type { InterviewFeedback, InterviewTab, InterviewWorkspaceLabels } from '
 import LiveInterviewControls from '@/components/interview/LiveInterviewControls'
 import { TalentryButton } from '@/components/ui'
 import styles from './interview.module.css'
+import { createInterviewSessionState } from '@/lib/interviews/interview-session-state'
+import type { AcceptedQuestion, SessionAnswer, SessionOperation } from '@/lib/interviews/interview-session-state'
 
 const IV: Record<string, any> = {
   f: { name:'Sarah Chen', role:'Sr. HR Manager',
@@ -50,6 +52,9 @@ type LiveInterviewCopy = {
   feedbackPanel: string
   feedbackReady: string
   feedbackUnavailable: string
+  retryFeedback: string
+  retryQuestion: string
+  questionFailure: string
   goToQuestions: string
   interviewPanel: string
   interviewerPanel: string
@@ -77,6 +82,7 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     feedbackGuidance: 'Sonraki soruya devam etmek için sola kaydır veya Sorulara Dön seçeneğini kullan.',
     feedbackPanel: 'Değerlendirme', feedbackReady: 'Değerlendirmen hazır — görmek için sağa kaydır.',
     feedbackUnavailable: 'Geri bildirim şu anda gösterilemiyor.',
+    retryFeedback: 'Geri bildirimi tekrar dene', retryQuestion: 'Soruyu tekrar dene', questionFailure: 'Soru oluşturulamadı. Lütfen tekrar deneyin.',
     goToQuestions: 'Sorulara Geç', interviewPanel: 'Mülakat soruları', interviewerPanel: 'Mülakatçı',
     leaveWithoutSaving: 'Kaydetmeden Çık',
     microphoneToggleOff: 'Mikrofonu kapat', microphoneToggleOn: 'Mikrofonu aç', sessionLabel: 'Canlı mülakat',
@@ -101,6 +107,7 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     feedbackGuidance: 'Swipe left or use Back to Questions to continue with the next question.',
     feedbackPanel: 'Feedback', feedbackReady: 'Your feedback is ready — swipe right to view it.',
     feedbackUnavailable: 'Feedback is currently unavailable.',
+    retryFeedback: 'Retry feedback', retryQuestion: 'Retry question', questionFailure: 'Question could not be created. Please try again.',
     goToQuestions: 'Go to Questions', interviewPanel: 'Interview questions', interviewerPanel: 'Interviewer',
     leaveWithoutSaving: 'Leave Without Saving',
     microphoneToggleOff: 'Mute microphone', microphoneToggleOn: 'Unmute microphone', sessionLabel: 'Live interview',
@@ -125,6 +132,7 @@ const LIVE_COPY: Record<InterviewLanguage, LiveInterviewCopy> = {
     feedbackGuidance: 'Wische nach links oder nutze Zurück zu den Fragen, um mit der nächsten Frage fortzufahren.',
     feedbackPanel: 'Feedback', feedbackReady: 'Dein Feedback ist bereit — wische nach rechts, um es anzusehen.',
     feedbackUnavailable: 'Feedback ist derzeit nicht verfügbar.',
+    retryFeedback: 'Feedback erneut versuchen', retryQuestion: 'Frage erneut versuchen', questionFailure: 'Die Frage konnte nicht erstellt werden. Bitte versuchen Sie es erneut.',
     goToQuestions: 'Zu den Fragen', interviewPanel: 'Interviewfragen', interviewerPanel: 'Interviewer',
     leaveWithoutSaving: 'Ohne Speichern verlassen',
     microphoneToggleOff: 'Mikrofon stummschalten', microphoneToggleOn: 'Mikrofon einschalten', sessionLabel: 'Live-Interview',
@@ -222,17 +230,19 @@ function InterviewContent() {
       : 'Yalnızca Türkçe yanıt ver.'
   const mobilePagerRef = useRef<HTMLDivElement>(null)
   const camRef = useRef<HTMLVideoElement>(null)
-  const answersRef = useRef<{q:string;a:string}[]>([])
+  const answersRef = useRef<SessionAnswer[]>([])
+  const sessionRef = useRef(createInterviewSessionState())
   const curQRef = useRef('')
   const qNumRef = useRef(0)
   const camStreamRef = useRef<MediaStream | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioObjectUrlRef = useRef<string | null>(null)
   const audioRequestRef = useRef(0)
-  const questionGenerationInFlightRef = useRef(false)
   const initialQuestionTriggeredRef = useRef(false)
   const completionInFlightRef = useRef(false)
   const [question, setQuestion] = useState('')
+  const [questionError, setQuestionError] = useState(false)
+  const [feedbackFailed, setFeedbackFailed] = useState(false)
   const [qLoading, setQLoading] = useState(false)
   const [answer, setAnswer] = useState('')
   const [feedback, setFeedback] = useState<InterviewFeedback | null>(null)
@@ -269,9 +279,16 @@ function InterviewContent() {
     return () => { camStreamRef.current?.getTracks().forEach(t=>t.stop()) }
   }, [])
 
-  useEffect(() => () => {
-    audioRequestRef.current += 1
-    stopCurrentAudio()
+  useEffect(() => {
+    // Effect replay owns a fresh session; obsolete closures retain their disposed owner.
+    const session = createInterviewSessionState()
+    sessionRef.current = session
+    initialQuestionTriggeredRef.current = false
+    return () => {
+      session.dispose()
+      audioRequestRef.current += 1
+      stopCurrentAudio()
+    }
   }, [])
 
  async function claudeCall (system: string, message: string) {
@@ -280,35 +297,38 @@ function InterviewContent() {
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({system, message})
     })
-    const data = await res.json()
-    return data.text || ''
+    if (!res.ok) throw new Error(`Interview provider failed: ${res.status}`)
+    const data: unknown = await res.json()
+    if (typeof data !== 'object' || data === null || !('text' in data) || typeof data.text !== 'string' || !data.text.trim()) {
+      throw new Error('Invalid interview provider text')
+    }
+    return data.text
   }
-async function speakText(text: string) {
+async function speakText(accepted: AcceptedQuestion) {
+  const session = sessionRef.current
+  if (!session.canSpeak(accepted)) return
+  const text = accepted.text
   const requestId = audioRequestRef.current + 1
   audioRequestRef.current = requestId
   stopCurrentAudio()
   setSpeechStatus('preparing')
 
   try {
-    console.log('speakText called:', text)
-
     const res = await fetch('/api/elevenlabs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, voiceId: iv.voice })
     })
 
-    console.log('elevenlabs response status:', res.status)
-
     if (!res.ok) {
-      if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
+      if (requestId === audioRequestRef.current && session.canSpeak(accepted)) setSpeechStatus('unavailable')
       return
     }
 
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
 
-    if (requestId !== audioRequestRef.current) {
+    if (requestId !== audioRequestRef.current || !session.canSpeak(accepted)) {
       URL.revokeObjectURL(url)
       return
     }
@@ -324,11 +344,11 @@ async function speakText(text: string) {
         URL.revokeObjectURL(url)
         audioObjectUrlRef.current = null
       }
-      if (requestId === audioRequestRef.current) setSpeechStatus('ready')
+      if (requestId === audioRequestRef.current && session.canSpeak(accepted)) setSpeechStatus('ready')
     }, { once: true })
     void audio.play()
       .then(() => {
-        if (requestId === audioRequestRef.current && audioRef.current === audio) {
+        if (requestId === audioRequestRef.current && session.canSpeak(accepted) && audioRef.current === audio) {
           setSpeechStatus('speaking')
         }
       })
@@ -340,10 +360,10 @@ async function speakText(text: string) {
           URL.revokeObjectURL(url)
           audioObjectUrlRef.current = null
         }
-        if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
+        if (requestId === audioRequestRef.current && session.canSpeak(accepted)) setSpeechStatus('unavailable')
       })
   } catch (e) {
-    if (requestId === audioRequestRef.current) setSpeechStatus('unavailable')
+    if (requestId === audioRequestRef.current && session.canSpeak(accepted)) setSpeechStatus('unavailable')
     console.warn('TTS error', e)
   }
 }
@@ -362,17 +382,15 @@ async function speakText(text: string) {
     }
   }
   const askQuestion = useCallback(async () => {
-    if (questionGenerationInFlightRef.current) return
-    questionGenerationInFlightRef.current = true
-    let canonicalQuestion: string | null = null
-    setFeedback(null); setAnswer(''); setAwaitingNext(false)
-    setQLoading(true)
+    const session = sessionRef.current
+    const admission = session.beginGeneration()
+    if (!admission) return
+    const { token, ordinal: num } = admission
+    setQuestionError(false); setQLoading(true)
     try {
       audioRequestRef.current += 1
       stopCurrentAudio()
       setSpeechStatus('ready')
-      const num = qNumRef.current + 1
-      qNumRef.current = num; setQNum(num)
       const previousQuestions = Array.from(new Set(
         [...answersRef.current.map(item => item.q), curQRef.current]
           .map(previousQuestion => previousQuestion.trim())
@@ -383,15 +401,23 @@ async function speakText(text: string) {
         : ''
 const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. ${languageInstruction} SADECE soruyu yaz. Soru ${num}.${previousQuestionsInstruction}`
       const q = await claudeCall(sys, `${num}. mülakat sorusu`)
-      canonicalQuestion = q.trim()
-      setQuestion(canonicalQuestion); setQLoading(false)
-      curQRef.current = canonicalQuestion
+      const accepted = session.acceptQuestion(token, q)
+      if (!accepted) {
+        if (session.isCurrent(token)) throw new Error('Invalid generated question')
+        return
+      }
+      qNumRef.current = accepted.ordinal; setQNum(accepted.ordinal)
+      curQRef.current = accepted.text; setQuestion(accepted.text)
+      setFeedback(null); setAnswer(''); setAwaitingNext(false); setFeedbackFailed(false)
+      void speakText(accepted)
+    } catch (error) {
+      if (session.isCurrent(token)) {
+        console.warn('Question generation failed', error)
+        setQuestionError(true)
+        if (!session.question) initialQuestionTriggeredRef.current = false
+      }
     } finally {
-      setQLoading(false)
-      questionGenerationInFlightRef.current = false
-    }
-    if (canonicalQuestion !== null) {
-      void speakText(canonicalQuestion).catch(error => console.warn('TTS error', error))
+      if (session.release(token)) setQLoading(false)
     }
   }, [])
 
@@ -414,13 +440,34 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     return () => mobileQuery.removeEventListener('change', triggerForViewport)
   }, [triggerInitialQuestion])
   async function submitAnswer() {
-    if (!answer.trim()) return
-    setCompletionError('')
-    answersRef.current.push({q: curQRef.current, a: answer})
-    setQLoading(true)
+    const admission = sessionRef.current.claimAnswer(answer)
+    if (!admission) return
+    answersRef.current.push(admission.answer)
+    await runFeedback(admission.token, admission.answer)
+  }
+
+  async function retryFeedback() {
+    if (!feedbackFailed) return
+    const admission = sessionRef.current.retryFeedback()
+    if (admission) await runFeedback(admission.token, admission.answer)
+  }
+
+  async function runFeedback(token: SessionOperation, submitted: SessionAnswer) {
+    const session = sessionRef.current
+    setCompletionError(''); setFeedbackFailed(false); setAwaitingNext(true); setQLoading(true)
     const sys = `${persona === 'tough' ? 'Eleştirel' : 'Yapıcı'} bir mülakat koçusun. ${languageInstruction} Adayın cevabını kısa, yapıcı ve profesyonel şekilde değerlendir. Sadece geçerli JSON döndür: {"strength":"...","improvement":"...","suggestion":"..."}. Her alan kısa, tek bir madde olmalı. Başka metin ekleme.`
-    const fb = await claudeCall(sys, `Soru: "${curQRef.current}"\nCevap: "${answer}"`)
-    setFeedback(parseInterviewFeedback(fb, copy.feedbackUnavailable)); setQLoading(false); setAwaitingNext(true)
+    try {
+      const fb = await claudeCall(sys, `Soru: "${submitted.q}"\nCevap: "${submitted.a}"`)
+      if (!session.isCurrent(token)) return
+      setFeedback(parseInterviewFeedback(fb, copy.feedbackUnavailable))
+    } catch (error) {
+      if (session.isCurrent(token)) {
+        console.warn('Interview feedback failed', error)
+        setFeedbackFailed(true)
+      }
+    } finally {
+      if (session.release(token)) setQLoading(false)
+    }
   }
 
   async function nextQuestion() {
@@ -430,12 +477,19 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
 
   async function endCall() {
     if (completionInFlightRef.current) return
+    const session = sessionRef.current
+    const admission = session.beginCompletion(answersRef.current)
+    if (!admission) return
+    const { token, snapshot: answers } = admission
+    audioRequestRef.current += 1
+    stopCurrentAudio()
+    setSpeechStatus('ready')
     completionInFlightRef.current = true
     setIsCompleting(true)
     setCompletionError('')
 
-    const answers = answersRef.current
     if (!answers.length) {
+      session.release(token)
       setCompletionError(copy.zeroAnswerWarning)
       completionInFlightRef.current = false
       setIsCompleting(false)
@@ -446,6 +500,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
       const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
       const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
+      if (!session.isCurrent(token)) return
       const evaluation: unknown = JSON.parse(raw.replace(/```json|```/g,'').trim())
 
       if (!isEvaluationResult(evaluation)) {
@@ -477,6 +532,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
 
       const savedInterview: unknown = await saveRes.json()
 
+      if (!session.isCurrent(token)) return
       if (!isPersistedInterviewResponse(savedInterview)) {
         throw new Error('Invalid interview persistence response')
       }
@@ -484,6 +540,8 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       camStreamRef.current?.getTracks().forEach(t=>t.stop())
       router.push(`/result/${encodeURIComponent(savedInterview.id)}`)
     } catch (error) {
+      if (!session.isCurrent(token)) return
+      session.release(token)
       console.error('Interview completion failed:', error)
       setCompletionError(copy.completionFailure)
       completionInFlightRef.current = false
@@ -492,6 +550,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
   }
 
   function leaveWithoutSaving() {
+    sessionRef.current.dispose()
     audioRequestRef.current += 1
     stopCurrentAudio()
     camStreamRef.current?.getTracks().forEach(track => track.stop())
@@ -541,6 +600,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       completionError={completionError}
       endLabel={copy.endInterview}
       isCompleting={isCompleting}
+      transitionBusy={qLoading}
       leaveWithoutSavingLabel={copy.leaveWithoutSaving}
       microphoneLabel={micOn ? copy.microphoneToggleOff : copy.microphoneToggleOn}
       microphoneOn={micOn}
@@ -589,6 +649,12 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
             answer={answer}
             awaitingNext={awaitingNext}
             feedback={feedback}
+            feedbackRetryLabel={copy.retryFeedback}
+            feedbackFailureMessage={feedbackFailed ? copy.feedbackUnavailable : ''}
+            onRetryFeedback={retryFeedback}
+            questionRetryLabel={copy.retryQuestion}
+            questionFailureMessage={questionError ? copy.questionFailure : ''}
+            onRetryQuestion={askQuestion}
             isCompleting={isCompleting}
             labels={copy.workspace}
             maxQuestions={MAX_Q}

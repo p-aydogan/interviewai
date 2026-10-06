@@ -1924,3 +1924,69 @@ Created [canonical WEB V1 roadmap](../03_Roadmap/WEB_V1_MASTER_ROADMAP.md), shor
 HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE. User-verified live baseline on 2026-10-06: 11 real records. Do NOT create synthetic interviews merely to reach 21. Deterministic pagination tests and existing <20 browser behavior remain accepted. Real 21+ browser acceptance waits until ordinary project testing/development naturally produces at least 21 records. This acceptance gap does NOT block unrelated WEB development. Earlier synthetic seed plans are historical/superseded for current planning; preserve historical entries and old reports. No Supabase query or mutation performed in this stage.
 
 Next planned stage INTERVIEW_RELIABILITY_01 remains NOT STARTED; separate audit and explicit scope approval required. Exact documentation validation results belong to the new Engineering Report; no historical runtime/build results rerun.
+
+
+## INTERVIEW_RELIABILITY_01 — Implementation and acceptance closure — 2026-10-06
+
+### Current roadmap progress and Git boundary
+
+- ROADMAP_FREEZE_01: complete / committed / pushed. Recovery point: `50e4da96e00a9f4c70979b5bada1ca71f3a68403` (`docs(roadmap): freeze web v1 critical path`). Pushed status records user-provided checkpoint evidence; no network fetch performed in this documentation turn.
+- INTERVIEW_RELIABILITY_01: **IMPLEMENTATION + AUTOMATED VALIDATION + LOCAL BROWSER ACCEPTANCE: PASS**. Current uncommitted stage; acceptance PASS pending final Git closure. No stage commit hash exists or is invented here.
+- Next planned stage AFTER commit: COMPLETION_IDEMPOTENCY_01, **planned / NOT STARTED / NOT AUTHORIZED**.
+- Branch: feature/auth-foundation. Final pre-commit review pending. No staging, commit, push or automatic next-stage work authorized by this documentation closure.
+
+### Recorded implementation validation (not rerun in documentation turn)
+
+| Gate | Exact recorded result |
+|---|---|
+| `node --test lib/interviews/interview-session-state.test.cjs` | Exit 0; 50 tests, 50 pass, 0 fail/cancelled/skipped/todo |
+| Existing Interview regression command (below) | Exit 0; 96 tests, 96 pass, 0 fail/cancelled/skipped/todo |
+| `npx.cmd tsc --noEmit --incremental false` | Exit 0; PASS |
+| `git diff --check` | Exit 0; PASS; LF-to-CRLF warning for page.tsx |
+| Read-only Next.js dev process inspection | Initial sandbox access denied; approved elevated inspection exit 0, no matching Next.js dev server detected |
+| `npm.cmd run build` | Exit 0; PASS; Next.js 14.2.5, 22/22 pages generated |
+
+Existing regression command:
+
+```text
+node --test lib/interviews/read-owned-interview.test.cjs lib/interviews/delete-owned-interview.test.cjs lib/interviews/history-cursor.test.cjs lib/interviews/history-pagination.test.cjs lib/reports/interview-report.test.cjs components/result/useInterviewDeletion.test.cjs components/interviews/useFullInterviewHistory.test.cjs
+```
+
+The initial PDF regression invocation failed with `spawnSync python EPERM`; the approved rerun used invocation-local REPORT_PDF_PYTHON pointing to existing Codex-bundled Python and passed. No package or persistent configuration change. The first page-mock test attempt had a missing React binding in the test harness; corrected within the approved test file before the final 50/50 run. Final build emitted two webpack cache warnings: "Caching failed for pack: Error: Unable to snapshot resolve dependencies". TypeScript/build emitted npm major-version update notices; no update performed. Git warned LF would be replaced by CRLF for page.tsx. Warnings were not hidden and did not change successful exit status.
+
+### User-verified local browser acceptance — 2026-10-06
+
+These observations were supplied by the user after supervised acceptance; the documentation agent did not rerun browser actions or inspect/mutate Supabase.
+
+| Check | User-verified evidence | Result |
+|---|---|---|
+| Initial question / TTS | Initial question rendered. Initial TTS POST returned 500; route/request contract was unchanged from the safe base. ElevenLabs account showed a failed payment. User corrected billing; account then showed Starter and 90,000 / 90,000 credits. Q2 TTS worked without Talentry code changes. | PASS after external incident resolution |
+| Zero-answer contract | Q1 skipped; End invoked on Q2 with zero submitted answers. Existing no-result/no-save warning appeared; no Result navigation. Returning preserved active Q2, usable controls and available End. Zero-answer contract remains no evaluation, no save, no Result, usable session. | PASS |
+| Feedback-time End | One answer submitted on Q2. End disabled while feedback pending and enabled after feedback completed. | PASS |
+| Generation-time End | MutationObserver on the visible native End button recorded disabled=false -> true -> false: enabled before generation, disabled during generation, enabled afterward. Earlier visual observation was timing/paint evidence, not a proven product defect. No production correction required. | PASS |
+| Final-question boundary | Q4 generated and spoke; Q4 Skip generated Q5; Q5 displayed 5/5 and spoke; Q5 Skip entered completion. No Q6 generated. | PASS |
+| Partial completion | User explicitly approved completion of the first acceptance interview. Only Q2 had a submitted answer; Q1/Q3/Q4/Q5 skipped. Evaluation completed, interview persisted, Result opened and contained exactly one saved answer. No Q6. | PASS |
+| Feedback failure / retry | Second session: network Offline before Submit. Answer committed once; feedback failed; busy cleared; session usable; End available; answer preserved and could not be submitted as another answer. Localized failure message and "Geri bildirimi tekrar dene" appeared. After network restoration, one feedback-only retry reused that answer, created no duplicate, succeeded, showed "Değerlendirmen hazır", and feedback panel opened. | PASS |
+| Generation failure / retry | Second session: Offline before Next. Generation failed, busy cleared, Q1 remained visible, session usable, End available, localized failure message and "Soruyu tekrar dene" appeared. Ordinal not consumed. Restored-network retry produced Q2/5, not Q3; TTS worked. | PASS |
+| Second-session cleanup | Second session was not completed. User closed test tab after Q2 generation. No completion/save/Result was intentionally triggered; no persisted second-session record is claimed. | Recorded boundary |
+
+Incident classification: **EXTERNAL PROVIDER / ACCOUNT BILLING INCIDENT, resolved during acceptance**. Not an INTERVIEW_RELIABILITY_01 regression. No payment/card details retained.
+
+Generation-End diagnostic: **false -> true -> false** (native disabled attribute). The earlier visual observation is superseded by this user-verified DOM evidence.
+
+History: **HISTORY_PAGINATION_01: NATURAL-RECORD DEFERRED ACCEPTANCE**. Historical directly verified baseline: 11 records on 2026-10-06. One natural persisted interview was created during INTERVIEW_RELIABILITY_01 acceptance after that baseline. History was not re-counted; no new verified total is asserted. No synthetic pagination seeding. Natural 21+ acceptance remains deferred and does not block unrelated WEB work.
+
+### Automated-only qualifications
+
+Immediate double-submit handler race; submit + End same-callback race; submit + Skip overlap; stale feedback/question continuations after completion; obsolete TTS continuation after completion; disposal/unmount invalidation; immutable completion snapshot mutation attacks; synchronous handler rejection independent of UI paint; and one-completion-attempt admission remain automated/deterministic coverage, not browser-tested claims.
+
+### Deliberately deferred boundaries — non-blocking for this stage
+
+- Underlying provider requests are not necessarily physically cancelled; correctness relies on operation/session identity invalidation.
+- Committed-but-response-lost POST duplicate persistence remains unresolved: COMPLETION_IDEMPOTENCY_01.
+- Session resume remains deferred.
+- Provider auth/privacy hardening and scoring trust remain later roadmap work.
+- Microphone acquisition truthfulness remains MEDIA_PROVIDER_V1_01.
+- No synthetic pagination seeding; natural-record acceptance policy remains unchanged.
+
+Approved implementation inventory: three modified files (app/interview/page.tsx, components/interview/InterviewWorkspace.tsx, components/interview/LiveInterviewControls.tsx) and two new files (lib/interviews/interview-session-state.ts, lib/interviews/interview-session-state.test.cjs). Documentation closure adds two new sprint reports and updates four Project Memory files. No API/schema/auth/history/result/profile/PDF/config/dependency changes. This append-only entry supersedes older planning status, not historical records.

@@ -1,9 +1,7 @@
 import type { AppLanguage } from '@/types/auth'
 
-export type InterviewerId = 'f' | 'm'
-export type InterviewLevel = 'junior' | 'mid' | 'senior'
-export type InterviewType = 'behavioral' | 'technical' | 'mixed' | 'case'
-export type InterviewPersona = 'friendly' | 'formal' | 'tough' | 'curious'
+import type { InterviewerId, InterviewLevel, InterviewType, InterviewPersona } from '@/lib/interviews/interview-setup-input'
+export type { InterviewerId, InterviewLevel, InterviewType, InterviewPersona } from '@/lib/interviews/interview-setup-input'
 
 export type SetupCopy = {
   eyebrow: string
@@ -22,6 +20,7 @@ export type SetupCopy = {
   interviewType: string
   persona: string
   interviewLanguage: string
+  validationError: string
   optional: string
   start: string
   backToDashboard: string
@@ -64,6 +63,7 @@ export const COPY: Record<AppLanguage, SetupCopy> = {
     configurationTitle: 'Görüşme ayarları', configurationDescription: 'Deneyimi hedeflediğin role göre şekillendir.',
     role: 'Hedef pozisyon', rolePlaceholder: 'Örn. Product Manager', company: 'Şirket / sektör', companyPlaceholder: 'Örn. Fintech',
     level: 'Kariyer seviyesi', interviewType: 'Mülakat türü', persona: 'Mülakatçı tarzı', interviewLanguage: 'Mülakat dili',
+    validationError: 'Pozisyon ve şirket alanları en fazla 200 karakter içerebilir; kontrol karakterlerine izin verilmez.',
     optional: 'İsteğe bağlı', start: 'Mülakatı Başlat', backToDashboard: "Dashboard'a Dön",
     junior: 'Junior (0–2 yıl)', mid: 'Mid-level (2–5 yıl)', senior: 'Senior (5+ yıl)',
     behavioral: 'Davranışsal / İK', technical: 'Teknik', mixed: 'Karma', caseStudy: 'Vaka Analizi',
@@ -77,6 +77,7 @@ export const COPY: Record<AppLanguage, SetupCopy> = {
     configurationTitle: 'Interview settings', configurationDescription: 'Shape the experience around the role you are targeting.',
     role: 'Target role', rolePlaceholder: 'e.g. Product Manager', company: 'Company / sector', companyPlaceholder: 'e.g. Fintech',
     level: 'Career level', interviewType: 'Interview type', persona: 'Interviewer persona', interviewLanguage: 'Interview language',
+    validationError: 'Role and company must contain at most 200 characters and no control characters.',
     optional: 'Optional', start: 'Start Interview', backToDashboard: 'Back to Dashboard',
     junior: 'Junior (0–2 years)', mid: 'Mid-level (2–5 years)', senior: 'Senior (5+ years)',
     behavioral: 'Behavioral / HR', technical: 'Technical', mixed: 'Mixed', caseStudy: 'Case Study',
@@ -90,6 +91,7 @@ export const COPY: Record<AppLanguage, SetupCopy> = {
     configurationTitle: 'Gesprächseinstellungen', configurationDescription: 'Richte das Erlebnis auf deine Zielposition aus.',
     role: 'Zielposition', rolePlaceholder: 'z. B. Product Manager', company: 'Unternehmen / Branche', companyPlaceholder: 'z. B. Fintech',
     level: 'Karrierestufe', interviewType: 'Gesprächsart', persona: 'Interviewer-Stil', interviewLanguage: 'Gesprächssprache',
+    validationError: 'Position und Unternehmen dürfen höchstens 200 Zeichen und keine Steuerzeichen enthalten.',
     optional: 'Optional', start: 'Interview starten', backToDashboard: 'Zurück zum Dashboard',
     junior: 'Junior (0–2 Jahre)', mid: 'Mid-level (2–5 Jahre)', senior: 'Senior (5+ Jahre)',
     behavioral: 'Verhalten / HR', technical: 'Technisch', mixed: 'Gemischt', caseStudy: 'Fallstudie',

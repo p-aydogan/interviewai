@@ -7,6 +7,7 @@ import type { FormEvent } from 'react'
 
 import { SectionHeader, TalentryButton, TalentryCard } from '@/components/ui'
 import { AUTH_ROUTES, DEFAULT_APP_LANGUAGE, SUPPORTED_APP_LANGUAGES } from '@/lib/auth/auth-constants'
+import { normalizeSetupText } from '@/lib/interviews/interview-setup-input'
 import type { AppLanguage } from '@/types/auth'
 
 import InterviewSetupMobile from './InterviewSetupMobile'
@@ -28,6 +29,7 @@ export default function InterviewSetupForm() {
   const [interviewLanguage, setInterviewLanguage] = useState<AppLanguage>('tr')
   const copy = COPY[uiLanguage]
   const [isMobile, setIsMobile] = useState(false)
+  const [validationError, setValidationError] = useState(false)
 
   useEffect(() => {
     const query = window.matchMedia('(max-width: 640px)')
@@ -49,10 +51,17 @@ export default function InterviewSetupForm() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    const normalizedRole = normalizeSetupText(role)
+    const normalizedCompany = normalizeSetupText(company)
+    if (normalizedRole === null || normalizedCompany === null) {
+      setValidationError(true)
+      return
+    }
+    setValidationError(false)
     const params = new URLSearchParams({
       iv: interviewer,
-      role: role.trim(),
-      company: company.trim(),
+      role: normalizedRole,
+      company: normalizedCompany,
       level,
       itype: interviewType,
       persona,
@@ -89,8 +98,10 @@ export default function InterviewSetupForm() {
         </div>
       </header>
 
+      {validationError && <p id="setup-validation-error" role="alert">{copy.validationError}</p>}
+
       {isMobile ? (
-        <form className="talentry-setup-mobile-form" onSubmit={handleSubmit}>
+        <form className="talentry-setup-mobile-form" onSubmit={handleSubmit} aria-describedby={validationError ? 'setup-validation-error' : undefined}>
           <InterviewSetupMobile
             copy={copy} uiLanguage={uiLanguage}
             values={{ interviewer, role, company, level, interviewType, persona, interviewLanguage }}
@@ -108,7 +119,7 @@ export default function InterviewSetupForm() {
           title={copy.title}
         />
 
-        <form className="talentry-setup-form" onSubmit={handleSubmit}>
+        <form className="talentry-setup-form" onSubmit={handleSubmit} aria-describedby={validationError ? 'setup-validation-error' : undefined}>
           <TalentryCard className="talentry-setup-interviewers" padding="spacious" surface="lavender">
             <fieldset>
               <legend>{copy.interviewerLegend}</legend>

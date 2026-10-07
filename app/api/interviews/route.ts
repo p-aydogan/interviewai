@@ -31,7 +31,11 @@ type InterviewListRow = {
     created_at: string
 }
 
-function isInterviewPayload(value: unknown): value is InterviewPayload {
+function isInterviewPayload(
+    value: unknown, validators: typeof import('@/lib/interviews/interview-setup-input'),
+): value is InterviewPayload {
+    const { isInterviewerId, isInterviewLevel, isInterviewType, isInterviewPersona,
+        isInterviewLanguage, isCanonicalSetupText } = validators
     if (!value || typeof value !== 'object') return false
 
     const payload = value as Record<string, unknown>
@@ -47,13 +51,13 @@ function isInterviewPayload(value: unknown): value is InterviewPayload {
     })
 
     return (
-        typeof payload.interviewerKey === 'string' &&
-        typeof payload.role === 'string' &&
-        typeof payload.company === 'string' &&
-        typeof payload.level === 'string' &&
-        typeof payload.interviewType === 'string' &&
-        typeof payload.persona === 'string' &&
-        typeof payload.language === 'string' &&
+        isInterviewerId(payload.interviewerKey) &&
+        isCanonicalSetupText(payload.role) &&
+        isCanonicalSetupText(payload.company) &&
+        isInterviewLevel(payload.level) &&
+        isInterviewType(payload.interviewType) &&
+        isInterviewPersona(payload.persona) &&
+        isInterviewLanguage(payload.language) &&
         answersAreValid &&
         typeof payload.score === 'number' &&
         Number.isInteger(payload.score) &&
@@ -155,7 +159,8 @@ export async function POST(req: NextRequest) {
         body && typeof body === 'object' && 'completionId' in body ? body.completionId : null,
     )
     if (!completionId) return NextResponse.json({ error: 'Invalid completion identity' }, { status: 400, headers })
-    if (!isInterviewPayload(body)) return NextResponse.json({ error: 'Invalid interview payload' }, { status: 400, headers })
+    const validators = await import('@/lib/interviews/interview-setup-input')
+    if (!isInterviewPayload(body, validators)) return NextResponse.json({ error: 'Invalid interview payload' }, { status: 400, headers })
     const result = await persistOwnedInterview(auth.user.id, completionId, body)
     if (result.status === 'conflict') return NextResponse.json({ error: 'Completion conflict' }, { status: 409, headers })
     if (result.status === 'error') return NextResponse.json({ error: 'Failed to save interview' }, { status: 500, headers })

@@ -1215,3 +1215,13 @@ Direct provider endpoint auth/rate limiting, prompt injection/privacy/private-co
 No migration, package/dependency/configuration/CSS changes; no History/Result/PDF/Profile/Auth implementation changes; no scoring redesign or answer/summary resource policy. No secrets or environment-variable values recorded. No Supabase mutation, browser rerun, tests/build rerun, staging, commit or push in this documentation turn.
 
 This entry supersedes earlier pending route-input and completion Git-status statements for current planning only. INTERVIEW-013 (direct Live auth gate) and INTERVIEW-014 (interviewer key validation) are locally resolved by this stage, pending Git closure. Historical entries and immutable prior reports remain unchanged. ROADMAP_FREEZE_01 critical-path ordering remains unchanged.
+
+## APP_STRATEGY_FREEZE_01 — Current planning reconciliation — 2026-10-13
+
+[APP roadmap](../03_Roadmap/APP_V1_MASTER_ROADMAP.md) is primary; earlier WEB-first/mobile-after-WEB scheduling is superseded. Historical deferred entries remain evidence; previously completed reliability, completion and route-input fixes are not reopened. ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01 and ROUTE_INPUT_HARDENING_01 remain completed committed foundations. History remains NATURAL-RECORD DEFERRED ACCEPTANCE; no synthetic seeding.
+
+SECURITY_PRIVACY_01 remains next and NOT IMPLEMENTED: shared cost-bearing provider API access, private-content logging, timeout/error/response contracts, abuse controls and native token compatibility preserving WEB cookies. Mobile code NOT STARTED, packages NOT INSTALLED, /mobile NOT CREATED. Current microphone UI is not speech input; existing camera/media is not APP-ready proof. Spoken answers target MOBILE_MEDIA_01; avatar/HeyGen stays conditional.
+
+Explicit future decisions remain unresolved: Expo/React Native versions and package set; STT architecture/provider; camera/avatar scope and HeyGen inclusion; restart/resume/checkpoint policy; rate-limit architecture/numeric limits; native API token verification; hosting/runtime; payment tiers/prices/trials; current Apple/Google policies (REQUIRES CURRENT POLICY VERIFICATION AT IMPLEMENTATION TIME); push scope; account deletion/retention; CV/MFA; bundle identifiers; signing ownership; final CI/CD. See roadmap decision register for stage boundaries. Paid-capable APP is approved direction, not approval of these details.
+
+Incomplete WEB-specific launch work is deferred/reclassified secondary; shared concerns follow APP critical path. Existing deployed PDF, natural 21+ History, wrong-owner live DELETE and other acceptance qualifications are not silently closed. No implementation or future-stage authorization from this entry.

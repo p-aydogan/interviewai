@@ -1,0 +1,27 @@
+# Sprint APP_STRATEGY_FREEZE_01 Summary
+
+- Title: Phase 2 APP-first roadmap / architecture decision freeze.
+- Date: 2026-10-13 (Europe/Istanbul).
+- Branch: feature/auth-foundation.
+- Status: DOCUMENTATION IMPLEMENTED; APP_STRATEGY_FREEZE_01 READY FOR REVIEW; NOT YET COMMITTED / PUSHED.
+- Goal: Record the explicitly authorized iOS + Android APP-first strategy and ordered APP V1 planning baseline, preserving historical WEB foundations.
+- Created files:
+  - docs/03_Roadmap/APP_V1_MASTER_ROADMAP.md
+  - docs/02_Decisions/ADR-004-app-first-launch-strategy.md
+  - docs/01_Engineering/Sprint_APP_STRATEGY_FREEZE_01_Summary.md
+  - docs/01_Engineering/Sprint_APP_STRATEGY_FREEZE_01_Engineering_Report.md
+- Modified files:
+  - docs/03_Roadmap/README.md
+  - docs/03_Roadmap/WEB_V1_MASTER_ROADMAP.md
+  - docs/04_Project_Memory/CURRENT_STATE.md
+  - docs/04_Project_Memory/STAGE_LOG.md
+  - docs/04_Project_Memory/DEFERRED_FIXES.md
+  - docs/04_Project_Memory/DECISIONS_AND_RISKS.md
+- Safety gate: PASS; correct repo/branch/subject; clean initial tree; HEAD and local origin both f780cebf3378d5281e6c63fe10aabe4ca7308106; no ahead/behind; no fetch.
+- Completed documentation: APP primary roadmap, provisional Expo development-build direction, retained root Next.js/backend, native token path preserving WEB cookies, spoken-answer target, conditional avatar, paid-capable APP and unresolved-decision register. WEB preserved as supported secondary/history/reference.
+- Completed foundations: ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01, ROUTE_INPUT_HARDENING_01 retained with protected invariants; natural-record deferred History acceptance and no synthetic seeding retained.
+- Validation results: documentation scope, historical preservation, exact 22-stage order, roadmap content and relative-link checks PASS; git diff --check exit 0, no whitespace errors. Git LF-to-CRLF notices recorded. New-file whitespace also checked. No application tests, TypeScript/build, dev server or browser acceptance, per explicit documentation-only instructions.
+- Next planned stage: SECURITY_PRIVACY_01, NOT IMPLEMENTED; requires separate scope authorization.
+- Mobile state: code NOT STARTED; Expo/React Native packages NOT INSTALLED; /mobile NOT CREATED.
+- Risks/problems: native/provider compatibility, exact package/token/STT/media/resume/rate-limit/runtime/payment/store/push/account/CV/MFA/signing/CI-CD choices remain unresolved; no new runtime readiness claim. Store specifics require current policy verification at implementation time.
+- Approval status: Acceptance review pending; not yet approved. No staging/commit/push or next-stage implementation.

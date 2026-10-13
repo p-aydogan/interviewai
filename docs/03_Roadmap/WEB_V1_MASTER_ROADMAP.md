@@ -1,3 +1,11 @@
+## Current status override — APP-first strategy — 2026-10-13
+
+This WEB roadmap is retained as **historical/reference material**, not the primary launch critical path. [APP_V1_MASTER_ROADMAP.md](APP_V1_MASTER_ROADMAP.md) is the primary product roadmap; [ADR-004](../02_Decisions/ADR-004-app-first-launch-strategy.md) records the decision. Primary launch: iOS + Android APP. WEB remains supported and secondary/supporting. **WEB production launch -> native APP is SUPERSEDED**; the historical Post-WEB-launch mobile classification and mobile gate below no longer govern APP launch.
+
+ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01 and ROUTE_INPUT_HARDENING_01 remain completed committed foundations. Older pending/completion/next-stage statements below are dated historical snapshots, not current open defects or new executions. Current recovery base is f780cebf3378d5281e6c63fe10aabe4ca7308106. Current stage: APP_STRATEGY_FREEZE_01 — DOCUMENTATION IMPLEMENTED, NOT YET COMMITTED / PUSHED; next planned stage: SECURITY_PRIVACY_01, NOT IMPLEMENTED.
+
+Incomplete WEB-specific launch work is deferred/reclassified to the secondary WEB track. Shared security/scoring/resume/automation/cost/legal/observability concerns follow APP planning. APP DEPLOYMENT_ENVIRONMENT_RELEASE_01 groups future work without erasing historical WEB deployment/environment/CI-CD stages. APP paid-capable direction supersedes the unresolved free-versus-paid gate for APP only; exact commercial details remain unresolved. Historical WEB stages, content and evidence follow unchanged; none were rerun here.
+
 # WEB V1 Master Roadmap
 
 Date: 2026-10-06 (Europe/Istanbul). Stage: ROADMAP_FREEZE_01.

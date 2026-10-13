@@ -2118,3 +2118,13 @@ Direct provider endpoint auth/rate limiting, prompt injection/privacy/private-co
 No migration, package/dependency/configuration/CSS changes; no History/Result/PDF/Profile/Auth implementation changes; no scoring redesign or answer/summary resource policy. No secrets or environment-variable values recorded. No Supabase mutation, browser rerun, tests/build rerun, staging, commit or push in this documentation turn.
 
 This entry supersedes earlier pending route-input and completion Git-status statements for current planning only. INTERVIEW-013 (direct Live auth gate) and INTERVIEW-014 (interviewer key validation) are locally resolved by this stage, pending Git closure. Historical entries and immutable prior reports remain unchanged. ROADMAP_FREEZE_01 critical-path ordering remains unchanged.
+
+## APP_STRATEGY_FREEZE_01 — Phase 2 documentation implementation — 2026-10-13
+
+Status: **DOCUMENTATION IMPLEMENTED; NOT YET COMMITTED / PUSHED; acceptance review pending**. User approved Phase 1 audit and authorized documentation only. Branch feature/auth-foundation; clean pre-change HEAD/local origin f780cebf3378d5281e6c63fe10aabe4ca7308106, no ahead/behind. No fetch or future hash asserted.
+
+Created [primary APP roadmap](../03_Roadmap/APP_V1_MASTER_ROADMAP.md), [ADR-004](../02_Decisions/ADR-004-app-first-launch-strategy.md) and immutable [Summary](../01_Engineering/Sprint_APP_STRATEGY_FREEZE_01_Summary.md) / [Engineering Report](../01_Engineering/Sprint_APP_STRATEGY_FREEZE_01_Engineering_Report.md). Updated only authorized roadmap/current-memory references.
+
+APP-first iOS + Android supersedes WEB-first launch; WEB retained secondary/reference. Provisional Expo development builds; root Next.js and trusted backend retained; later /mobile; explicit native token path with WEB cookies preserved; spoken answers targeted; avatar conditional; paid-capable subscriptions planned. Exact unresolved choices remain in roadmap. SECURITY_PRIVACY_01 is next, NOT IMPLEMENTED; no next-stage authority.
+
+Completed ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01 and ROUTE_INPUT_HARDENING_01 retained with all protected invariants and natural-record deferred History acceptance. Historical entries are not rewritten. Documentation/Git checks only; exact results in Engineering Report. No app/package/config changes, mobile creation, installation, provider/Supabase operations, tests/build/browser runs or Git mutations.

@@ -1,3 +1,19 @@
+## Canonical current state — APP_STRATEGY_FREEZE_01 Phase 2 — 2026-10-13
+
+This current-state entry supersedes earlier dated pending-status/next-stage statements below for current planning only; historical evidence remains unchanged.
+
+- Recovery base before APP freeze: **f780cebf3378d5281e6c63fe10aabe4ca7308106**, fix(interview): harden route and input boundaries.
+- Safety gate: feature/auth-foundation; HEAD equals local origin/feature/auth-foundation; clean initial tree; no ahead/behind; no remote fetch.
+- APP_STRATEGY_FREEZE_01: **DOCUMENTATION IMPLEMENTED; NOT YET COMMITTED / PUSHED until explicit approval**. Phase 1 audit approved by user; Phase 2 acceptance review pending.
+- Primary roadmap: [APP_V1_MASTER_ROADMAP](../03_Roadmap/APP_V1_MASTER_ROADMAP.md). Primary launch: **iOS + Android APP**. WEB: secondary/supporting, supported and retained historical/reference track.
+- Decision record: [ADR-004](../02_Decisions/ADR-004-app-first-launch-strategy.md). Provisional React Native + Expo development builds; root Next.js retained; later /mobile; server-only provider secrets; native authenticated token path required; WEB cookies preserved; spoken-answer APP V1 target; avatar conditional; APP paid-capable.
+- Next planned stage: **SECURITY_PRIVACY_01 — NOT IMPLEMENTED**, separate audit/scope authorization required.
+- Mobile application code: **NOT STARTED**. Expo / React Native packages: **NOT INSTALLED**. /mobile: **NOT CREATED**.
+- ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01, ROUTE_INPUT_HARDENING_01: completed committed foundations retained; local commit history verified. No new remote push verification asserted.
+- All protected reliability/persistence/privacy/setup invariants remain frozen as enumerated in APP roadmap. History: **NATURAL-RECORD DEFERRED ACCEPTANCE**; no synthetic seeding, no current count asserted.
+- Exact versions/packages, STT/media/HeyGen scope, native verification/rate limits, resume, hosting, commercial/store policy details, push, deletion/retention, CV/MFA, bundle identifiers/signing and CI/CD remain unresolved in the APP roadmap.
+- No source/package/config/schema/provider changes or next-stage implementation. Review approval pending; no staging/commit/push.
+
 # Talentry / InterviewAI — Current Project State
 
 Last updated: 2026-10-07

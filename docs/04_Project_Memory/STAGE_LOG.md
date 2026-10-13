@@ -2128,3 +2128,13 @@ Created [primary APP roadmap](../03_Roadmap/APP_V1_MASTER_ROADMAP.md), [ADR-004]
 APP-first iOS + Android supersedes WEB-first launch; WEB retained secondary/reference. Provisional Expo development builds; root Next.js and trusted backend retained; later /mobile; explicit native token path with WEB cookies preserved; spoken answers targeted; avatar conditional; paid-capable subscriptions planned. Exact unresolved choices remain in roadmap. SECURITY_PRIVACY_01 is next, NOT IMPLEMENTED; no next-stage authority.
 
 Completed ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01 and ROUTE_INPUT_HARDENING_01 retained with all protected invariants and natural-record deferred History acceptance. Historical entries are not rewritten. Documentation/Git checks only; exact results in Engineering Report. No app/package/config changes, mobile creation, installation, provider/Supabase operations, tests/build/browser runs or Git mutations.
+
+## APP_STRATEGY_FREEZE_01 — Post-commit canonical status reconciliation — 2026-10-14
+
+APP_STRATEGY_FREEZE_01: **COMPLETE / COMMITTED / PUSHED**. The documentation freeze was reviewed and approved by the user; Git closure succeeded. Canonical committed recovery point: **888a66a85b74ee6086a4be4232037a794946e83a**. Commit subject: **docs(roadmap): pivot to app-first launch strategy**. Branch: feature/auth-foundation; HEAD equals local origin/feature/auth-foundation at the reconciliation safety gate, with a clean tree and no ahead/behind. No remote fetch performed.
+
+This entry supersedes the preceding APP freeze pre-commit approval/Git-status statements for current canonical state only. Those dated entries and f780cebf3378d5281e6c63fe10aabe4ca7308106 pre-freeze recovery evidence remain historical snapshots, not current HEAD or pending closure claims.
+
+Primary roadmap: APP_V1_MASTER_ROADMAP. Primary launch: iOS + Android APP-first. WEB: secondary/supporting. Next stage: **SECURITY_PRIVACY_01 — NEXT / NOT IMPLEMENTED**. Mobile source implementation: **NOT STARTED**. /mobile: **NOT CREATED**. Expo / React Native packages: **NOT INSTALLED**.
+
+Status reconciliation only: approved 22-stage order, architecture decisions, deferred decisions and completed foundations unchanged. No security implementation or source/package/config changes. This reconciliation awaits review; no staging/commit/push authorized or performed for it.

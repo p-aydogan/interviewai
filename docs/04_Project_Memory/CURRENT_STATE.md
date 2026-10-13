@@ -1,10 +1,10 @@
-## Canonical current state — APP_STRATEGY_FREEZE_01 Phase 2 — 2026-10-13
+## Canonical current state — post APP_STRATEGY_FREEZE_01 closure — 2026-10-14
 
 This current-state entry supersedes earlier dated pending-status/next-stage statements below for current planning only; historical evidence remains unchanged.
 
 - Recovery base before APP freeze: **f780cebf3378d5281e6c63fe10aabe4ca7308106**, fix(interview): harden route and input boundaries.
 - Safety gate: feature/auth-foundation; HEAD equals local origin/feature/auth-foundation; clean initial tree; no ahead/behind; no remote fetch.
-- APP_STRATEGY_FREEZE_01: **DOCUMENTATION IMPLEMENTED; NOT YET COMMITTED / PUSHED until explicit approval**. Phase 1 audit approved by user; Phase 2 acceptance review pending.
+- APP_STRATEGY_FREEZE_01: **COMPLETE / COMMITTED / PUSHED**. Documentation freeze reviewed and approved by user; Git closure verified. Canonical recovery point: **888a66a85b74ee6086a4be4232037a794946e83a**; subject: **docs(roadmap): pivot to app-first launch strategy**. The pre-freeze base above is historical, not current HEAD.
 - Primary roadmap: [APP_V1_MASTER_ROADMAP](../03_Roadmap/APP_V1_MASTER_ROADMAP.md). Primary launch: **iOS + Android APP**. WEB: secondary/supporting, supported and retained historical/reference track.
 - Decision record: [ADR-004](../02_Decisions/ADR-004-app-first-launch-strategy.md). Provisional React Native + Expo development builds; root Next.js retained; later /mobile; server-only provider secrets; native authenticated token path required; WEB cookies preserved; spoken-answer APP V1 target; avatar conditional; APP paid-capable.
 - Next planned stage: **SECURITY_PRIVACY_01 — NOT IMPLEMENTED**, separate audit/scope authorization required.
@@ -12,7 +12,7 @@ This current-state entry supersedes earlier dated pending-status/next-stage stat
 - ROADMAP_FREEZE_01, INTERVIEW_RELIABILITY_01, COMPLETION_IDEMPOTENCY_01, ROUTE_INPUT_HARDENING_01: completed committed foundations retained; local commit history verified. No new remote push verification asserted.
 - All protected reliability/persistence/privacy/setup invariants remain frozen as enumerated in APP roadmap. History: **NATURAL-RECORD DEFERRED ACCEPTANCE**; no synthetic seeding, no current count asserted.
 - Exact versions/packages, STT/media/HeyGen scope, native verification/rate limits, resume, hosting, commercial/store policy details, push, deletion/retention, CV/MFA, bundle identifiers/signing and CI/CD remain unresolved in the APP roadmap.
-- No source/package/config/schema/provider changes or next-stage implementation. Review approval pending; no staging/commit/push.
+- This status reconciliation changes documentation only and awaits review; no staging/commit/push in this reconciliation. The approved APP freeze Git closure is complete. No source/package/config/schema/provider changes or next-stage implementation.
 
 # Talentry / InterviewAI — Current Project State
 

@@ -1,7 +1,7 @@
 # APP V1 Master Roadmap
 
-Date: 2026-10-13 (Europe/Istanbul). Current stage: **APP_STRATEGY_FREEZE_01 — Phase 2**.
-Status: **DOCUMENTATION IMPLEMENTED; NOT YET COMMITTED / PUSHED; acceptance approval pending**.
+Date: 2026-10-13 (Europe/Istanbul). Status reconciled: 2026-10-14. Completed stage: **APP_STRATEGY_FREEZE_01 — Phase 2**; next stage: **SECURITY_PRIVACY_01 — NOT IMPLEMENTED**.
+Status: **COMPLETE / COMMITTED / PUSHED**. Canonical recovery point: **888a66a85b74ee6086a4be4232037a794946e83a**; subject: **docs(roadmap): pivot to app-first launch strategy**.
 
 This is the primary product roadmap and APP V1 stage-order/scope planning baseline, subordinate to the Engineering Standard and explicit user decisions. Phase 1 read-only architecture audit is approved by the user. This Phase 2 implements documentation only. No stage gains implementation authority from this roadmap.
 
@@ -21,7 +21,7 @@ Decision record: [ADR-004](../02_Decisions/ADR-004-app-first-launch-strategy.md)
 
 | Order | Stage | Planning responsibility |
 |---|---|---|
-| 01 | APP_STRATEGY_FREEZE_01 | Current documentation freeze; review pending |
+| 01 | APP_STRATEGY_FREEZE_01 | COMPLETE / COMMITTED / PUSHED |
 | 02 | SECURITY_PRIVACY_01 | Next implementation-facing stage; shared trust/security contracts |
 | 03 | MOBILE_ARCHITECTURE_01 | Validate Expo development builds and later /mobile foundation |
 | 04 | MOBILE_AUTH_01 | Native identity/token access preserving WEB cookies |
@@ -63,7 +63,7 @@ History retains **NATURAL-RECORD DEFERRED ACCEPTANCE**; no synthetic History see
 - Branch: feature/auth-foundation.
 - Recovery base before APP freeze: f780cebf3378d5281e6c63fe10aabe4ca7308106 (fix(interview): harden route and input boundaries).
 - Pre-change HEAD equals local origin/feature/auth-foundation; clean tree, no ahead/behind. No remote fetch performed.
-- APP_STRATEGY_FREEZE_01: DOCUMENTATION IMPLEMENTED; NOT YET COMMITTED / PUSHED until explicit approval.
+- APP_STRATEGY_FREEZE_01: COMPLETE / COMMITTED / PUSHED. Canonical recovery point: 888a66a85b74ee6086a4be4232037a794946e83a; subject: docs(roadmap): pivot to app-first launch strategy. The pre-change base above is historical, not current HEAD.
 - Primary roadmap: APP_V1_MASTER_ROADMAP; primary launch: iOS + Android APP; WEB: secondary/supporting track.
 - Next planned stage: SECURITY_PRIVACY_01 — NOT IMPLEMENTED.
 - Mobile application code: NOT STARTED. Expo / React Native packages: NOT INSTALLED. /mobile: NOT CREATED.

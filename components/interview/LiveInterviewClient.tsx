@@ -13,7 +13,7 @@ import { createInterviewCompletionState } from '@/lib/interviews/interview-compl
 import { createInterviewSessionState } from '@/lib/interviews/interview-session-state'
 import type { AcceptedQuestion, SessionAnswer, SessionOperation } from '@/lib/interviews/interview-session-state'
 
-import type { InterviewSetupInput, InterviewerId, InterviewLevel, InterviewType, InterviewPersona, InterviewLanguage } from '@/lib/interviews/interview-setup-input'
+import type { InterviewSetupInput, InterviewerId, InterviewLanguage } from '@/lib/interviews/interview-setup-input'
 
 const IV: Record<InterviewerId, { name: string; role: string; photo: string; voice: string }> = {
   f: { name:'Sarah Chen', role:'Sr. HR Manager',
@@ -22,23 +22,6 @@ const IV: Record<InterviewerId, { name: string; role: string; photo: string; voi
   m: { name:'Marcus Reid', role:'Tech Lead',
     photo:'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=400&fit=crop&crop=face',
     voice:'pNInz6obpgDQGcFmaJgB' },
-}
-const P: Record<InterviewPersona,string> = {
-  friendly:'Samimi mülakatçısın.',
-  formal:'Profesyonel İK mülakatçısısın.',
-  tough:'Baskılı mülakatçısın.',
-  curious:'Analitik mülakatçısın.'
-}
-const L: Record<InterviewLevel,string> = {
-  junior:'junior (0-2 yıl)',
-  mid:'mid-level (2-5 yıl)',
-  senior:'senior (5+ yıl)'
-}
-const T: Record<InterviewType,string> = {
-  behavioral:'davranışsal/HR',
-  technical:'teknik',
-  mixed:'karma',
-  case:'vaka analizi'
 }
 type MobileInterviewPanel = 'interviewer' | 'interview' | 'feedback'
 
@@ -201,12 +184,6 @@ export default function LiveInterviewClient({ config }: { config: InterviewSetup
   const { interviewerKey: ivKey, role, company, level, interviewType: itype, persona, language } = config
   const iv = IV[ivKey]
   const copy = LIVE_COPY[language]
-  const languageInstruction =
-  language === 'en'
-    ? 'Respond only in English.'
-    : language === 'de'
-      ? 'Antworte ausschließlich auf Deutsch.'
-      : 'Yalnızca Türkçe yanıt ver.'
   const mobilePagerRef = useRef<HTMLDivElement>(null)
   const camRef = useRef<HTMLVideoElement>(null)
   const answersRef = useRef<SessionAnswer[]>([])
@@ -273,11 +250,11 @@ export default function LiveInterviewClient({ config }: { config: InterviewSetup
     }
   }, [])
 
- async function claudeCall (system: string, message: string) {
+ async function claudeCall (operation: 'question' | 'feedback' | 'evaluation', input: Record<string, unknown>) {
     const res = await fetch('/api/claude', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({system, message})
+      body: JSON.stringify({ operation, config, ...input })
     })
     if (!res.ok) throw new Error(`Interview provider failed: ${res.status}`)
     const data: unknown = await res.json()
@@ -346,7 +323,7 @@ async function speakText(accepted: AcceptedQuestion) {
       })
   } catch (e) {
     if (requestId === audioRequestRef.current && session.canSpeak(accepted)) setSpeechStatus('unavailable')
-    console.warn('TTS error', e)
+    console.warn('TTS error')
   }
 }
   function stopCurrentAudio() {
@@ -378,11 +355,7 @@ async function speakText(accepted: AcceptedQuestion) {
           .map(previousQuestion => previousQuestion.trim())
           .filter(Boolean)
       ))
-      const previousQuestionsInstruction = previousQuestions.length
-        ? `\nPreviously asked questions:\n${previousQuestions.map(previousQuestion => `- ${previousQuestion}`).join('\n')}\nDo not repeat these questions. Do not ask the same competency or topic again using near-duplicate wording. Ask a meaningfully different interview question appropriate to the same role, interview type, level, company, persona, and language.`
-        : ''
-const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun. Aday: ${L[level]}. Şirket: ${company}. ${languageInstruction} SADECE soruyu yaz. Soru ${num}.${previousQuestionsInstruction}`
-      const q = await claudeCall(sys, `${num}. mülakat sorusu`)
+      const q = await claudeCall('question', { ordinal: num, priorQuestions: previousQuestions })
       const accepted = session.acceptQuestion(token, q)
       if (!accepted) {
         if (session.isCurrent(token)) throw new Error('Invalid generated question')
@@ -394,7 +367,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       void speakText(accepted)
     } catch (error) {
       if (session.isCurrent(token)) {
-        console.warn('Question generation failed', error)
+        console.warn('Question generation failed')
         setQuestionError(true)
         if (!session.question) initialQuestionTriggeredRef.current = false
       }
@@ -437,14 +410,13 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
   async function runFeedback(token: SessionOperation, submitted: SessionAnswer) {
     const session = sessionRef.current
     setCompletionError(''); setFeedbackFailed(false); setAwaitingNext(true); setQLoading(true)
-    const sys = `${persona === 'tough' ? 'Eleştirel' : 'Yapıcı'} bir mülakat koçusun. ${languageInstruction} Adayın cevabını kısa, yapıcı ve profesyonel şekilde değerlendir. Sadece geçerli JSON döndür: {"strength":"...","improvement":"...","suggestion":"..."}. Her alan kısa, tek bir madde olmalı. Başka metin ekleme.`
     try {
-      const fb = await claudeCall(sys, `Soru: "${submitted.q}"\nCevap: "${submitted.a}"`)
+      const fb = await claudeCall('feedback', { question: submitted.q, answer: submitted.a })
       if (!session.isCurrent(token)) return
       setFeedback(parseInterviewFeedback(fb, copy.feedbackUnavailable))
     } catch (error) {
       if (session.isCurrent(token)) {
-        console.warn('Interview feedback failed', error)
+        console.warn('Interview feedback failed')
         setFeedbackFailed(true)
       }
     } finally {
@@ -484,9 +456,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
       if (!completionId) throw new Error('Completion identity required')
       if (!completion.savedId) {
         if (!completion.payload) {
-          const aText = answers.map((x,i)=>`S${i+1}: ${x.q}\nC: ${x.a}`).join('\n\n')
-          const sys = `Kıdemli bir İK uzmanısın. ${languageInstruction} Sadece geçerli JSON döndür: {"score":0-100,"summary":"3-4 cümlelik değerlendirme"}`
-          const raw = await claudeCall(sys, `Pozisyon: ${role}\n\n${aText}`)
+          const raw = await claudeCall('evaluation', { answers })
           if (!session.isCurrent(token)) return
           const evaluation: unknown = JSON.parse(raw.replace(/```json|```/g,'').trim())
 
@@ -522,7 +492,7 @@ const sys = `${P[persona]} Sen ${role} için ${T[itype]} mülakatı yapıyorsun.
     } catch (error) {
       if (!session.isCurrent(token)) return
       session.release(token)
-      console.error('Interview completion failed:', error)
+      console.error('Interview completion failed:')
       setCompletionError(copy.completionFailure)
       completionInFlightRef.current = false
       setIsCompleting(false)

@@ -1,26 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedUser } from '@/lib/auth/get-authenticated-user'
+import { admitProvider, BoundaryError, consumeProvider, publicFailure, readRequest } from '@/lib/providers/provider-boundary'
+import { buildClaudePrompt, parseClaudeInput, parseClaudeResponse } from '@/lib/providers/claude-contract'
 
-export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY
- console.log("ANTHROPIC_API_KEY exists:", !!apiKey)
-  if (!apiKey) return NextResponse.json({ error: 'ANTHROPIC_API_KEY not set' }, { status: 500 })
-
-  const body = await req.json()
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      system: body.system,
-      messages: [{ role: 'user', content: body.message }],
-    }),
-  })
-  const data = await res.json()
- console.log("Claude response:", JSON.stringify(data, null, 2))
-  return NextResponse.json({ text: data.content?.[0]?.text || '' })
+export async function POST(request: Request) {
+  let release: (() => void) | undefined
+  try {
+    const auth = await getAuthenticatedUser(request)
+    if (auth.status !== 'authenticated') throw new BoundaryError('unauthorized', 401)
+    const input = parseClaudeInput(await readRequest(request))
+    release = admitProvider(auth.user.id)
+    const key = process.env.ANTHROPIC_API_KEY
+    if (!key) throw new BoundaryError('provider_unavailable', 503)
+    const text = await consumeProvider('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify(buildClaudePrompt(input)),
+    }, 30_000, 256 * 1024, bytes => parseClaudeResponse(bytes, input.operation))
+    return Response.json({ text }, { headers: { 'Cache-Control': 'private, no-store' } })
+  } catch (error) { return publicFailure(error) }
+  finally { release?.() }
 }

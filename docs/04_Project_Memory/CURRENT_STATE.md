@@ -1,3 +1,51 @@
+## SECURITY_PRIVACY_01 — final acceptance reconciliation — 2026-10-20 (Europe/Istanbul)
+
+Status: **IMPLEMENTATION COMPLETED / AUTOMATED VALIDATION PASS / FUNCTIONAL WEB BROWSER ACCEPTANCE: PASS / APPROVABLE FOR GIT CLOSURE**. The user explicitly accepted supervised browser acceptance with the evidence limitation below. This classification does not authorize staging, commit, push, production launch or another sprint. Git closure has NOT occurred.
+
+### Accepted functional evidence
+
+User manually confirmed WEB cookie login, authenticated Dashboard, one valid interview start, Claude Q1 rendered normally, ElevenLabs TTS played normally, one normal answer submitted exactly once, successful feedback and Q2 rendered normally without duplicate answer/progression. No browser-visible functional error remained after dev-server recovery. Captured console contained **0 warnings and 0 errors**. No credentials were automated or printed.
+
+### Explicit evidence limitation — not an implementation defect
+
+**MANUAL DEVTOOLS NETWORK/PRIVACY INSPECTION: NOT AVAILABLE / NOT VERIFIED.** The in-app browser did not expose usable DevTools Network history to the user. Do not infer manual verification of absence of bearer tokens in Network headers, raw provider response bodies, /api/heygen-token requests or POST /api/interviews. No additional live provider requests were made to recreate this evidence. This limitation is explicitly accepted by the user, not classified as an implementation defect.
+
+### Persistence and acceptance boundary
+
+The user did not intentionally complete/save the interview. No save action was initiated during supervised acceptance. Absence of a persistence POST was NOT independently Network-verified. No completion/save acceptance or live HeyGen acceptance was performed. No Supabase mutation was performed by test automation; no synthetic History records were created. User-triggered normal login/interview behavior is distinguished from mocked deterministic tests. NATURAL-RECORD DEFERRED ACCEPTANCE remains unchanged.
+
+### Deterministic evidence and production limits
+
+Focused security/privacy tests **69/69 PASS** (including HeyGen zero-upstream and public/log privacy sentinels); frozen regressions **455/455 PASS**; TypeScript **PASS**, exit 0; production build **PASS**, exit 0 on the previously recorded escalated rerun. These are previously recorded results, not reruns in this documentation-only reconciliation. Existing source and test files were re-read and remain unchanged by reconciliation.
+
+Admission is **PROCESS-LOCAL ONLY**, four concurrent provider operations per process and one per verified user; releases on success/error/timeout. Durable/distributed production rate/quota enforcement remains OPEN and a required production-launch gate. No durable limiter, new dependency, infrastructure, schema, migration or /mobile was added.
+
+### Dev-server cleanup and review authority
+
+Only the acceptance dev-server session **94239**, restarted by this Codex session with approval, was interrupted after the user explicitly approved final shutdown. Host-level ordinary TCP inspection after shutdown returned **No TCP LISTENING entry on port 3000**. No unrelated process was targeted. Initial sandbox reachability failed; the approved restart outside the sandbox resolved it. No CIM/WMI was used in browser preparation or cleanup.
+
+Original Phase 2 reports remain immutable implementation-time snapshots; this entry and the new [Reconciliation Summary](../01_Engineering/Sprint_SECURITY_PRIVACY_01_ACCEPTANCE_RECONCILIATION_Summary.md) / [Engineering Report](../01_Engineering/Sprint_SECURITY_PRIVACY_01_ACCEPTANCE_RECONCILIATION_Engineering_Report.md) supersede earlier pending-browser/current acceptance classifications for present planning only. Frozen architecture and historical records are not rewritten.
+
+Earlier status snapshots follow; their NOT RUN/pending acceptance statements describe the evidence available when written.
+
+## SECURITY_PRIVACY_01 Phase 2 — 2026-10-20 (Europe/Istanbul)
+
+Status: **IMPLEMENTED / AUTOMATED VALIDATION PASSED / AWAITING REVIEW AND ACCEPTANCE**. This stage is not marked COMPLETE. Phase 1 audit and bounded Phase 2 implementation/resume were explicitly authorized by the user. Git closure is not authorized.
+
+- Base/branch: `f6d2d529814eb03911aca06257d6eb773ea50ed2`, `feature/auth-foundation`; unchanged committed base. The original safety gate was clean and matched local origin; resume preserved the expected uncommitted scope.
+- WEB cookie verification retained. Explicit API bearer verification uses Supabase `auth.getUser(jwt)`. Invalid explicit bearer and different verified cookie/bearer users fail closed. Provider routes and collection GET/completion POST pass the request to the verified identity helper; ownership stays server-derived. Other identity consumers retain their existing cookie-only call sites.
+- Claude uses bounded `question`, `feedback`, and `evaluation` operations; trusted prompts/model/token budget are server-owned. Request limit 32 KiB, answers 4,000 Unicode code points, prior questions/Q&A at most five, upstream timeout 30 seconds, consumed response at most 256 KiB, no paid retry.
+- ElevenLabs uses only the two existing app voices; text at most 2,000 Unicode code points, body 32 KiB, timeout 20 seconds, consumed audio at most 5 MiB; status/type/basic MP3 signature validated, no paid retry.
+- HeyGen token route returns deterministic sanitized 503 `provider_disabled`, with no upstream call or token. Packages/integration dependencies retained.
+- Process-local admission only: four concurrent provider operations per process and one per verified user, shared across Claude/TTS; deterministic 429 on excess; slots released on success/error/timeout. This does not provide durable/distributed rate or quota enforcement.
+- Relevant raw provider/private-content logs removed; public failures sanitized. Frozen session/completion helpers and persistence semantics preserved by regression evidence.
+- Automated validation: 69/69 focused tests; 455/455 regressions; TypeScript exit 0; production build exit 0 after the initial sandbox EPERM and escalated rerun. Ordinary Get-Process/netstat checks found no Node/listening endpoint before build; no CIM/WMI used during resume.
+- Browser/live-provider acceptance NOT RUN. Distributed/durable quotas, production runtime behavior, and later native endpoint coverage remain future gates; this is not a production launch approval.
+- No staging/commit/push, package/config/dependency changes, migration changes, /mobile, synthetic History records, or Supabase mutations. Existing migration files remain untouched. NATURAL-RECORD DEFERRED ACCEPTANCE retained.
+- Evidence: [Summary](../01_Engineering/Sprint_SECURITY_PRIVACY_01_PHASE_2_Summary.md), [Engineering Report](../01_Engineering/Sprint_SECURITY_PRIVACY_01_PHASE_2_Engineering_Report.md), [ADR-005](../02_Decisions/ADR-005-verified-provider-boundaries.md).
+
+This entry supersedes earlier SECURITY_PRIVACY_01 not-implemented/authorization statements for current planning only; historical records below remain intact.
+
 ## Canonical current state — post APP_STRATEGY_FREEZE_01 closure — 2026-10-14
 
 This current-state entry supersedes earlier dated pending-status/next-stage statements below for current planning only; historical evidence remains unchanged.

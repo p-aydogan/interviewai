@@ -8,16 +8,29 @@ export type AuthenticatedUserResult =
   | { error: null; status: 'authenticated'; user: User }
   | { error: AuthError | null; status: 'unauthorized'; user: null }
 
-export async function getAuthenticatedUser(): Promise<AuthenticatedUserResult> {
-  const supabase = createClient()
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+export async function getAuthenticatedUser(request?: { headers?: Headers }): Promise<AuthenticatedUserResult> {
+  const denied: AuthenticatedUserResult = { error: null, status: 'unauthorized', user: null }
+  try {
+    const supabase = createClient()
+    const authorization = request?.headers?.get('authorization')
+    if (authorization !== null && authorization !== undefined && !/^Bearer [^\s]+$/i.test(authorization)) return denied
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
 
-  if (error || !user) {
-    return { error, status: 'unauthorized', user: null }
+    if (authorization) {
+      // getUser(jwt) verifies with Supabase Auth; decoded claims are never authority.
+      const bearer = await supabase.auth.getUser(authorization.slice(7))
+      if (bearer.error || !bearer.data.user || (user && !error && user.id !== bearer.data.user.id)) return denied
+      return { error: null, status: 'authenticated', user: bearer.data.user }
+    }
+    if (error || !user) {
+      return { error, status: 'unauthorized', user: null }
+    }
+
+    return { error: null, status: 'authenticated', user }
+  } catch {
+    return denied
   }
-
-  return { error: null, status: 'authenticated', user }
 }

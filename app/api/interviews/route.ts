@@ -72,7 +72,7 @@ function isInterviewPayload(
 
 export async function GET(request: NextRequest) {
     const headers = { 'Cache-Control': 'private, no-store' }
-    const auth = await getAuthenticatedUser()
+    const auth = await getAuthenticatedUser(request)
 
     if (auth.status === 'unauthorized') {
         return NextResponse.json(
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     const { data, error } = await query
 
     if (error) {
-        console.error('Interview read error:', error)
+        console.error('Interview read failed')
 
         return NextResponse.json(
             { error: 'Failed to load interviews' },
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(req: NextRequest) {
     const headers = { 'Cache-Control': 'private, no-store' }
-    const auth = await getAuthenticatedUser()
+    const auth = await getAuthenticatedUser(req)
     if (auth.status !== 'authenticated') return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers })
     let body: unknown
     try { body = await req.json() } catch {

@@ -1,0 +1,30 @@
+# Sprint NEXT15_SECURITY_UPGRADE_GATE_01_PHASE_2 Summary
+
+- Sprint ID: NEXT15_SECURITY_UPGRADE_GATE_01_PHASE_2
+- Title: Controlled Next.js 15.5.28 security migration
+- Branch: feature/auth-foundation
+- Status: Implementation validated; awaiting approval; browser/live-auth acceptance not performed.
+- Goal: Upgrade only the approved framework/React dependency set and migrate async request APIs without changing security or completion designs.
+- Created files: docs/01_Engineering/Sprint_NEXT15_SECURITY_UPGRADE_GATE_01_PHASE_2_Summary.md, docs/01_Engineering/Sprint_NEXT15_SECURITY_UPGRADE_GATE_01_PHASE_2_Engineering_Report.md
+- Modified files:
+- `app/api/interviews/[id]/pdf/route.ts`
+- `app/api/interviews/[id]/route.ts`
+- `app/interview/page.tsx`
+- `app/result/[id]/page.tsx`
+- `components/interview/InterviewerStage.tsx`
+- `lib/auth/get-authenticated-user.ts`
+- `lib/interviews/delete-owned-interview.test.cjs`
+- `lib/interviews/interview-route-input.test.cjs`
+- `lib/interviews/read-owned-interview.test.cjs`
+- `lib/providers/security-privacy.test.cjs`
+- `lib/reports/interview-report.test.cjs`
+- `lib/supabase/server.ts`
+- `next-env.d.ts`
+- `next.config.js`
+- `package-lock.json`
+- `package.json`
+- `tsconfig.json`
+- Validation: 611/611 deterministic tests passed; TypeScript exit 0; elevated production build exit 0; PDF trace contains both Inter fonts and tokens CSS; npm ls exit 0 with no invalid peers.
+- Dependency result: next 15.5.28; react/react-dom 19.3.1; @types/react and @types/react-dom 19.3.0; transitive sharp 0.35.5.
+- Risks/problems: initial sandbox registry DNS failure and build EPERM resolved by approved elevated reruns; npm emitted an old React 18 peer-replacement warning, 18 audit findings (13 moderate, 3 high, 2 critical), and pending core-js@3.49.0 install-script warning. No bypasses, audit fixes, or script approvals used. Next generated tsconfig ES2017 target and next-env route-type reference. Browser/provider acceptance remains unverified.
+- Approval status: Not yet approved. No staging, commit, push, or next sprint.

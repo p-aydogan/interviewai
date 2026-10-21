@@ -5,7 +5,7 @@ import ResultShell, { ResultStatus } from '@/components/result/ResultShell'
 import { RESULT_COPY, RESULT_UI_LANGUAGE_KEY } from '@/components/result/result-copy'
 import type { AppLanguage } from '@/types/auth'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 
 import { AUTH_ROUTES, DEFAULT_APP_LANGUAGE, SUPPORTED_APP_LANGUAGES } from '@/lib/auth/auth-constants'
 
@@ -37,9 +37,9 @@ type ResultLoadState =
   | { status: 'loadError' }
 
 type ResultPageProps = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -84,7 +84,8 @@ function getInterview(value: unknown): InterviewDetail | null {
   return value.interview
 }
 
-export default function ResultDetailPage({ params }: ResultPageProps) {
+export default function ResultDetailPage({ params: promisedParams }: ResultPageProps) {
+  const params = use(promisedParams)
   const router = useRouter()
   const [loadState, setLoadState] = useState<ResultLoadState>({ status: 'loading' })
   const [retryAttempt, setRetryAttempt] = useState(0)

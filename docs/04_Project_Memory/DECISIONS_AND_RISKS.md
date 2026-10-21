@@ -1964,3 +1964,41 @@ Admission is **PROCESS-LOCAL ONLY**, four concurrent provider operations per pro
 Only the acceptance dev-server session **94239**, restarted by this Codex session with approval, was interrupted after the user explicitly approved final shutdown. Host-level ordinary TCP inspection after shutdown returned **No TCP LISTENING entry on port 3000**. No unrelated process was targeted. Initial sandbox reachability failed; the approved restart outside the sandbox resolved it. No CIM/WMI was used in browser preparation or cleanup.
 
 Original Phase 2 reports remain immutable implementation-time snapshots; this entry and the new [Reconciliation Summary](../01_Engineering/Sprint_SECURITY_PRIVACY_01_ACCEPTANCE_RECONCILIATION_Summary.md) / [Engineering Report](../01_Engineering/Sprint_SECURITY_PRIVACY_01_ACCEPTANCE_RECONCILIATION_Engineering_Report.md) supersede earlier pending-browser/current acceptance classifications for present planning only. Frozen architecture and historical records are not rewritten.
+
+
+## NEXT15_SECURITY_UPGRADE_GATE_01 — approved future gates (2026-10-21)
+
+Documentation-only planning update authorized during Next 15 acceptance. No database, schema, grant, policy, dependency or mobile change is implemented by this entry.
+
+### Supabase explicit Data API grants
+
+Supabase's announced 30 October 2026 rollout applies the new-table explicit-grant behavior to existing projects; new-project rollout began earlier. Existing tables keep their current grants. Source: [official Supabase changelog](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically).
+
+Every future public-schema table migration must define least-privilege explicit GRANTs, RLS state and required policies together in the same migration. Do not blindly grant anon/authenticated CRUD. Grant only the roles and operations the approved access contract requires, including service_role only where appropriate.
+
+Future deployment gate: fresh project, preview branch and supabase db reset verification must check Data API grants, RLS, policies and expected API accessibility, including denied access. Existing tables and migrations are not altered now.
+
+### Framework forward gates
+
+- MOBILE_ARCHITECTURE_01 includes NEXT16_READINESS_GATE.
+- DEPLOYMENT_ENVIRONMENT_RELEASE_01 includes SUPPORTED_NEXT_BASELINE_GATE.
+- Next 16.4.1 is not implemented now. The controlled target remains Next 15.5.28.
+- Do not introduce new Next 15 patterns that impede a later clean Next 16 migration; use fully async request APIs without temporary synchronous compatibility casts.
+- These are deferred gates, not authorization to begin another stage or install dependencies.
+
+
+## NEXT15_SECURITY_UPGRADE_GATE_01 — browser acceptance reconciliation (2026-10-21)
+
+Status: APPROVABLE FOR GIT CLOSURE; Git closure itself is NOT authorized. Branch feature/auth-foundation, committed base 74e699b7c8ae10a232426364907d5194d8819eb6. This entry supersedes pending-browser statements for current planning only; immutable Phase 2 and precheck reports remain unchanged.
+
+User-supervised evidence: WEB login succeeded, Dashboard loaded, logout succeeded, private route redirected to login, and login again succeeded. One interview started normally; Q1 rendered in text and audio, the submitted answer received feedback, and Q2 was a different question rendered in text and audio. User then confirmed History opened, one existing owned result opened, back navigation worked, and no visible error occurred. No automated credential entry or interview action. No live completion/save/delete acceptance or synthetic record creation; no Network proof of absence of persistence requests claimed.
+
+Recovery smoke observed by agent: forgot-password renders; direct reset-password renders checking then unavailable as expected without a recovery callback. No reset email requested/consumed and no password mutation. PDF browser download NOT TESTED; deterministic PDF parser/tracing results remain prior evidence. Captured warning/error console for the retained acceptance tab is empty at final inspection; this is limited to captured logs and is not exhaustive Network evidence.
+
+Verified package/lock/installed versions: Next 15.5.28, React/ReactDOM 19.3.1, @types/react and @types/react-dom 19.3.0, transitive sharp 0.35.5. Prior 611/611 deterministic tests, TypeScript, production build and PDF tracing PASS carried forward, not rerun for this documentation reconciliation.
+
+Npm audit: 18 entries (13 moderate, 3 high, 2 critical), grouped triage in acceptance precheck Engineering Report. No proven critical/high reachable application-runtime blocker. Inactive HeyGen/nanoid conditions classified C; PostCSS/source-map build/dev dependencies classified B, requiring separate remediation before production. No dependency changes/fixes/overrides or lifecycle approvals in acceptance. core-js 3.49.0 pending funding-banner script does not generate runtime assets and is non-blocking.
+
+Approved forward gates remain: public-schema migrations must jointly define explicit least-privilege GRANTs, RLS state and policies; fresh-project/preview/db-reset deployment checks must verify accessibility and denial. MOBILE_ARCHITECTURE_01 includes NEXT16_READINESS_GATE; DEPLOYMENT_ENVIRONMENT_RELEASE_01 includes SUPPORTED_NEXT_BASELINE_GATE. No Next 16 implementation, schema change, /mobile or next stage.
+
+Current status evidence: [Acceptance Summary](../01_Engineering/Sprint_NEXT15_SECURITY_UPGRADE_GATE_01_ACCEPTANCE_RECONCILIATION_Summary.md) and [Engineering Report](../01_Engineering/Sprint_NEXT15_SECURITY_UPGRADE_GATE_01_ACCEPTANCE_RECONCILIATION_Engineering_Report.md). Dev server session 88187 is left running; no shutdown instruction received. No staging, commit or push.

@@ -9,9 +9,10 @@ export const dynamic = 'force-dynamic'
 const headers = { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' }
 const errorResponse = (error: string, status: number) => NextResponse.json({ error }, { status, headers })
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const result = await readOwnedInterview(params.id)
+    const { id } = await params
+    const result = await readOwnedInterview(id)
     switch (result.status) {
       case 'unauthorized': return errorResponse('Unauthorized', 401)
       case 'invalidId': return errorResponse('Invalid interview id', 400)

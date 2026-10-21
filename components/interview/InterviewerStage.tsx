@@ -7,7 +7,7 @@ export type SpeechStatus = 'preparing' | 'speaking' | 'ready' | 'unavailable'
 interface InterviewerStageProps {
   cameraOffLabel: string
   cameraOn: boolean
-  cameraRef: RefObject<HTMLVideoElement>
+  cameraRef: RefObject<HTMLVideoElement | null>
   interviewerName: string
   interviewerPhoto: string
   interviewerRole: string

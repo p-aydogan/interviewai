@@ -11,7 +11,7 @@ export type AuthenticatedUserResult =
 export async function getAuthenticatedUser(request?: { headers?: Headers }): Promise<AuthenticatedUserResult> {
   const denied: AuthenticatedUserResult = { error: null, status: 'unauthorized', user: null }
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const authorization = request?.headers?.get('authorization')
     if (authorization !== null && authorization !== undefined && !/^Bearer [^\s]+$/i.test(authorization)) return denied
     const {

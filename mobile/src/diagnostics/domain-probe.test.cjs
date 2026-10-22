@@ -1,0 +1,22 @@
+const { test } = require('node:test')
+const assert = require('node:assert/strict')
+const { load } = require('./test-loader.cjs')
+test('approved external setup/session/completion imports execute with injected UUID', () => {
+  const { domainProbe } = load(require.resolve('./domain-probe.ts'))
+  assert.equal(domainProbe(), true)
+})
+test('layout responds to width and large text, including split-view', () => {
+  const { layoutClass } = load(require.resolve('../layout/layout-class.ts'))
+  assert.equal(layoutClass(390, 1), 'compact')
+  assert.equal(layoutClass(820, 1), 'medium')
+  assert.equal(layoutClass(1200, 1), 'expanded')
+  assert.equal(layoutClass(1200, 2.2), 'compact')
+})
+test('environment validation rejects absent config, insecure remote URLs and privileged keys', () => {
+  const { validateEnvironment } = load(require.resolve('../config/environment.ts'))
+  assert.equal(validateEnvironment([], true).ok, false)
+  assert.equal(validateEnvironment(['http://remote.example', 'https://auth.example', 'sb_publishable_test'], true).ok, false)
+  assert.equal(validateEnvironment(['http://192.168.1.8:3000', 'https://auth.example', 'sb_publishable_test'], true).ok, true)
+  assert.equal(validateEnvironment(['http://192.168.1.8:3000', 'https://auth.example', 'sb_publishable_test'], false).ok, false)
+  assert.equal(validateEnvironment(['https://api.example', 'https://auth.example', 'sb_secret_test'], false).ok, false)
+})

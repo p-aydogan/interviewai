@@ -1,3 +1,80 @@
+## Canonical status correction — MOBILE_ARCHITECTURE_01 Phase 2 — 2026-10-22
+
+This entry supersedes all earlier current-status, pending-closure and next-stage
+wording for these three stages. Earlier entries are preserved historical snapshots;
+this correction changes status wording only, not implementation or architecture.
+
+```text
+MOBILE_ARCHITECTURE_01:
+PHASE 2 BOOTSTRAP IMPLEMENTED / VALIDATED
+NATIVE / DEVICE ACCEPTANCE PENDING
+NOT YET COMMITTED / PUSHED
+
+SECURITY_PRIVACY_01:
+COMPLETE / COMMITTED / PUSHED
+
+NEXT15_SECURITY_UPGRADE_GATE_01:
+COMPLETE / COMMITTED / PUSHED
+```
+
+Canonical recovery base before MOBILE_ARCHITECTURE_01 Phase 2:
+`d4e1dd55657766eb414854ec1993164c239e154f`.
+MOBILE_ARCHITECTURE_01 is NOT COMPLETE. No staging, commit or push is performed by
+this correction. Prior accepted evidence and its limitations remain unchanged.
+
+Open gates preserved:
+- Native/device acceptance and real iOS/Android native build/install pending.
+- Real Supabase auth/API connectivity and Keychain/Keystore device behavior pending.
+- Tablet/rotation/split-view/accessibility acceptance pending.
+- Detail/delete/PDF bearer coverage pending.
+- Mobile 19-high audit debt and root audit debt remain open.
+- Durable/distributed provider quota enforcement remains open.
+- NEXT16_READINESS_GATE remains future.
+- No EAS cloud build/signing/store work performed.
+
+---
+
+## MOBILE_ARCHITECTURE_01 Phase 2 — current status — 2026-10-22
+
+**BOOTSTRAP IMPLEMENTED / AUTOMATED VALIDATION PASS / AWAITING REVIEW. NOT COMPLETE.**
+Explicitly authorized bounded Expo SDK 58 development-build bootstrap under /mobile;
+Expo Router, secure chunked auth storage, auth-only Supabase, typed backend client,
+adaptive phone/tablet diagnostic shell and approved pure-domain imports. Root Next stays;
+independent manifests/lockfiles; no workspace conversion. Root source/dependencies frozen;
+only root compiler mobile exclusion changed outside approved documentation.
+
+Evidence: 15 mobile tests, mobile TypeScript, compatibility, Doctor 20/20, Android/iOS
+Hermes exports and source-map/runtime isolation PASS. Root 611 deterministic tests,
+TypeScript and 22/22-page production build PASS. PDF tests use invocation-local bundled
+Python; initial default-Python failure was environmental and resolved without source changes.
+Ordinary non-CIM process/listener inspection found no port 3000 or Node-owned TCP listener
+before build. No command lines displayed, no processes stopped. No native/cloud/signing
+build, real auth, real API connectivity, secure-store device or tablet acceptance.
+
+SECURITY_PRIVACY_01 and NEXT15_SECURITY_UPGRADE_GATE_01 implementations and accepted
+functional evidence are committed at 74e699b and d4e1dd5 respectively. Current HEAD/local
+origin tracking ref match d4e1dd55657766eb414854ec1993164c239e154f. No fetch performed.
+This reconciliation supersedes stale pending-Git-closure/current-next-stage wording for
+planning; earlier dated entries and immutable reports remain historical. It does not
+expand their accepted browser/Network/PDF/completion evidence or approve production.
+
+Mobile audit: 19 high package entries, zero critical, four direct aggregate entries and
+15 transitive; underlying braces/Metro and node-forge tooling advisories are absent from
+both exported runtime maps. No audit fixes. Template dependency superset remains; no
+HeyGen/root dependency chains inherited. Root 18-entry debt and durable/distributed
+provider quotas remain production gates. Detail/delete/PDF cookie-only bearer gap stays
+open; direct Supabase application data is prohibited. NEXT16_READINESS_GATE is preserved;
+no backend Next coupling or migration. Approved explicit least-privilege GRANT/RLS/policy
+migration rule and fresh/preview/db-reset checks remain unchanged. No schema change.
+
+No providers, media, payments, push, durable resume, Supabase mutation, signing or cloud
+builds. No staging/commit/push. Stage acceptance and future native/device builds require
+explicit review; no next sprint started. See [ADR-006](../02_Decisions/ADR-006-mobile-architecture.md),
+[Summary](../01_Engineering/Sprint_MOBILE_ARCHITECTURE_01_PHASE_2_Summary.md) and
+[Engineering Report](../01_Engineering/Sprint_MOBILE_ARCHITECTURE_01_PHASE_2_Engineering_Report.md).
+
+---
+
 ## SECURITY_PRIVACY_01 — final acceptance reconciliation — 2026-10-20 (Europe/Istanbul)
 
 Status: **IMPLEMENTATION COMPLETED / AUTOMATED VALIDATION PASS / FUNCTIONAL WEB BROWSER ACCEPTANCE: PASS / APPROVABLE FOR GIT CLOSURE**. The user explicitly accepted supervised browser acceptance with the evidence limitation below. This classification does not authorize staging, commit, push, production launch or another sprint. Git closure has NOT occurred.
